@@ -64,7 +64,7 @@ function Register() {
             <input type="submit" value="submit"/>
             {passError && <p>{passError}</p> || error && <p style={{color: "red"}}>{error}</p> }
        </form>
-       <a href="/">Already have an account?</a>
+       <a href="/">Let me in</a>
       </>
     )
 }
