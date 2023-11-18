@@ -35,13 +35,13 @@ app.post('/register', (req, res) => {
         if(result.length>0){
           emailTaken = true;
           console.log(lastname);
-          return res.status(401).json({message: "taken na, blee"});
+          return res.status(401).json({message: "Email Taken"});
         }
         if(!emailTaken) {
             const sql = `INSERT INTO users(firstname, lastname, email, password_hash) VALUES (?, ?, ?, ?)`;
             console.log("hello");
             db.query(sql, [firstname, lastname, email, password], (error, result) => {
-              console.log("sulod ba ");
+              console.log("Success");
               if(error){
                 console.log(error);
               }
@@ -68,7 +68,7 @@ app.post('/login', (req, res) => {
       if(user.password_hash === password){
         return res.json({user:user});
       } else {
-        return res.status(401).json({message: "Bugo ka, limot kas pass nimo sa"});
+        return res.status(401).json({message: "Wrong Password"});
       }
     }
   })

@@ -43,6 +43,7 @@ function Register() {
         if(!validatePassword(password, repassword)){
             return;
         }
+        
         axios.post('http://localhost:5000/register', { firstname, lastname, email, password })
         .then((response) => {
           console.log(response);
@@ -52,19 +53,44 @@ function Register() {
           setError(error.response.data.message);
         })
     }
-  
+
     return (
       <>
        <form onSubmit={hanldeSignUp}>
-            <input type="text" placeholder='firstname' onChange={(e) => setFirstname(e.target.value)}/>
-            <input type="text" placeholder='lastname' onChange={(e) => setLastname(e.target.value)}/>
-            <input type="email" placeholder='email'onChange={(e) => setEmail(e.target.value)}/>
-            <input type="password" placeholder='password' onChange={(e) => setPassword(e.target.value)}/>
-            <input type="password" placeholder='Retype password' onChange={(e) => setRepassword(e.target.value)}/>
-            <input type="submit" value="submit"/>
-            {passError && <p>{passError}</p> || error && <p style={{color: "red"}}>{error}</p> }
-       </form>
-       <a href="/">Let me in</a>
+        <div className="mb-5">
+                    <h1 className="text-big mb-5 text-center">LOGO <small className="text-body-secondary">here!</small></h1>
+                    <label className="text-start fw-bold mb-5">First Name<br />
+                        <input type="text" placeholder='First Name' className='form-control form-control-lg mt-2' onChange={(e) => setFirstname(e.target.value)}/>
+                    </label><br />
+                    <label className="text-start fw-bold mb-5">Last Name<br />
+                        <input type="text" placeholder='Last Name' className='form-control form-control-lg mt-2' onChange={(e) => setLastname(e.target.value)}/>
+                    </label><br />
+                    <label className="text-start fw-bold mb-5">Email Address<br />
+                        <input type="email" placeholder='Email' className='form-control form-control-lg mt-2' onChange={(e) => setEmail(e.target.value)}/>
+                    </label><br />
+                    <label className='text-start fw-bold'>Password<br />
+                    <input type="password" className='form-control form-control-lg mt-2' placeholder='Password' onChange={(e) => setPassword(e.target.value)}/>
+                    </label><br />
+                    <label className='text-start fw-bold'>Re-type Password<br />
+                    <input type="password" className='form-control form-control-lg mt-2' placeholder='Re-type Password' onChange={(e) => setRepassword(e.target.value)}/>
+                    </label><br />
+                </div>
+
+                <div className="d-grid gap-2">
+                    <div className="form-check mt-3 ms-2 text-start">
+                        <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
+                        <label className="form-check-label" htmlFor="flexCheckDefault">
+                        <small className="text-secondary text-wrap">Do You Agree with the Terms and Conditions</small> 
+                        </label>
+                    </div>
+                    <input type="submit" className="btn bg-black text-white" value="Sign Up"/>
+                    {passError && <p>{passError}</p> || error && <p style={{color: "red"}}>{error}</p> }
+                </div>
+
+                <div className='mt-5'>
+                    <small className="mt-5">Already have an account? <a href="/" className="text-black">Login</a></small>
+                </div>
+        </form>
       </>
     )
 }
