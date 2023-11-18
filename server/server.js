@@ -54,6 +54,7 @@ app.post('/register', (req, res) => {
     })
 });
 
+console.log("Welcome");
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
