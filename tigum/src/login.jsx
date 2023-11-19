@@ -57,7 +57,7 @@ function Login() {
                 {error && <p style={{color: "red"}}>{error}</p>}
             </div>
             <div>
-                <small className="mt-5">Not registered yet?<a href="/register" className="text-black">Sign Up</a></small>
+                <small className="mt-5">Not registered yet? <a href="/register" className="text-black">Sign Up</a></small>
             </div>
             <div className="mt-5">
                 <p className="text-success-emphasis fs-4 mt-5">Spend Smarter <br />Save More</p>

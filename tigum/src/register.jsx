@@ -65,10 +65,10 @@ function Register() {
                     <label className="text-start fw-bold mb-5">Last Name<br />
                         <input type="text" placeholder='Last Name' className='form-control form-control-lg mt-2' onChange={(e) => setLastname(e.target.value)}/>
                     </label><br />
-                    <label className="text-start fw-bold mb-5">Email Address<br />
+                    <label className="text-start fw-bold mb-4">Email Address<br />
                         <input type="email" placeholder='Email' className='form-control form-control-lg mt-2' onChange={(e) => setEmail(e.target.value)}/>
                     </label><br />
-                    <label className='text-start fw-bold'>Password<br />
+                    <label className='text-start fw-bold mb-4'>Password<br />
                     <input type="password" className='form-control form-control-lg mt-2' placeholder='Password' onChange={(e) => setPassword(e.target.value)}/>
                     </label><br />
                     <label className='text-start fw-bold'>Re-type Password<br />
