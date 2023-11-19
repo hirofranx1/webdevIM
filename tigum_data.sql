@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 19, 2023 at 05:57 PM
+-- Generation Time: Nov 19, 2023 at 07:54 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -148,7 +148,8 @@ INSERT INTO `users` (`user_id`, `firstname`, `lastname`, `email`, `password_hash
 (13, 'hiro', 'hiro', 'hiro@hiro.hiro', 'Hiro1234'),
 (14, 'hiro', 'hiro', 'hiro@hiro.com', 'Hiro1234'),
 (15, 'dog', 'dog', 'dog@dog.dog', 'Dog12345'),
-(16, 'Emmafel', 'Sollano', 'emma@emma.emma', 'Jethroengutan123');
+(16, 'Emmafel', 'Sollano', 'emma@emma.emma', 'Jethroengutan123'),
+(17, 'Jethro', 'Hatdog', 'hat@hat.hat', 'Hat12345');
 
 -- --------------------------------------------------------
 
@@ -283,7 +284,7 @@ ALTER TABLE `transactions`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `wallets`
