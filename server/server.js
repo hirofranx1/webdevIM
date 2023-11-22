@@ -26,6 +26,7 @@ db.connect((error) => {
   }
 });
 
+
 app.post('/register', (req, res) => {
   const {firstname, lastname, email, password} = req.body;
   console.log(firstname, lastname, email, password);
@@ -34,12 +35,11 @@ app.post('/register', (req, res) => {
     db.query(emailSearch, [email], (error, result) => {
         if(result.length>0){
           emailTaken = true;
-          console.log(lastname);
           return res.status(401).json({message: "Email Taken"});
         }
         if(!emailTaken) {
-            const sql = `INSERT INTO users(firstname, lastname, email, password_hash) VALUES (?, ?, ?, ?)`;
-            console.log("hello");
+            const sql = `INSERT INTO users(firstname, lastname, email, password) VALUES (?, ?, ?, ?)`;
+            
             db.query(sql, [firstname, lastname, email, password], (error, result) => {
               console.log("Success");
               if(error){
@@ -49,49 +49,38 @@ app.post('/register', (req, res) => {
                 console.log(result);
                 return res.json({result:result});
               }
-          })
+            })
       }
     })
 });
-
-console.log("Welcome");
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   console.log(email, password);
   const sql = `SELECT * FROM users WHERE email = ?`;
-  // const sql = `SELECT Users.*, Budgets.*
-  // FROM users 
-  // LEFT JOIN budgets ON users.user_id = budgets.user_id
-  // WHERE email = ?`;
-        //   `
-        // SELECT Users.*, Income.*, Expense_Categories.*, Expenses.*, Transactions.*, Budgets.*, Goals.*, Reminders.*, Wallets.*
-        // FROM Users
-        // LEFT JOIN Income ON Users.user_id = Income.user_id
-        // LEFT JOIN Expense_Categories ON Users.user_id = Expense_Categories.user_id
-        // LEFT JOIN Expenses ON Users.user_id = Expenses.user_id
-        // LEFT JOIN Transactions ON Users.user_id = Transactions.user_id
-        // LEFT JOIN Budgets ON Users.user_id = Budgets.user_id
-        // LEFT JOIN Goals ON Users.user_id = Goals.user_id
-        // LEFT JOIN Reminders ON Users.user_id = Reminders.user_id
-        // LEFT JOIN Wallets ON Users.user_id = Wallets.user_id
-        // WHERE Users.email = ?
-        // `
   db.query(sql, [email], (error, result) => {
     if(error){
       console.log(error);
+      return res.status(401).json({message: "Email not found"});
     }
     if(result && result.length > 0){
       const user = result[0];
-      if(user.password_hash === password){
-        console.log(user);
-        return res.json({user:user});
-      } else {
-        return res.status(401).json({message: "Wrong Password"});
-      }
+        if(user.password === password){
+          console.log(user);
+          return res.json({user:user});
+        } else {
+          return res.status(401).json({message: "Wrong Password"});
+        }
+    } else {
+      return res.status(401).json({message: "There is an error while logging in"});
     }
   })
 });
+
+app.post('/addbudget', (req, res) => {
+    console.log("hello");
+});
+
 
 app.get('/users', (req, res) => {
   console.log("What");

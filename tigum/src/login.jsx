@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import axios from 'axios';
+import { UserContext } from "./UserContext";
 
 function Login() {
 
@@ -9,6 +10,8 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [localuser, setLocaluser] = useState(null);
+    const {user, setUser} = useContext(UserContext);
+    const [loading, setLoading] = useState(false);
     
     const validateEmail = (email) => {
         const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -18,24 +21,28 @@ function Login() {
     async function handleLogin(e) {
         e.preventDefault();
         if(!validateEmail(email)){
-            return setError("Invalid Email")
+          return setError("Invalid Email")
         }
+        setLoading(true); // Show loading state
         axios.post("http://localhost:5000/login", {email, password})
         .then((response) => {
-            console.log('User data: ', response.data);
-            setLocaluser(response.data.user);
-            localStorage.setItem("user", JSON.stringify(response.data.user));
-            nav('/dashboard');
+          console.log(response.data);
+          setLocaluser(response.data.user);
+          setUser(response.data.user); // Set user data in UserContext
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+          nav('/dashboard');
         }).catch((error) => {
-            console.log(error);
-            if(error.response){
+          console.log(error);
+          if(error.response){
             setError(error.response.data.message);
-            } else {
-                setError("An error occured while trying to log in");
-            }
-        })
-    }
-
+          } else {
+            setError("An error occured while trying to log in");
+          }
+        }).finally(() => {
+          setLoading(false); // Hide loading state
+        });
+       }
+       
     return (
     <>
         <form onSubmit={(e)=>handleLogin(e)}>

@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { UserContext } from './UserContext'
 import ProgressBar from 'react-bootstrap/ProgressBar'
+import { useNavigate } from 'react-router-dom'
 
 const progress = 80;
 
@@ -8,7 +9,12 @@ const progress = 80;
 
 function Dashboard(){
 
-    const user = useContext(UserContext);
+    const {user, setUser} = useContext(UserContext);
+    console.log(user.user.id);
+    const history = useNavigate();
+    const gotobudget = () => {
+        history.push('/budget');
+    }
 
     return(
         <>
@@ -20,13 +26,18 @@ function Dashboard(){
                 <p><small>Balance</small></p><p><small>Active Wallet</small></p>
             </div>
 
-
             <ProgressBar now={progress} label={`${progress}%`}/>
-            <p>Budget</p>
-            <p>Php </p>
-            <p>Expense</p>
-            <p>Php </p>
+            <div onClick={gotobudget}> 
+                <p>Budget</p>
+                <p>Php </p>
+                <p>Expense</p>
+                <p>Php </p>
+            </div>
+        </div>
 
+        <div>
+            <p> expenses chuchu </p>
+            
         </div>
         </>
     )

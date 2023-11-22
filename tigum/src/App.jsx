@@ -25,7 +25,7 @@ function App() {
           <Route path='/budget' element={<Budget/>}/>
         </Routes>
       </Router>
-    </UserProvider>
+      </UserProvider>
     </>
   )  
 }
