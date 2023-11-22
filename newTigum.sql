@@ -19,6 +19,7 @@ CREATE TABLE `budget`(
     user_id int,
     budget_name VARCHAR(50) NOT NULL,
     budget_amount float(10,2) NOT NULL,
+    current_budget float(10,2) NOT NULL,
     budget_start_date date DEFAULT NULL,
     budget_end_date date DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id)

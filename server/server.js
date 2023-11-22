@@ -78,7 +78,35 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/addbudget', (req, res) => {
-    console.log("hello");
+    const {id, title, amount, curamount, startDate, endDate} = req.body;
+    console.log(id, title, amount, curamount, startDate, endDate);
+    const sql = `INSERT INTO budget(user_id, budget_name, budget_amount, current_budget, budget_start_date, budget_end_date) VALUES (?, ?, ?, ?, ?, ?)`;
+    if(id != null){
+      db.query(sql, [id, title, amount, curamount, startDate, endDate], (error, result) => {
+        if(error){
+          console.log(error);
+        }
+        if(result){
+          console.log(result);
+          return res.json({result:result});
+        }
+      })
+    }
+});
+
+app.get('/getbudgets/:id', (req, res) => {
+  const userId = req.params.id;
+  console.log(userId + " is the user id");
+  const sql = `SELECT * FROM budget WHERE user_id = ?`;
+  db.query(sql, [userId], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      console.log(result);
+      return res.json({result:result});
+    }
+  })
 });
 
 

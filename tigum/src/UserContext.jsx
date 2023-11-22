@@ -3,7 +3,12 @@ import { createContext, useState, useEffect } from 'react';
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
- const [user, setUser] = useState(null);
+ const [user, setUser] = useState({
+  user_id: "",
+  firstname: "",
+  lastname: "",
+  email: ""
+ });
 
  useEffect(() => {
   const loggedInUser = localStorage.getItem("user");
@@ -13,7 +18,7 @@ export const UserProvider = ({ children }) => {
   }
  }, []);
 
- return (
+return (
   <UserContext.Provider value={{user, setUser}}>
     {children}
   </UserContext.Provider>

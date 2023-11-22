@@ -1,25 +1,29 @@
-import {useState, useContext} from 'react';
+import {useState, useContext, useEffect} from 'react';
 import { UserContext  } from "./UserContext";
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
 
 function Budget() {
 
     const{user, setUser} = useContext(UserContext);
-    const id = user.id;
-
+    const id = user.user_id;
+    console.log(id, "id");
+    const history = useNavigate();
     const [showForm, setShowForm] = useState(false);
     const [calender, setCalender] = useState(false);
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [amount, setAmount] = useState(0);
-    const [category, setCategory] = useState("Select");
     const [title, setTitle] = useState("");
     const [error, setError] = useState("");
+    const [budgets, setBudgets] = useState([]);
 
+    const gotodashboard = () => {
+        history('/dashboard');
+    }
     const toggleForm = () => {
         setShowForm(!showForm);
-        setErrorCat("");
+        setError("");
     }
 
     
@@ -27,15 +31,41 @@ function Budget() {
         setCalender(true);
     }
 
+    useEffect(() => {
+        if(id){
+        axios.get(`http://localhost:5000/getbudgets/${id}`)
+        .then((response) => {
+            console.log(response.data.result);
+            setBudgets(response.data.result);
+        })
+        .catch((error) => {
+            console.log(error.message);
+        });
+    }
+    }, [id]);
+
+
+
     async function handleBudget(e){
         e.preventDefault();
         if(amount <= 0){
-            return setError("Invalid Amount");
+            return setError("Please input valid amount");
         }
-
-        axios.post("http://localhost:5000/addbudget", {id, title, amount, startDate, endDate})
+        if(title === ""){
+            return setError("Please Input title");
+        }
+        if(new Date(endDate).getTime() === new Date(startDate).getTime()){
+            console.log("same");
+            return setError("Please Select duration");
+         }
+        if(new Date(endDate).getTime() < new Date(startDate).getTime()){
+            return setError("Please Select valid duration");
+        }
+        const curamount = amount;
+        axios.post("http://localhost:5000/addbudget", {id, title, amount, curamount, startDate, endDate})
         .then((response) => {
             console.log(response.data);
+            window.location.reload();
         }).catch((error) => {
             console.log(error);
             if(error.response){
@@ -44,20 +74,17 @@ function Budget() {
                 setError("An error occured while trying to add budget");
             }
         })
-
         setShowForm(false);
-
     }
-    console.log(category);
 
 
 
 
     return(
         <>
-
-            <p>BackButton here to dashboard</p>
-
+            <button className="btn btn-primary" onClick={gotodashboard}>Back to dashboard</button>
+            <br/>
+            <br/>
             <button onClick={toggleForm}>+ add new budget</button>
 
             {showForm && (
@@ -67,54 +94,52 @@ function Budget() {
 
                     <input type="number" placeholder="Budget Amount" className="form-control form-control-lg mt-2" onChange={(e) => setAmount(e.target.value)}/>
                     <br/>
-                    {/* <label htmlFor="category">Category</label>
-                    <select onChange={(e) => setCategory(e.target.value)}>
-                        <option value = "Select">Select</option>
-                        <option value = "Food">Food</option>
-                        <option value = "Transportation">Transportation</option>
-                        <option value = "Bills">Bills</option>
-                        <option value = "Entertainment">Entertainment</option>
-                        <option value = "Shopping">Shopping</option>
-                        <option value = "Health">Health</option>
-                        <option value = "Others">Others</option>
-                    </select>
-                    {errorCat && <p>{errorCat}</p>}
-                    <br/> */}
 
-                    <label htmlFor="frequency">Until: </label><br/>
-                    <input type="radio" id="weekly" name="frequency" value="weekly" onClick={()=> {
+                    <label htmlFor="duration">Duration until: </label><br/>
+                    <input type="radio" id="weekly" name="duration" value="weekly" onClick={()=> {
                         setCalender(false);
                         let end = new Date(startDate);
                         end.setDate(end.getDate() + 7);
                         setEndDate(end);
                     }}/>
                     <label htmlFor="weekly">Weekly</label><br/>
-                    <input type="radio" id="monthly" name="frequency" value="monthly" onClick={()=> {
+                    <input type="radio" id="monthly" name="duration" value="monthly" onClick={()=> {
                         setCalender(false);
                         let end = new Date(startDate);
                         end.setDate(end.getDate() + 30);
                         setEndDate(end);
                     }}/>  
                     <label htmlFor="monthly">Monthly</label><br/>
-                    <input type="radio" id="Until Date" name="frequency" value="yearly" onClick={openCalendar}/>
+                    <input type="radio" id="Until Date" name="duration" value="yearly" onClick={openCalendar}/>
                     <label htmlFor="Until Date">Until Date</label><br/>
                     {calender && (
-                        <input type="date" className="form-control form-control-lg mt-2" onClick={(e) => {
+                        <input type="date" className="form-control form-control-lg mt-2" onChange={(e) => {
                             setEndDate(e.target.value);
                         }}/>
                     )}
+                    <br/>
 
 
                     <input type="submit" value="Add" className="btn bg-black text-white"/>
+                    <br/>
                     <button onClick={toggleForm} className="btn bg-black text-white">Cancel</button>
+                    {error && <p>{error}</p>}
+                    <br/>
                 </form>     
             )}
+            <br/>
 
-            
-            <h4>Budget - 232323</h4>
-            <p> Remaining </p>
-            <p> Until </p>
-
+            {budgets.map((budget, index) => {
+                return (
+                <div key={`${budget.budget_id}-${index}`}>
+                    <div className="d-flex flex-row justify-content-between">
+                    <h4>{budget.budget_name}</h4>
+                    <p>Budget Amount: {budget.budget_amount}</p>
+                    <p>Budget End Date: {new Date(budget.budget_end_date).toLocaleDateString()}</p>
+                    </div>
+                </div>
+                );
+                })}
         </>
     )
 
