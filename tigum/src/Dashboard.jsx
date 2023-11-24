@@ -3,6 +3,7 @@ import { UserContext } from './UserContext'
 import ProgressBar from 'react-bootstrap/ProgressBar'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { BiBell, BiCog } from 'react-icons/bi';
 
 
 
@@ -126,7 +127,15 @@ function Dashboard(){
 
     return(
         <>
-        <p>Welcome, {user ? `${user.firstname} ${user.lastname}` : 'Guest' }</p>
+            <section className="container">
+                    <hr />
+                    <div className="row align-items-center">
+                        <p className="col-8 text-start"><small>Kamusta,<br /><b>{user ? `${user.firstname} ${user.lastname}` : 'Guest' }</b></small></p>
+                        <p className="col-2 text-center"><BiBell size={30} /></p>
+                        <p className="col-2 align-center"><BiCog size={30} /></p>
+                    </div>
+                    <hr />
+                </section>
 
 
         <div className="d-flex flex-column bg-info rounded p-3">
