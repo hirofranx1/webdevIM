@@ -26,10 +26,24 @@ function Budget() {
         setError("");
     }
 
-    
     const openCalendar = () => {
         setCalender(true);
     }
+
+    useEffect(() => {
+        function checkUser(){
+            const storedUser = localStorage.getItem("user");
+            if(storedUser){
+                console.log(user, "in");
+                setUser(JSON.parse(storedUser));
+                return;
+            }
+            else{
+                history('/');
+            }
+        }
+        checkUser();
+    }, [])
 
     useEffect(() => {
         if(id){
@@ -57,7 +71,7 @@ function Budget() {
         if(new Date(endDate).getTime() === new Date(startDate).getTime()){
             console.log("same");
             return setError("Please Select duration");
-         }
+        }
         if(new Date(endDate).getTime() < new Date(startDate).getTime()){
             return setError("Please Select valid duration");
         }
@@ -131,7 +145,7 @@ function Budget() {
 
             {budgets.map((budget, index) => {
                 return (
-                <div key={`${budget.budget_id}-${index}`}>
+                <div key={index}>
                     <div className="d-flex flex-row justify-content-between">
                     <h4>{budget.budget_name}</h4>
                     <p>Budget Amount: {budget.budget_amount}</p>

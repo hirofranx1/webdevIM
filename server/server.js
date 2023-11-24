@@ -26,6 +26,10 @@ db.connect((error) => {
   }
 });
 
+app.get('/test', (req, res) => {
+  res.send(req.session);
+  console.log(req.session);
+});
 
 app.post('/register', (req, res) => {
   const {firstname, lastname, email, password} = req.body;
@@ -66,7 +70,6 @@ app.post('/login', (req, res) => {
     if(result && result.length > 0){
       const user = result[0];
         if(user.password === password){
-          console.log(user);
           return res.json({user:user});
         } else {
           return res.status(401).json({message: "Wrong Password"});
@@ -87,7 +90,6 @@ app.post('/addbudget', (req, res) => {
           console.log(error);
         }
         if(result){
-          console.log(result);
           return res.json({result:result});
         }
       })
@@ -96,22 +98,41 @@ app.post('/addbudget', (req, res) => {
 
 app.get('/getbudgets/:id', (req, res) => {
   const userId = req.params.id;
-  console.log(userId + " is the user id");
   const sql = `SELECT * FROM budget WHERE user_id = ?`;
   db.query(sql, [userId], (error, result) => {
     if(error){
       console.log(error);
     }
     if(result){
-      console.log(result);
       return res.json({result:result});
     }
   })
 });
 
+app.post('/addexpense', (req, res) => {
+  const { bud_id, expenseName, expenseAmount, expenseCategory } = req.body;
+  const sql = `INSERT INTO expenses(budget_id, expense_name, expense_amount, expense_category) VALUES (?, ?, ?, ?)`;
+  db.query(sql, [bud_id, expenseName, expenseAmount, expenseCategory], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  })
+});
 
-app.get('/users', (req, res) => {
-  console.log("What");
+app.get('/getexpenses/:budId', (req, res) => {
+  const budId = req.params.budId;
+  const sql = `SELECT * FROM expenses WHERE budget_id = ?`;
+  db.query(sql, [budId], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
 });
 
 

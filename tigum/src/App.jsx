@@ -10,8 +10,8 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 
 
-
 function App() {
+
 
   return(
     <>
@@ -25,7 +25,8 @@ function App() {
           <Route path='/budget' element={<Budget/>}/>
         </Routes>
       </Router>
-      </UserProvider>
+    </UserProvider>
+
     </>
   )  
 }
