@@ -267,7 +267,7 @@ function Dashboard() {
 function Intro({ onClose }) {
     return (
       <>
-        <Modal show={true} onHide={onClose}>
+        <Modal show={true} onHide={onClose} centered>
           <Modal.Header closeButton>
             <Modal.Title>Welcome to Tigum Pinas</Modal.Title>
           </Modal.Header>
