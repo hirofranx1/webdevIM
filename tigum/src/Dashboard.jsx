@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { UserContext } from './UserContext'
-import ProgressBar from 'react-bootstrap/ProgressBar'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import React, { useContext, useEffect, useState } from 'react';
+import { UserContext } from './UserContext';
+import ProgressBar from 'react-bootstrap/ProgressBar';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { BiBell, BiCog } from 'react-icons/bi';
 import Card from 'react-bootstrap/Card';
-
-
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
 function Dashboard() {
 
@@ -126,8 +126,24 @@ function Dashboard() {
             });
     }, [budId]);
 
+
+    const [showIntro, setShowIntro] = useState(true);
+
+    useEffect(() => {
+      const timeout = setTimeout(() => {
+        setShowIntro(false);
+      }, 5000);
+  
+      return () => clearTimeout(timeout);
+    }, []);
+  
+    const handleIntroClose = () => {
+      setShowIntro(false);
+    };
+
     return (
         <>
+        {showIntro && <Intro onClose={handleIntroClose} />}
             <section className="container">
                 <hr />
                 <div className="row align-items-center">
@@ -247,4 +263,32 @@ function Dashboard() {
         </>
     )
 }
-export default Dashboard
+
+function Intro({ onClose }) {
+    return (
+      <>
+        <Modal show={true} onHide={onClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Welcome to Tigum Pinas</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="text-center">
+            Take Control of Your Finances with Budget Genius.
+            <br /><br />
+            Stay on top of your finances and achieve your financial goals.
+            <br /><br />
+            Secure your financial future and take charge of your money.
+            <br /><br />
+            Eliminate financial stress and never overspend again.
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={onClose}>
+              Close
+            </Button>
+            {/* Add any necessary buttons or actions */}
+          </Modal.Footer>
+        </Modal>
+      </>
+    );
+  }
+  
+  export default Dashboard;
