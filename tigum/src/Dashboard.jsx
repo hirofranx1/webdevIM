@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { UserContext } from './UserContext';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import { useNavigate } from 'react-router-dom';
@@ -12,20 +12,16 @@ function Dashboard() {
 
     const { user, setUser } = useContext(UserContext);
     const [budgets, setBudgets] = useState([]);
-    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [selectedIndex, setSelectedIndex] = useState(localStorage.getItem('selectedIndex') || 0);
     const [hasData, setHasData] = useState(false);
     const [spent, setSpent] = useState(600);
-    const [progress, setProgress] = useState(0);
     const [expenseForm, setExpenseForm] = useState(false);
     const [expenseName, setExpenseName] = useState("");
     const [expenseAmount, setExpenseAmount] = useState(0);
     const [expenseCategory, setExpenseCategory] = useState("Others");
-    const [expenseDate, setExpenseDate] = useState(new Date());
     const [expense, setExpense] = useState([{}]);
-
     const [error, setError] = useState("");
-
-
+    const [showIntro, setShowIntro] = useState();
 
     const id = user.user_id;
     const history = useNavigate();
@@ -33,6 +29,23 @@ function Dashboard() {
         history('/budget');
     }
 
+    //intro
+    useEffect(() => {
+        if (showIntro) {
+            const timeout = setTimeout(() => {
+              setShowIntro(false);
+            }, 5000);
+       
+            return () => clearTimeout(timeout);
+          }
+    }, [showIntro]);
+    //intro close
+    const handleIntroClose = () => {
+      setShowIntro(false);
+      localStorage.setItem('showIntro', false);
+    }
+
+    //get budget data
     useEffect(() => {
         if (id) {
             axios.get(`http://localhost:5000/getbudgets/${id}`)
@@ -49,14 +62,7 @@ function Dashboard() {
         }
     }, [id]);
 
-    useEffect(() => {
-        if (budgets[selectedIndex]) {
-            let progressValue = (spent / budgets[selectedIndex].budget_amount) * 100;
-            let roundedProgress = Number(progressValue.toFixed(2));
-            setProgress(roundedProgress);
-        }
-    }, [selectedIndex, budgets]);
-
+    //check if user is logged in
     useEffect(() => {
         function checkUser() {
             const storedUser = localStorage.getItem("user");
@@ -71,6 +77,7 @@ function Dashboard() {
         checkUser();
     }, [])
 
+    //logout
     const handleLogout = () => {
         setUser({
             user_id: "",
@@ -80,11 +87,13 @@ function Dashboard() {
         console.log(user);
     }
 
+    //toggle expense form
     const toggleExpense = () => {
         setExpenseForm(!expenseForm);
         setError("");
     }
 
+    //add expense
     async function handleExpense(e) {
         e.preventDefault();
         if (expenseAmount <= 0) {
@@ -93,13 +102,13 @@ function Dashboard() {
         if (expenseName === "") {
             return setError("Please Input title");
         }
-        const bud_id = Number(selectedIndex) + 1;
-
+        const bud_id = (budgets[selectedIndex] && budgets[selectedIndex].budget_id);
+        console.log(bud_id);
 
         axios.post("http://localhost:5000/addexpense", { bud_id, expenseName, expenseAmount, expenseCategory })
             .then((response) => {
                 console.log(response.data);
-
+                toggleExpense(!expenseForm);
                 window.location.reload();
             }).catch((error) => {
                 console.log(error);
@@ -111,37 +120,39 @@ function Dashboard() {
             });
     }
 
-    const budId = budgets[selectedIndex] && budgets[selectedIndex].budget_id;
-    console.log(budId);
-
+    //get expenses
     useEffect(() => {
+        const budId = budgets[selectedIndex] && budgets[selectedIndex].budget_id;
         console.log(budId);
         axios.get(`http://localhost:5000/getexpenses/${budId}`)
             .then((response) => {
                 setExpense(response.data.result);
-                console.log(response.data);
+                const totalSpent = response.data.result.reduce((total, expense) => total + expense.expense_amount, 0);
+                setSpent(totalSpent);
+                console.log(totalSpent);
             })
             .catch((error) => {
                 console.log(error.message);
             });
-    }, [budId]);
+    }, [selectedIndex,budgets]);
 
+    //progress bar
+    let progressValue;
+    if (budgets[selectedIndex]) {
+        if(Number(spent) > Number(budgets[selectedIndex].budget_amount)){
+            progressValue = 100;
+            console.log(progressValue);
+        }else{
+                progressValue = (spent / budgets[selectedIndex].budget_amount) * 100;
+                progressValue = 100 - progressValue;
+                progressValue = Number(progressValue.toFixed(2));
+                console.log(progressValue);
+        }
+    }
 
-    const [showIntro, setShowIntro] = useState(true);
-
-    useEffect(() => {
-      const timeout = setTimeout(() => {
-        setShowIntro(false);
-      }, 5000);
-  
-      return () => clearTimeout(timeout);
-    }, []);
-  
-    const handleIntroClose = () => {
-      setShowIntro(false);
-    };
 
     return (
+        
         <>
         {showIntro && <Intro onClose={handleIntroClose} />}
             <section className="container">
@@ -163,18 +174,19 @@ function Dashboard() {
                     </div>
 
                     <div className="p-2">
-                        <p className="display-6 text-center"><b>{100 + '%'}</b></p>
-                        <ProgressBar animated variant='success' now={100} />
+                        <p className="display-6 text-center"><b>{progressValue + '%'}</b></p>
+                        <ProgressBar animated variant='success' now={progressValue} />
                     </div>
                     <p className='text-center mt-1'><small>You have a remaining budget of</small></p>
-                    <p className="display-3 text-center">Php <b>{parseFloat(1000 - 10).toFixed(2)}</b></p>
+                    <p className="display-3 text-center">Php <b>{budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent)}</b></p>
+                    {spent > (budgets[selectedIndex] && (budgets[selectedIndex].budget_amount)) && <p className="text-center text-danger">You are over budget!</p>}
 
                     <div className="d-flex text-center mb-2 mx-2">
                         <div className="flex-fill border border-end-1 rounded-start-3 bg-light border-dark">
-                            <p className="text-center"><small>Budget</small><br />Php <b>{parseFloat(1000).toFixed(2)}</b></p>
+                            <p className="text-center"><small>Budget</small><br />Php <b>{budgets[selectedIndex] && budgets[selectedIndex].budget_amount}</b></p>
                         </div>
                         <div className="flex-fill border border-start-1 rounded-end-3 bg-light border-dark">
-                            <p className="text-center"><small>Expense</small><br />Php <b>{parseFloat(10).toFixed(2)}</b></p>
+                            <p className="text-center"><small>Expense</small><br />Php <b>{spent}</b></p>
                         </div>
                     </div>
                 </Card>
@@ -183,8 +195,12 @@ function Dashboard() {
 
 
 
-            {(hasData) && <select onChange={(e) => {
+            {(hasData) && <select 
+            value={localStorage.getItem('selectedIndex') || ''} 
+            onChange={(e) => {
                 setSelectedIndex(e.target.value);
+                localStorage.setItem('selectedIndex', e.target.value);  
+                setExpenseForm(false);
             }}>
                 {budgets.map((budget, index) => {
                     return (
@@ -284,7 +300,6 @@ function Intro({ onClose }) {
             <Button variant="secondary" onClick={onClose}>
               Close
             </Button>
-            {/* Add any necessary buttons or actions */}
           </Modal.Footer>
         </Modal>
       </>

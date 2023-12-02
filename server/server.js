@@ -111,6 +111,7 @@ app.get('/getbudgets/:id', (req, res) => {
 
 app.post('/addexpense', (req, res) => {
   const { bud_id, expenseName, expenseAmount, expenseCategory } = req.body;
+  console.log(bud_id, expenseName, expenseAmount, expenseCategory);
   const sql = `INSERT INTO expenses(budget_id, expense_name, expense_amount, expense_category) VALUES (?, ?, ?, ?)`;
   db.query(sql, [bud_id, expenseName, expenseAmount, expenseCategory], (error, result) => {
     if(error){
