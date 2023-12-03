@@ -1,5 +1,4 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
 
 export default function AccountsAndSettings() {
     function onSubmit() {
@@ -33,13 +32,10 @@ export default function AccountsAndSettings() {
     }
 
   return (
-    <div className="container">
+    <div className="container border border-dark">
       <header className="header">
         <div className="img" alt="Line" />
         <div className="container">
-          <div className="button-section">
-            
-          </div>
           <div className="greetings-to-user">
             <div className="account-settings">Notch</div>
           </div>
@@ -61,7 +57,7 @@ export default function AccountsAndSettings() {
             </button>
           </div>
               <div className="mb-3">
-                <label for="username" className="form-label">
+                <label htmlFor="username" className="form-label">
                   Username
                 </label>
                 <input
@@ -72,7 +68,7 @@ export default function AccountsAndSettings() {
                 />
               </div>
               <div className="mb-3">
-                <label for="email" className="form-label">
+                <label htmlFor="email" className="form-label">
                   Email Address
                 </label>
                 <input
@@ -83,7 +79,7 @@ export default function AccountsAndSettings() {
                 />
               </div>
               <div className="mb-3">
-                <label for="password" className="form-label">
+                <label htmlFor="password" className="form-label">
                   Password
                 </label>
                 <input
@@ -94,7 +90,7 @@ export default function AccountsAndSettings() {
                 />
               </div>
               <div className="mb-3">
-                <label for="confirmPassword" className="form-label">
+                <label htmlFor="confirmPassword" className="form-label">
                   Confirm Password
                 </label>
                 <input

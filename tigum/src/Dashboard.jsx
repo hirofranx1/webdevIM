@@ -7,6 +7,7 @@ import { BiBell, BiCog } from 'react-icons/bi';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import { Dropdown, DropdownButton } from 'react-bootstrap';
 
 function Dashboard() {
 
@@ -22,6 +23,7 @@ function Dashboard() {
     const [expense, setExpense] = useState([{}]);
     const [error, setError] = useState("");
     const [showIntro, setShowIntro] = useState();
+    const [showExpenseModal, setShowExpenseModal] = useState(false);
 
     const id = user.user_id;
     const history = useNavigate();
@@ -150,6 +152,11 @@ function Dashboard() {
         }
     }
 
+    const toggleExpenseModal = () => {
+        setShowExpenseModal(!showExpenseModal);
+        setError(""); // Resetting the error state when toggling the modal
+    };
+
 
     return (
 
@@ -208,62 +215,46 @@ function Dashboard() {
                 })}
             </select>}
 
-<div className="d-flex justify-content-center mt-4">
+            <div className="d-flex justify-content-center mt-4">
+                <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
 
-            <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
+                <div>
+                    <button className="btn btn-primary mx-2" onClick={toggleExpenseModal}>Add Expense</button>
 
-            <div>
-                <button className="btn btn-primary" onClick={toggleExpense}>Add Expense</button>
-                <br />
-                {expenseForm && (
-                    <form onSubmit={handleExpense}>
-                        <input type="text" placeholder="Expense Title" className="form-control form-control-lg mt-2" onChange={(e) => setExpenseName(e.target.value)} />
-                        <br />
+                    <ExpenseFormModal
+                        show={showExpenseModal}
+                        onClose={toggleExpenseModal}
+                        onSubmit={handleExpense}
+                        error={error}
+                        expenseName={expenseName}
+                        setExpenseName={setExpenseName}
+                        expenseAmount={expenseAmount}
+                        setExpenseAmount={setExpenseAmount}
+                        expenseCategory={expenseCategory}
+                        setExpenseCategory={setExpenseCategory}
+                    />
 
-                        <input type="number" placeholder="Expense Amount" className="form-control form-control-lg mt-2" onChange={(e) => setExpenseAmount(e.target.value)} />
-                        <br />
+                    {/* <p> expenses chuchu </p> */}
+                    {expense.map((expense, index) => {
+                        const utcDate = new Date(expense.expense_time);
 
-                        <label htmlFor="Category">Category </label><br />
-                        <select onChange={(e) => setExpenseCategory(e.target.value)}>
-                            <option value="Others">Others</option>
-                            <option value="Food">Food</option>
-                            <option value="Transportation">Transportation</option>
-                            <option value="Utilities">Utilities</option>
-                            <option value="Rent">Rent</option>
-                            {/*add category based on chuchu*/};
-                        </select>
-                        <br />
-                        <input type="submit" value="Add" className="btn bg-black text-white" />
-                        {error && <p>{error}</p>}
-                        <br />
-                        <br />
-                        <button onClick={toggleExpense} className="btn bg-black text-white">Cancel</button>
-
-                        <br />
-                    </form>
-                )}
-
-                {/* <p> expenses chuchu </p> */}
-                {expense.map((expense, index) => {
-                    const utcDate = new Date(expense.expense_time);
-
-                    const LocalDate = utcDate.toLocaleString();
-                    return (
-                        <div key={index}>
-                            <br />
-                            <div className="d-flex flex-row justify-content-between">
-                                <h4>{expense.expense_name}</h4>
-                                <p>Expense Amount: {expense.expense_amount}</p>
+                        const LocalDate = utcDate.toLocaleString();
+                        return (
+                            <div key={index}>
+                                <br />
+                                <div className="d-flex flex-row justify-content-between">
+                                    <h4>{expense.expense_name}</h4>
+                                    <p>Expense Amount: {expense.expense_amount}</p>
+                                </div>
+                                <p>Category: {expense.expense_category}</p>
+                                <p>Date: {LocalDate}</p>
+                                <br />
                             </div>
-                            <p>Category: {expense.expense_category}</p>
-                            <p>Date: {LocalDate}</p>
-                            <br />
-                        </div>
-                    )
-                })}
-            </div>
-            <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
-            <br />
+                        )
+                    })}
+                </div>
+                <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
+                <br />
 
             </div>
         </>
@@ -293,6 +284,45 @@ function Intro({ onClose }) {
                 </Modal.Footer>
             </Modal>
         </>
+    );
+}
+
+
+function ExpenseFormModal({ show, onClose, onSubmit, error, expenseName, setExpenseName, expenseAmount, setExpenseAmount, expenseCategory, setExpenseCategory, toggleExpense }) {
+    const [selectedCategory, setSelectedCategory] = useState("Select Category");
+
+    const handleCategorySelect = (eventKey) => {
+        setSelectedCategory(eventKey);
+        setExpenseCategory(eventKey);
+    };
+
+    return (
+        <Modal show={show} onHide={onClose} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>Add Expense</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <form onSubmit={onSubmit}>
+                    <input type="text" placeholder="Expense Title" className="form-control form-control-lg mt-2 border border-dark" value={expenseName} onChange={(e) => setExpenseName(e.target.value)} />
+                    <input type="number" placeholder="Expense Amount" className="form-control form-control-lg mt-2 border border-dark" value={expenseAmount} onChange={(e) => setExpenseAmount(e.target.value)} />
+
+                    <DropdownButton
+                        title={selectedCategory}
+                        className="my-2"
+                        onSelect={handleCategorySelect}
+                    >
+                        <Dropdown.Item eventKey="Others">Others</Dropdown.Item>
+                        <Dropdown.Item eventKey="Food">Food</Dropdown.Item>
+                        <Dropdown.Item eventKey="Transportation">Transportation</Dropdown.Item>
+                        <Dropdown.Item eventKey="Utilities">Utilities</Dropdown.Item>
+                        <Dropdown.Item eventKey="Rent">Rent</Dropdown.Item>
+                        {/* Add other categories */}
+                    </DropdownButton>
+                    <input type="submit" value="Add" className="btn bg-black text-white" />
+                    {error && <p>{error}</p>}
+                </form>
+            </Modal.Body>
+        </Modal>
     );
 }
 
