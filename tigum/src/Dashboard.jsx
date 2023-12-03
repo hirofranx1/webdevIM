@@ -223,7 +223,7 @@ function Dashboard() {
             </div>
 
             {/* Expenses list */}
-            <a href='/expenses' className="d-flex flex-column align-items-center"> {/* Align items center */}
+            <a href='/expenses' className="d-flex flex-column align-items-center link-underline link-underline-opacity-0"> {/* Align items center */}
                 {expense.map((expense, index) => {
                     const utcDate = new Date(expense.expense_time);
                     const LocalDate = utcDate.toLocaleString();
