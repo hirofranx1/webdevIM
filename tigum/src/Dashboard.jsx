@@ -326,7 +326,6 @@ function ExpenseFormModal({ show, onClose, onSubmit, error, expenseName, setExpe
                         <Dropdown.Item eventKey="Transportation">Transportation</Dropdown.Item>
                         <Dropdown.Item eventKey="Utilities">Utilities</Dropdown.Item>
                         <Dropdown.Item eventKey="Rent">Rent</Dropdown.Item>
-                        {/* Add other categories */}
                     </DropdownButton>
                     <input type="submit" value="Add" className="btn bg-black text-white" />
                     {error && <p>{error}</p>}
@@ -337,4 +336,6 @@ function ExpenseFormModal({ show, onClose, onSubmit, error, expenseName, setExpe
 }
 
 export default Dashboard;
+
+
 

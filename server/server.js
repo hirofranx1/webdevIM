@@ -151,6 +151,33 @@ app.get('/getallexpenses/:id', (req, res) => {
   });
 });
 
+app.put(`/updateexpense/:updateId`, (req, res) => {
+  const id = req.params.updateId;
+  const { expenseName, expenseAmount, expenseCategory } = req.body;
+  db.query(`UPDATE expenses SET expense_name = ?, expense_amount = ?, expense_category = ? WHERE expense_id = ?`, [expenseName, expenseAmount, expenseCategory, id], 
+  (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
+})
+
+app.delete(`/deleteexpense/:deleteId`, (req, res) => {
+  const id = req.params.deleteId;
+  db.query(`DELETE FROM expenses WHERE expense_id = ?`, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
+})
+
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
