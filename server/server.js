@@ -98,7 +98,7 @@ app.post('/addbudget', (req, res) => {
 
 app.get('/getbudgets/:id', (req, res) => {
   const userId = req.params.id;
-  const sql = `SELECT * FROM budget WHERE user_id = ?`;
+  const sql = `SELECT * FROM budget WHERE user_id = ? && is_deleted = 0`;
   db.query(sql, [userId], (error, result) => {
     if(error){
       console.log(error);
@@ -176,6 +176,32 @@ app.delete(`/deleteexpense/:deleteId`, (req, res) => {
     }
   });
 })
+
+app.put(`/updatebudget/:updateId`, (req, res) => {
+  const id = req.params.updateId;
+  const {title, amount, endDate} = req.body;
+  db.query(`UPDATE budget SET budget_name = ?, budget_amount = ?, budget_end_date = ? WHERE budget_id = ?`, [title, amount, endDate, id],
+  (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
+})
+
+app.put(`/deletebudget/:deleteId`, (req, res) => {
+  const id = req.params.deleteId;
+  db.query(`UPDATE budget SET is_deleted = 1 WHERE budget_id = ?`, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
+});
 
 
 app.listen(port, () => {

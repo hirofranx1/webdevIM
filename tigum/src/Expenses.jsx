@@ -131,7 +131,7 @@ function Expenses() {
                 <div className="d-flex flex-row justify-content-between">
                   <div>
                     <p>Date: {LocalDate}</p>
-                    <p>From Budget: {list.budget_name}</p>
+                    <p>From Budget: {list.budget_name} {list.is_deleted ? "(Budget Deleted)" : ""}</p>
                   </div>
                 </div>
                 <br />
