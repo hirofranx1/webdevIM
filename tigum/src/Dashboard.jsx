@@ -30,9 +30,7 @@ function Dashboard() {
     const gotobudget = () => {
         history('/budget');
     }
-    const gotoExpenses = () => {
-        history('/expenses');
-    }
+
     //intro
     useEffect(() => {
         if (showIntro) {
@@ -225,7 +223,7 @@ function Dashboard() {
             </div>
 
             {/* Expenses list */}
-            <div className="d-flex flex-column align-items-center"> {/* Align items center */}
+            <a href='/expenses' className="d-flex flex-column align-items-center"> {/* Align items center */}
                 {expense.map((expense, index) => {
                     const utcDate = new Date(expense.expense_time);
                     const LocalDate = utcDate.toLocaleString();
@@ -245,8 +243,7 @@ function Dashboard() {
                         </div>
                     )
                 })}
-            </div>
-            <button onClick={gotoExpenses}>See All Expenses</button>
+            </a>
 
 
             <div className="d-flex justify-content-center mt-4">
