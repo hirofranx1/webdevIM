@@ -173,8 +173,8 @@ function Dashboard() {
             </section>
 
 
-            <div className="d-flex align-items-center justify-content-center" id="body">
-                <Card bg='info' style={{ width: '23rem', borderRadius: '12px' }}>
+            <div className="d-flex flex-column align-items-center justify-content-center" id="body">
+                <Card bg='info' className='my-4' style={{ width: '23rem', borderRadius: '12px' }}>
                     <div className="d-flex justify-content-between p-2">
                         <p className="display-7 fw-bold">Balance</p>
                         <p className="small">Active Wallet</p>
@@ -197,62 +197,68 @@ function Dashboard() {
                         </div>
                     </div>
                 </Card>
+
+                {(hasData) && (
+                    // <div className="d-flex align-items-center justify-content-center mb-4">
+                    <select
+                        value={localStorage.getItem('selectedIndex') || ''}
+                        onChange={(e) => {
+                            setSelectedIndex(e.target.value);
+                            localStorage.setItem('selectedIndex', e.target.value);
+                            setExpenseForm(false);
+                        }}
+                        style={{ width: '23rem' }} // Adjust the width as needed
+                    >
+                        {budgets.map((budget, index) => {
+                            return (
+                                <option key={`${budget.budget_id}-${index}`} value={index} className='text-center'>{budget.budget_name}</option>
+                            )
+                        })}
+                    </select>
+                    // </div>
+                )}
+            </div>
+
+            {/* Expenses list */}
+            <div className="d-flex flex-column align-items-center"> {/* Align items center */}
+                {expense.map((expense, index) => {
+                    const utcDate = new Date(expense.expense_time);
+                    const LocalDate = utcDate.toLocaleString();
+
+                    return (
+                        <div key={index} className='w-100 mb-3 border-bottom border-dark' style={{ maxWidth: '23rem' }}>
+                            <ul className='list-group list-group-flush'>
+                                <li className='list-group-item d-flex flex-column'>
+                                    <div className='d-flex flex-row justify-content-between'>
+                                        <h4>{expense.expense_name}</h4>
+                                        <p>Expense Amount: {expense.expense_amount}</p>
+                                    </div>
+                                    <p>Category: {expense.expense_category}</p>
+                                    <p>Date: {LocalDate}</p>
+                                </li>
+                            </ul>
+                        </div>
+                    )
+                })}
             </div>
 
 
-
-            {(hasData) && <select
-                value={localStorage.getItem('selectedIndex') || ''}
-                onChange={(e) => {
-                    setSelectedIndex(e.target.value);
-                    localStorage.setItem('selectedIndex', e.target.value);
-                    setExpenseForm(false);
-                }}>
-                {budgets.map((budget, index) => {
-                    return (
-                        <option key={`${budget.budget_id}-${index}`} value={index}>{budget.budget_name}</option>
-                    )
-                })}
-            </select>}
-
             <div className="d-flex justify-content-center mt-4">
                 <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
+                <button className="btn btn-primary mx-2" onClick={toggleExpenseModal}>Add Expense</button>
 
-                <div>
-                    <button className="btn btn-primary mx-2" onClick={toggleExpenseModal}>Add Expense</button>
-
-                    <ExpenseFormModal
-                        show={showExpenseModal}
-                        onClose={toggleExpenseModal}
-                        onSubmit={handleExpense}
-                        error={error}
-                        expenseName={expenseName}
-                        setExpenseName={setExpenseName}
-                        expenseAmount={expenseAmount}
-                        setExpenseAmount={setExpenseAmount}
-                        expenseCategory={expenseCategory}
-                        setExpenseCategory={setExpenseCategory}
-                    />
-
-                    {/* <p> expenses chuchu </p> */}
-                    {expense.map((expense, index) => {
-                        const utcDate = new Date(expense.expense_time);
-
-                        const LocalDate = utcDate.toLocaleString();
-                        return (
-                            <div key={index}>
-                                <br />
-                                <div className="d-flex flex-row justify-content-between">
-                                    <h4>{expense.expense_name}</h4>
-                                    <p>Expense Amount: {expense.expense_amount}</p>
-                                </div>
-                                <p>Category: {expense.expense_category}</p>
-                                <p>Date: {LocalDate}</p>
-                                <br />
-                            </div>
-                        )
-                    })}
-                </div>
+                <ExpenseFormModal
+                    show={showExpenseModal}
+                    onClose={toggleExpenseModal}
+                    onSubmit={handleExpense}
+                    error={error}
+                    expenseName={expenseName}
+                    setExpenseName={setExpenseName}
+                    expenseAmount={expenseAmount}
+                    setExpenseAmount={setExpenseAmount}
+                    expenseCategory={expenseCategory}
+                    setExpenseCategory={setExpenseCategory}
+                />
                 <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
                 <br />
 
@@ -327,3 +333,4 @@ function ExpenseFormModal({ show, onClose, onSubmit, error, expenseName, setExpe
 }
 
 export default Dashboard;
+
