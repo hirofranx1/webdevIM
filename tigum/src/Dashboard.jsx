@@ -222,28 +222,29 @@ function Dashboard() {
                 )}
             </div>
 
-            {/* Expenses list */}
-            <a href='/expenses' className="d-flex flex-column align-items-center link-underline link-underline-opacity-0"> {/* Align items center */}
-                {expense.map((expense, index) => {
-                    const utcDate = new Date(expense.expense_time);
-                    const LocalDate = utcDate.toLocaleString();
+{/* Expenses list */}
+<a href='/expenses' className="d-flex flex-column align-items-center link-underline link-underline-opacity-0"> {/* Align items center */}
+    {expense.slice(-3).map((expense, index) => { // Use slice(-3) to get the last three items
+        const utcDate = new Date(expense.expense_time);
+        const LocalDate = utcDate.toLocaleString();
 
-                    return (
-                        <div key={index} className='w-100 mb-3 border-bottom border-dark' style={{ maxWidth: '23rem' }}>
-                            <ul className='list-group list-group-flush'>
-                                <li className='list-group-item d-flex flex-column'>
-                                    <div className='d-flex flex-row justify-content-between'>
-                                        <h4>{expense.expense_name}</h4>
-                                        <p>Expense Amount: {expense.expense_amount}</p>
-                                    </div>
-                                    <p>Category: {expense.expense_category}</p>
-                                    <p>Date: {LocalDate}</p>
-                                </li>
-                            </ul>
+        return (
+            <div key={index} className='w-100 mb-3 border-bottom border-dark' style={{ maxWidth: '23rem' }}>
+                <ul className='list-group list-group-flush'>
+                    <li className='list-group-item d-flex flex-column'>
+                        <div className='d-flex flex-row justify-content-between'>
+                            <h4>{expense.expense_name}</h4>
+                            <p>Expense Amount: {expense.expense_amount}</p>
                         </div>
-                    )
-                })}
-            </a>
+                        <p>Category: {expense.expense_category}</p>
+                        <p>Date: {LocalDate}</p>
+                    </li>
+                </ul>
+            </div>
+        )
+    })}
+</a>
+
 
 
             <div className="d-flex justify-content-center mt-4">

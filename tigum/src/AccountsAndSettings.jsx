@@ -1,5 +1,3 @@
-
-
 export default function AccountsAndSettings() {
     function onSubmit() {
       var item = {
