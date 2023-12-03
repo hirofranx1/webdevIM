@@ -22,7 +22,7 @@ function Dashboard() {
     const [expenseCategory, setExpenseCategory] = useState("Others");
     const [expense, setExpense] = useState([{}]);
     const [error, setError] = useState("");
-    const [showIntro, setShowIntro] = useState();
+    const [showIntro, setShowIntro] = useState(localStorage.getItem('showIntro') || true);
     const [showExpenseModal, setShowExpenseModal] = useState(false);
 
     const id = user.user_id;
@@ -30,7 +30,9 @@ function Dashboard() {
     const gotobudget = () => {
         history('/budget');
     }
-
+    const gotoExpenses = () => {
+        history('/expenses');
+    }
     //intro
     useEffect(() => {
         if (showIntro) {
@@ -45,6 +47,7 @@ function Dashboard() {
     const handleIntroClose = () => {
         setShowIntro(false);
         localStorage.setItem('showIntro', false);
+        console.log(showIntro);
     }
 
     //get budget data
@@ -85,9 +88,11 @@ function Dashboard() {
             user_id: "",
         });
         localStorage.removeItem("user");
+        localStorage.removeItem("selectedIndex");
+        localStorage.removeItem("showIntro");
         history('/');
         console.log(user);
-    }
+    } 
 
     //toggle expense form
     const toggleExpense = () => {
@@ -241,6 +246,7 @@ function Dashboard() {
                     )
                 })}
             </div>
+            <button onClick={gotoExpenses}>See All Expenses</button>
 
 
             <div className="d-flex justify-content-center mt-4">

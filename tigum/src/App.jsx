@@ -5,6 +5,7 @@ import Homepage from './Homepage'
 import Dashboard from './Dashboard'
 import Budget from './Budgets'
 import AccountsAndSettings from './AccountsAndSettings'
+import Expenses from './Expenses'
 import { UserProvider } from './UserContext'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -25,6 +26,7 @@ function App() {
           <Route path='/dashboard' element={<Dashboard/>}/>
           <Route path='/budget' element={<Budget/>}/>
           <Route path='/AccountsAndSettings' element={<AccountsAndSettings/>}/>
+          <Route path='/expenses' element={<Expenses/>}/>
         </Routes>
       </Router>
     </UserProvider>

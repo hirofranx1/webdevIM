@@ -137,6 +137,20 @@ app.get('/getexpenses/:budId', (req, res) => {
 });
 
 
+app.get('/getallexpenses/:id', (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const sql = `SELECT * FROM expenses LEFT JOIN budget on expenses.budget_id = budget.budget_id WHERE user_id = ? ORDER BY expense_time DESC`;
+  db.query(sql, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
