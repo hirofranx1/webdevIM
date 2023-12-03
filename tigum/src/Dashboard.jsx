@@ -33,16 +33,16 @@ function Dashboard() {
     useEffect(() => {
         if (showIntro) {
             const timeout = setTimeout(() => {
-              setShowIntro(false);
+                setShowIntro(false);
             }, 5000);
-       
+
             return () => clearTimeout(timeout);
-          }
+        }
     }, [showIntro]);
     //intro close
     const handleIntroClose = () => {
-      setShowIntro(false);
-      localStorage.setItem('showIntro', false);
+        setShowIntro(false);
+        localStorage.setItem('showIntro', false);
     }
 
     //get budget data
@@ -134,27 +134,27 @@ function Dashboard() {
             .catch((error) => {
                 console.log(error.message);
             });
-    }, [selectedIndex,budgets]);
+    }, [selectedIndex, budgets]);
 
     //progress bar
     let progressValue;
     if (budgets[selectedIndex]) {
-        if(Number(spent) > Number(budgets[selectedIndex].budget_amount)){
+        if (Number(spent) > Number(budgets[selectedIndex].budget_amount)) {
             progressValue = 100;
             console.log(progressValue);
-        }else{
-                progressValue = (spent / budgets[selectedIndex].budget_amount) * 100;
-                progressValue = 100 - progressValue;
-                progressValue = Number(progressValue.toFixed(2));
-                console.log(progressValue);
+        } else {
+            progressValue = (spent / budgets[selectedIndex].budget_amount) * 100;
+            progressValue = 100 - progressValue;
+            progressValue = Number(progressValue.toFixed(2));
+            console.log(progressValue);
         }
     }
 
 
     return (
-        
+
         <>
-        {showIntro && <Intro onClose={handleIntroClose} />}
+            {showIntro && <Intro onClose={handleIntroClose} />}
             <section className="container">
                 <hr />
                 <div className="row align-items-center">
@@ -194,21 +194,22 @@ function Dashboard() {
 
 
 
-
-            {(hasData) && <select 
-            value={localStorage.getItem('selectedIndex') || ''} 
-            onChange={(e) => {
-                setSelectedIndex(e.target.value);
-                localStorage.setItem('selectedIndex', e.target.value);  
-                setExpenseForm(false);
-            }}>
+            {(hasData) && <select
+                value={localStorage.getItem('selectedIndex') || ''}
+                onChange={(e) => {
+                    setSelectedIndex(e.target.value);
+                    localStorage.setItem('selectedIndex', e.target.value);
+                    setExpenseForm(false);
+                }}>
                 {budgets.map((budget, index) => {
                     return (
                         <option key={`${budget.budget_id}-${index}`} value={index}>{budget.budget_name}</option>
                     )
                 })}
             </select>}
-            
+
+<div className="d-flex justify-content-center mt-4">
+
             <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
 
             <div>
@@ -242,8 +243,7 @@ function Dashboard() {
                     </form>
                 )}
 
-
-                <p> expenses chuchu </p>
+                {/* <p> expenses chuchu </p> */}
                 {expense.map((expense, index) => {
                     const utcDate = new Date(expense.expense_time);
 
@@ -261,49 +261,39 @@ function Dashboard() {
                         </div>
                     )
                 })}
-
-
-
-
-
-
             </div>
-
             <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
-
-
-
             <br />
 
-
+            </div>
         </>
     )
 }
 
 function Intro({ onClose }) {
     return (
-      <>
-        <Modal show={true} onHide={onClose} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>Welcome to Tigum Pinas</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="text-center">
-            Take Control of Your Finances with Budget Genius.
-            <br /><br />
-            Stay on top of your finances and achieve your financial goals.
-            <br /><br />
-            Secure your financial future and take charge of your money.
-            <br /><br />
-            Eliminate financial stress and never overspend again.
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={onClose}>
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </>
+        <>
+            <Modal show={true} onHide={onClose} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Welcome to Tigum Pinas</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center">
+                    Take Control of Your Finances with Budget Genius.
+                    <br /><br />
+                    Stay on top of your finances and achieve your financial goals.
+                    <br /><br />
+                    Secure your financial future and take charge of your money.
+                    <br /><br />
+                    Eliminate financial stress and never overspend again.
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={onClose}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
     );
-  }
-  
-  export default Dashboard;
+}
+
+export default Dashboard;
