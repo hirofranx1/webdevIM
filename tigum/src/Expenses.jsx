@@ -122,7 +122,7 @@ function Expenses() {
                                     <h4>{list.expense_name}</h4>
                                     <p>Expense Amount: {formatNumberToPHP(list.expense_amount)}</p>
                                     <div>
-                                        <button
+                                        <button className="btn"
                                             onClick={() => {
                                                 setReadObject(list);
                                                 setModalOpen(true);
