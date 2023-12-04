@@ -293,6 +293,7 @@ function Dashboard() {
                                     <option value="Food">Food</option>
                                     <option value="Transportation">Transportation</option>
                                     <option value="Entertainment">Entertainment</option>
+                                    <option value="Utilities">Utilities</option>
                                     <option value="Others">Others</option>
                                 </select>
                             </div>

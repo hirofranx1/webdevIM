@@ -19,6 +19,7 @@ function Budget() {
   const [error, setError] = useState("");
   const [budgets, setBudgets] = useState([{}]);
   const [expenses, setExpenses] = useState([{}]);
+  const [totalSpent, setTotalSpent] = useState(0);
   const [readObject, setReadObject] = useState({});
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
@@ -163,7 +164,10 @@ function Budget() {
         .get(`http://localhost:5000/getexpensesinbud/${budId}`)
         .then((response) => {
           console.log(response.data.result);
+          const total = response.data.result.reduce((total, expense) => total + expense.expense_amount, 0);
           setExpenses(response.data.result);
+          setTotalSpent(total);
+          console.log(totalSpent);
         })
         .catch((error) => {
           console.log(error.message);
@@ -305,7 +309,7 @@ function Budget() {
             <div>
               <p>Amount: {readObject.budget_amount}</p>
               <p>Name: {readObject.budget_name}</p>
-              <p>Remaining: {readObject.current_budget}</p>
+              <p>Remaining: {totalSpent}</p>
             </div>
           </Modal.Header>
           <Modal.Body>
@@ -387,8 +391,11 @@ function Budget() {
                   setEndDate(e.target.value);
                 }}
               />
+              <br />
               <input type="submit"/>
+              <br />
               </form>
+              <br />
               {error && <p>{error}</p>}
               <button onClick={() => setShowUpdateForm(false)}>Cancel</button>
             
