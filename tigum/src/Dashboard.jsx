@@ -161,6 +161,11 @@ function Dashboard() {
         setError(""); // Resetting the error state when toggling the modal
     };
 
+    const formatNumberToPHP = (number) => {
+        return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(number);
+      };
+    
+
 
     return (
 
@@ -189,15 +194,15 @@ function Dashboard() {
                         <ProgressBar animated variant='success' now={progressValue} />
                     </div>
                     <p className='text-center mt-1'><small>You have a remaining budget of</small></p>
-                    <p className="display-3 text-center">Php <b>{budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent)}</b></p>
+                    <p className="display-3 text-center"><b>{formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent))}</b></p>
                     {spent > (budgets[selectedIndex] && (budgets[selectedIndex].budget_amount)) && <p className="text-center text-danger">You are over budget!</p>}
 
                     <div className="d-flex text-center mb-2 mx-2">
                         <div className="flex-fill border border-end-1 rounded-start-3 bg-light border-dark">
-                            <p className="text-center"><small>Budget</small><br />Php <b>{budgets[selectedIndex] && budgets[selectedIndex].budget_amount}</b></p>
+                            <p className="text-center"><small>Budget</small><br /><b>{formatNumberToPHP(budgets[selectedIndex] && budgets[selectedIndex].budget_amount)}</b></p>
                         </div>
                         <div className="flex-fill border border-start-1 rounded-end-3 bg-light border-dark">
-                            <p className="text-center"><small>Expense</small><br />Php <b>{spent}</b></p>
+                            <p className="text-center"><small>Expense</small><br /><b>{formatNumberToPHP(spent)}</b></p>
                         </div>
                     </div>
                 </Card>
@@ -235,7 +240,7 @@ function Dashboard() {
                     <li className='list-group-item d-flex flex-column'>
                         <div className='d-flex flex-row justify-content-between'>
                             <h4>{expense.expense_name}</h4>
-                            <p>Expense Amount: {expense.expense_amount}</p>
+                            <p>Expense Amount: {formatNumberToPHP(expense.expense_amount)}</p>
                         </div>
                         <p>Category: {expense.expense_category}</p>
                         <p>Date: {LocalDate}</p>
