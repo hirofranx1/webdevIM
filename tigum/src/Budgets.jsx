@@ -172,6 +172,10 @@ function Budget() {
     }
   }, [readObject.budget_id]);
 
+  const formatNumberToPHP = (number) => {
+    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(number);
+  };
+
   return (
     <>
       <button className="btn btn-primary" onClick={gotodashboard}>
@@ -278,7 +282,7 @@ function Budget() {
             <div key={index}>
               <div className="d-flex flex-row justify-content-between">
                 <h4>{budget.budget_name}</h4>
-                <p>Amount: {budget.budget_amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</p>
+                <p>Amount: {formatNumberToPHP(budget.budget_amount)}</p>
                 <p>
                   Ends In:{" "}
                   {new Date(budget.budget_end_date).toLocaleDateString()}
@@ -303,9 +307,9 @@ function Budget() {
           <Modal.Header>
             <Modal.Title>Budget Details</Modal.Title>
             <div>
-            <p>Amount: {readObject.budget_amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</p>
-            <p>Name: {readObject.budget_name}</p>
-            <p>Remaining: {readObject.current_budget.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</p>
+              <p>Amount: {formatNumberToPHP(readObject.budget_amount)}</p>
+              <p>Name: {readObject.budget_name}</p>
+              <p>Remaining: {formatNumberToPHP(readObject.current_budget)}</p>
             </div>
           </Modal.Header>
           <Modal.Body>
@@ -323,8 +327,8 @@ function Budget() {
                     const expenseId = `expense-${index}`; // Unique ID for each expense item
                     return (
                       <tr key={index} id={expenseId}>
-                        <td>{expense.expense_name.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</td>
-                        <td>{expense.expense_amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</td>
+                        <td>{expense.expense_name}</td>
+                        <td>{formatNumberToPHP(expense.expense_amount)}</td>
                         <td>{new Date(expense.expense_time).toLocaleDateString()}</td>
                       </tr>
                     );
@@ -334,7 +338,7 @@ function Budget() {
             </div>
           </Modal.Body>
           <ModalFooter className="d-flex justify-content-around">
-            <button className="btn btn-primary" onClick={() => {setShowUpdateForm(true); setAmount(readObject.budget_amount);setEndDate(readObject.budget_end_date);setTitle(readObject.budget_name);}}>Update Budget</button>
+            <button className="btn btn-primary" onClick={() => { setShowUpdateForm(true); setAmount(readObject.budget_amount); setEndDate(readObject.budget_end_date); setTitle(readObject.budget_name); }}>Update Budget</button>
             <button className="btn btn-primary" onClick={() => setShowDeleteForm(true)}>Delete Budget</button>
             <button className="btn btn-primary" onClick={() => setShowDetails(false)}>Cancel</button>
           </ModalFooter>
