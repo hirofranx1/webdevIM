@@ -125,7 +125,7 @@ app.post('/addexpense', (req, res) => {
 
 app.get('/getexpenses/:budId', (req, res) => {
   const budId = req.params.budId;
-  const sql = `SELECT * FROM expenses WHERE budget_id = ?`;
+  const sql = `SELECT * FROM expenses WHERE budget_id = ? ORDER BY expense_time DESC`;
   db.query(sql, [budId], (error, result) => {
     if(error){
       console.log(error);
@@ -202,6 +202,18 @@ app.put(`/deletebudget/:deleteId`, (req, res) => {
     }
   });
 });
+
+app.get(`/getexpensesinbud/:budId`, (req, res) => {
+  const budId = req.params.budId;
+  db.query(`SELECT * FROM expenses WHERE budget_id = ?`, [budId], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
+})
 
 
 app.listen(port, () => {

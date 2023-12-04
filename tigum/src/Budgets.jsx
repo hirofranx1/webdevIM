@@ -3,6 +3,7 @@ import { UserContext } from "./UserContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
+import { BsThreeDots } from "react-icons/bs";
 
 function Budget() {
   const { user, setUser } = useContext(UserContext);
@@ -17,9 +18,11 @@ function Budget() {
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
   const [budgets, setBudgets] = useState([{}]);
+  const [expenses, setExpenses] = useState([{}]);
   const [readObject, setReadObject] = useState({});
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   const gotodashboard = () => {
     history("/dashboard");
@@ -114,7 +117,9 @@ function Budget() {
       });
   }
 
+
   async function updateBudget(e) {
+    e.preventDefault();
     const updateId = readObject.budget_id;
     if (amount <= 0) {
       return setError("Please input valid amount");
@@ -127,6 +132,11 @@ function Budget() {
     ) {
       return setError("Please Select duration");
     }
+    if(
+      new Date().getTime() === new Date(endDate).getTime()
+    ){
+      return setError("Please Select valid duration");
+    }
     if (new Date(endDate).getTime() < new Date(startDate).getTime()) {
       return setError("Please Select valid duration");
     }
@@ -138,6 +148,7 @@ function Budget() {
       })
       .then((response) => {
         console.log(response.data);
+        setError("");
         window.location.reload();
       })
       .catch((error) => {
@@ -145,7 +156,20 @@ function Budget() {
       });
   }
 
-  console.log(amount);
+  useEffect(() => {
+    const budId = readObject.budget_id;
+    if (budId) {
+      axios
+        .get(`http://localhost:5000/getexpensesinbud/${budId}`)
+        .then((response) => {
+          console.log(response.data.result);
+          setExpenses(response.data.result);
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
+    }
+  }, [readObject.budget_id]);
 
   return (
     <>
@@ -249,7 +273,6 @@ function Budget() {
           </Modal>
         )}
         <br />
-
         {budgets.map((budget, index) => {
           return (
             <div key={index}>
@@ -264,23 +287,69 @@ function Budget() {
                 <button
                   onClick={() => {
                     setReadObject(budget);
-                    console.log(readObject);
-                    setTitle(readObject.budget_name);
-                    setEndDate(readObject.budget_end_date);
-                    setAmount(readObject.budget_amount);
-                    setShowUpdateForm(true);
+                    setShowDetails(true);
                   }}
                 >
-                  Update
+                  <BsThreeDots size={20} />
                 </button>
-                <button onClick={() => {setShowDeleteForm(true)
-                setReadObject(budget)
-                }}>Delete</button>
               </div>
             </div>
           );
         })}
       </div>
+
+      {showDetails && (
+        <Modal show={true} backdrop={false} centered>
+          <Modal.Header>
+            <Modal.Title>Budget Details</Modal.Title>
+            <div>
+              <p>Amount: {readObject.budget_amount}</p>
+              <p>Name: {readObject.budget_name}</p>
+              <p>Remaining: {readObject.current_budget}</p>
+            </div>
+          </Modal.Header>
+          <Modal.Body>
+
+
+
+
+            {expenses.map((expense, index) => {
+              return(
+                <div key={index}>
+                  <div className="d-flex flex-row justify-content-between">
+                    <h4>{expense.expense_name}</h4>
+                    <p>Expense Amount: {expense.expense_amount}</p>
+                    <p>
+                      Expense Date:{" "}
+                      {new Date(expense.expense_time).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
+
+
+            <button
+              onClick={() => {
+                setShowUpdateForm(true);
+                setAmount(readObject.budget_amount);
+                    setEndDate(readObject.budget_end_date);
+                    setTitle(readObject.budget_name);
+              }}
+            >
+              Update Budget
+            </button>
+            <button
+              onClick={() => {
+                setShowDeleteForm(true);
+              }}
+            >
+              Delete Bugdet
+            </button>
+            <button onClick={() => setShowDetails(false)}>Cancel</button>
+          </Modal.Body>
+        </Modal>
+      )}
 
       {showUpdateForm && (
         <Modal show={true} backdrop={false} centered>
@@ -290,38 +359,41 @@ function Budget() {
           <Modal.Body>
             <form onSubmit={updateBudget}>
               <label>Name:</label>
+              <br />
               <input
                 type="text"
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={readObject.budget_name}
+                className="form-control form-control-lg mt-2"
               />
               <br />
               <label>Amount:</label>
+              <br />
               <input
                 type="number"
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder={readObject.budget_amount}
+                className="form-control form-control-lg mt-2"
               />
               <br />
 
-              <label>End Date: (Current)</label>
-              <input
-                type="text"
-                value={new Date(
+              <label>End Date: (Current) {new Date(
                   readObject.budget_end_date
-                ).toLocaleDateString()}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
+                ).toLocaleDateString()} </label>
+                <br />
               <input
                 type="date"
                 className="form-control form-control-lg mt-2"
+                placeholder={readObject.budget_end_date}
                 onChange={(e) => {
                   setEndDate(e.target.value);
                 }}
               />
-              <input type="submit" />
+              <input type="submit"/>
+              </form>
+              {error && <p>{error}</p>}
               <button onClick={() => setShowUpdateForm(false)}>Cancel</button>
-            </form>
+            
           </Modal.Body>
         </Modal>
       )}

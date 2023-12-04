@@ -132,6 +132,7 @@ function Dashboard() {
         axios.get(`http://localhost:5000/getexpenses/${budId}`)
             .then((response) => {
                 setExpense(response.data.result);
+                console.log(response.data.result);
                 const totalSpent = response.data.result.reduce((total, expense) => total + expense.expense_amount, 0);
                 setSpent(totalSpent);
                 console.log(totalSpent);
@@ -223,8 +224,8 @@ function Dashboard() {
             </div>
 
 {/* Expenses list */}
-<a href='/expenses' className="d-flex flex-column align-items-center link-underline link-underline-opacity-0"> {/* Align items center */}
-    {expense.slice(-3).map((expense, index) => { // Use slice(-3) to get the last three items
+<a href='/expenses' className="d-flex flex-column align-items-center link-underline link-underline-opacity-0">
+    {expense.slice(0, 3).map((expense, index) => { // Use slice(-3) to get the last three items
         const utcDate = new Date(expense.expense_time);
         const LocalDate = utcDate.toLocaleString();
 
@@ -250,23 +251,67 @@ function Dashboard() {
             <div className="d-flex justify-content-center mt-4">
                 <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
                 <button className="btn btn-primary mx-2" onClick={toggleExpenseModal}>Add Expense</button>
-
-                <ExpenseFormModal
-                    show={showExpenseModal}
-                    onClose={toggleExpenseModal}
-                    onSubmit={handleExpense}
-                    error={error}
-                    expenseName={expenseName}
-                    setExpenseName={setExpenseName}
-                    expenseAmount={expenseAmount}
-                    setExpenseAmount={setExpenseAmount}
-                    expenseCategory={expenseCategory}
-                    setExpenseCategory={setExpenseCategory}
-                />
                 <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
                 <br />
 
             </div>
+
+            {showExpenseModal && (
+                <Modal show={true} onHide={toggleExpenseModal}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add Expense</Modal.Title>
+                    </Modal.Header>
+                    <form onSubmit={handleExpense}>
+                        <Modal.Body>
+                            <div className="mb-3">
+                                <label htmlFor="expenseName" className="form-label">Expense Name</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="expenseName"
+                                    onChange={(e) => setExpenseName(e.target.value)}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="expenseAmount" className="form-label">Expense Amount</label>
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    id="expenseAmount"
+                                    value={expenseAmount}
+                                    onChange={(e) => setExpenseAmount(e.target.value)}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="expenseCategory" className="form-label">Expense Category</label>
+                                <select
+                                    className="form-select"
+                                    id="expenseCategory"
+                                    value={expenseCategory}
+                                    onChange={(e) => setExpenseCategory(e.target.value)}
+                                >
+                                    <option value="Food">Food</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            {error && <p className="text-danger">{error}</p>}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={toggleExpenseModal}>
+                                Close
+                            </Button>
+                            <Button variant="primary" type="submit">
+                                Add Expense
+                            </Button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+            
+            )}
+
+
         </>
     )
 }
@@ -298,42 +343,6 @@ function Intro({ onClose }) {
 }
 
 
-function ExpenseFormModal({ show, onClose, onSubmit, error, expenseName, setExpenseName, expenseAmount, setExpenseAmount, expenseCategory, setExpenseCategory, toggleExpense }) {
-    const [selectedCategory, setSelectedCategory] = useState("Select Category");
-
-    const handleCategorySelect = (eventKey) => {
-        setSelectedCategory(eventKey);
-        setExpenseCategory(eventKey);
-    };
-
-    return (
-        <Modal show={show} onHide={onClose} centered>
-            <Modal.Header closeButton>
-                <Modal.Title>Add Expense</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <form onSubmit={onSubmit}>
-                    <input type="text" placeholder="Expense Title" className="form-control form-control-lg mt-2 border border-dark" value={expenseName} onChange={(e) => setExpenseName(e.target.value)} />
-                    <input type="number" placeholder="Expense Amount" className="form-control form-control-lg mt-2 border border-dark" value={expenseAmount} onChange={(e) => setExpenseAmount(e.target.value)} />
-
-                    <DropdownButton
-                        title={selectedCategory}
-                        className="my-2"
-                        onSelect={handleCategorySelect}
-                    >
-                        <Dropdown.Item eventKey="Others">Others</Dropdown.Item>
-                        <Dropdown.Item eventKey="Food">Food</Dropdown.Item>
-                        <Dropdown.Item eventKey="Transportation">Transportation</Dropdown.Item>
-                        <Dropdown.Item eventKey="Utilities">Utilities</Dropdown.Item>
-                        <Dropdown.Item eventKey="Rent">Rent</Dropdown.Item>
-                    </DropdownButton>
-                    <input type="submit" value="Add" className="btn bg-black text-white" />
-                    {error && <p>{error}</p>}
-                </form>
-            </Modal.Body>
-        </Modal>
-    );
-}
 
 export default Dashboard;
 
