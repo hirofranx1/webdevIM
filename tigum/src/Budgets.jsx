@@ -313,7 +313,7 @@ function Budget() {
             <div>
               <p>Amount: {formatNumberToPHP(readObject.budget_amount)}</p>
               <p>Name: {readObject.budget_name}</p>
-              <p>Remaining: {formatNumberToPHP(readObject.current_budget)}</p>
+              <p>Remaining: {formatNumberToPHP(readObject.budget_amount - totalSpent)}</p>
             </div>
           </Modal.Header>
           <Modal.Body>
