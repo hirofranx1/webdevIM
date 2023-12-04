@@ -278,9 +278,9 @@ function Budget() {
             <div key={index}>
               <div className="d-flex flex-row justify-content-between">
                 <h4>{budget.budget_name}</h4>
-                <p>Budget Amount: {budget.budget_amount}</p>
+                <p>Amount: {budget.budget_amount}</p>
                 <p>
-                  Budget End Date:{" "}
+                  Ends In:{" "}
                   {new Date(budget.budget_end_date).toLocaleDateString()}
                 </p>
 
@@ -309,10 +309,7 @@ function Budget() {
             </div>
           </Modal.Header>
           <Modal.Body>
-
-
-
-
+          <div> {/*turn this into a div box with fixed size, para kung daghan nga expenses data kay mag scroll ra siya. */}
             {expenses.map((expense, index) => {
               return(
                 <div key={index}>
@@ -327,6 +324,7 @@ function Budget() {
                 </div>
               )
             })}
+          </div>
 
 
             <button

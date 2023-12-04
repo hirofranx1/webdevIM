@@ -175,21 +175,24 @@ function Expenses() {
                     <Modal.Body>
                       <form onSubmit={updateExpense}>
                         <label>Name:</label>
+                        <br/>
                         <input
                           type="text"
                           onChange={(e) => setExpenseName(e.target.value)}
                           placeholder={readObject.expense_name}
+                          className="form-control form-control-lg mt-2"
                         />
                         <br />
                         <label>Amount:</label>
+                        <br/>
                         <input
                           type="number"
                           onChange={(e) => setExpenseAmount(e.target.value)}
                           placeholder={readObject.expense_amount}
+                          className="form-control form-control-lg mt-2"
                         />
                         <br />
-                        <label>Category:</label>
-                        <input type="text" value={expenseCategory} />
+                        <p>Current Category:{expenseCategory}  </p>
                         <select
                           onChange={(e) => setExpenseCategory(e.target.value)}
                           placeholder={readObject.expense_category}
@@ -201,8 +204,11 @@ function Expenses() {
                           <option value="Rent">Rent</option>
                         </select>
                         <br />
+                        <br/>
                         <input type="submit" />
+                        
                       </form>
+                      <br/>
                       <button onClick={() => setopenExpenseUpdateForm(false)}>
                         CLOSE
                       </button>
