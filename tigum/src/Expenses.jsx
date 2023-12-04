@@ -5,237 +5,241 @@ import { useNavigate } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
 import { BsThreeDots } from "react-icons/bs";
 import Card from "react-bootstrap/Card";
-import { CardBody, CardHeader } from "react-bootstrap";
+import { CardBody, CardHeader, ModalFooter } from "react-bootstrap";
 
 function Expenses() {
-  const [expense, setExpense] = useState([{}]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [openExpenseUpdateForm, setopenExpenseUpdateForm] = useState(false);
-  const [openExpenseDeleteForm, setopenExpenseDeleteForm] = useState(false);
-  const [expenseName, setExpenseName] = useState("");
-  const [expenseAmount, setExpenseAmount] = useState("");
-  const [expenseCategory, setExpenseCategory] = useState("");
-  const [readObject, setReadObject] = useState({});
-  const { user, setUser } = useContext(UserContext);
-  const id = user.user_id;
-  console.log(id, "id");
-  const history = useNavigate();
-  const expenseDate = new Date(readObject.expense_time);
-  const exDate = expenseDate.toLocaleString();
+    const [expense, setExpense] = useState([{}]);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [openExpenseUpdateForm, setopenExpenseUpdateForm] = useState(false);
+    const [openExpenseDeleteForm, setopenExpenseDeleteForm] = useState(false);
+    const [expenseName, setExpenseName] = useState("");
+    const [expenseAmount, setExpenseAmount] = useState("");
+    const [expenseCategory, setExpenseCategory] = useState("");
+    const [readObject, setReadObject] = useState({});
+    const { user, setUser } = useContext(UserContext);
+    const id = user.user_id;
+    console.log(id, "id");
+    const history = useNavigate();
+    const expenseDate = new Date(readObject.expense_time);
+    const exDate = expenseDate.toLocaleString();
 
-  const goback = () => {
-    history("/dashboard");
-  };
+    const goback = () => {
+        history("/dashboard");
+    };
 
-  useEffect(() => {
-    if (id) {
-      console.log(id, "id");
-      axios
-        .get(`http://localhost:5000/getallexpenses/${id}`)
-        .then((response) => {
-          setExpense(response.data.result);
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.log(error.response.data);
-        });
+    useEffect(() => {
+        if (id) {
+            console.log(id, "id");
+            axios
+                .get(`http://localhost:5000/getallexpenses/${id}`)
+                .then((response) => {
+                    setExpense(response.data.result);
+                    console.log(response.data);
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                });
+        }
+    }, [id]);
+
+    useEffect(() => {
+        function checkUser() {
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                console.log(user, "in");
+                setUser(JSON.parse(storedUser));
+                return;
+            } else {
+                history("/");
+            }
+        }
+        checkUser();
+    }, []);
+
+    async function updateExpense(e) {
+        const data = { expenseName, expenseAmount, expenseCategory };
+        const updateId = readObject.expense_id;
+        axios
+            .put(`http://localhost:5000/updateexpense/${updateId}`, data)
+            .then((response) => {
+                console.log(response.data);
+                window.location.reload();
+            })
+            .catch((error) => {
+                console.log(error.response.data);
+            });
     }
-  }, [id]);
 
-  useEffect(() => {
-    function checkUser() {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        console.log(user, "in");
-        setUser(JSON.parse(storedUser));
-        return;
-      } else {
-        history("/");
-      }
+    async function deleteExpense(e) {
+        if (diffDays > 7) {
+            alert("You can only delete expenses within the past 7 days.");
+            return;
+        } else {
+            const deleteId = readObject.expense_id;
+            axios
+                .delete(`http://localhost:5000/deleteexpense/${deleteId}`)
+                .then((response) => {
+                    console.log(response.data);
+                    window.location.reload();
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                });
+        }
     }
-    checkUser();
-  }, []);
 
-  async function updateExpense(e) {
-    const data = { expenseName, expenseAmount, expenseCategory };
-    const updateId = readObject.expense_id;
-    axios
-      .put(`http://localhost:5000/updateexpense/${updateId}`, data)
-      .then((response) => {
-        console.log(response.data);
-        window.location.reload();
-      })
-      .catch((error) => {
-        console.log(error.response.data);
-      });
-  }
+    const elapsedTime = new Date(readObject.expense_time);
+    const today = new Date();
+    const diffDays = (today - elapsedTime) / (1000 * 60 * 60 * 24);
+    console.log(diffDays, "diffDays");
 
-  async function deleteExpense(e) {
-    if (diffDays > 7) {
-      alert("You can only delete expenses within the past 7 days.");
-      return;
-    } else {
-      const deleteId = readObject.expense_id;
-      axios
-        .delete(`http://localhost:5000/deleteexpense/${deleteId}`)
-        .then((response) => {
-          console.log(response.data);
-          window.location.reload();
-        })
-        .catch((error) => {
-          console.log(error.response.data);
-        });
-    }
-  }
+    const formatNumberToPHP = (number) => {
+        return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(number);
+      };
 
-  const elapsedTime = new Date(readObject.expense_time);
-  const today = new Date();
-  const diffDays = (today - elapsedTime) / (1000 * 60 * 60 * 24);
-  console.log(diffDays, "diffDays");
-
-  return (
-    <>
-      <Card className="bg-info m-4">
-        <CardHeader>
-          <button
-            type="button"
-            className="btn-close"
-            aria-label="Close"
-            onClick={goback}
-          ></button>
-          <h1 className="d-flex justify-content-center">Expenses</h1>
-        </CardHeader>
-
-        <CardBody>
-          {expense.map((list, index) => {
-            const utcDate = new Date(list.expense_time);
-            const LocalDate = utcDate.toLocaleDateString();
-            const ComDate = utcDate.toLocaleString();
-            return (
-              <div key={index} className="border-bottom border-bottom-dark">
-                <br />
-                <div className="d-flex flex-row justify-content-between">
-                  <h4>{list.expense_name}</h4>
-                  <p>Expense Amount: {list.expense_amount}</p>
-                  <div>
+    return (
+        <>
+            <Card className="bg-info m-4">
+                <CardHeader>
                     <button
-                      onClick={() => {
-                        setReadObject(list);
-                        setModalOpen(true);
-                      }}
-                    >
-                      <BsThreeDots size={20} />
-                    </button>
-                  </div>
-                </div>
+                        type="button"
+                        className="btn-close"
+                        aria-label="Close"
+                        onClick={goback}
+                    ></button>
+                    <h1 className="d-flex justify-content-center">Expenses</h1>
+                </CardHeader>
 
-                <div className="d-flex flex-row justify-content-between">
-                  <div>
-                    <p>Date: {LocalDate}</p>
-                    <p>
-                      From Budget: {list.budget_name}{" "}
-                      {list.is_deleted ? "(Budget Deleted)" : ""}
-                    </p>
-                  </div>
-                </div>
-                <br />
-                {modalOpen && (
-                  <Modal show={true} backdrop={false} centered>
-                    <Modal.Body>
-                      <div className="d-flex flex-row justify-content-between">
-                        <h4>{readObject.expense_name}</h4>
-                        <p>Expense Amount: {readObject.expense_amount}</p>
-                      </div>
-                      <p>Date: {exDate}</p>
-                      <p>From Budget: {readObject.budget_name}</p>
-                      <br />
-                      <p>Expense Category: {readObject.expense_category}</p>
-                      <button
-                        onClick={() => {
-                          setopenExpenseUpdateForm(true);
-                          setExpenseName(readObject.expense_name);
-                          setExpenseAmount(readObject.expense_amount);
-                          setExpenseCategory(readObject.expense_category);
-                        }}
-                      >
-                        Update
-                      </button>
-                      <button onClick={() => setopenExpenseDeleteForm(true)}>
-                        Delete
-                      </button>
-                      <button onClick={() => setModalOpen(false)}>Close</button>
-                    </Modal.Body>
-                  </Modal>
-                )}
-                {openExpenseUpdateForm && (
-                  <Modal show={true} backdrop={false} centered>
-                    <Modal.Header>
-                      <Modal.Title>Update Expense</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <form onSubmit={updateExpense}>
-                        <label>Name:</label>
-                        <br/>
-                        <input
-                          type="text"
-                          onChange={(e) => setExpenseName(e.target.value)}
-                          placeholder={readObject.expense_name}
-                          className="form-control form-control-lg mt-2"
-                        />
-                        <br />
-                        <label>Amount:</label>
-                        <br/>
-                        <input
-                          type="number"
-                          onChange={(e) => setExpenseAmount(e.target.value)}
-                          placeholder={readObject.expense_amount}
-                          className="form-control form-control-lg mt-2"
-                        />
-                        <br />
-                        <p>Current Category:{expenseCategory}  </p>
-                        <select
-                          onChange={(e) => setExpenseCategory(e.target.value)}
-                          placeholder={readObject.expense_category}
-                        >
-                          <option value="Others">Others</option>
-                          <option value="Food">Food</option>
-                          <option value="Transportation">Transportation</option>
-                          <option value="Utilities">Utilities</option>
-                          <option value="Rent">Rent</option>
-                        </select>
-                        <br />
-                        <br/>
-                        <input type="submit" />
-                        
-                      </form>
-                      <br/>
-                      <button onClick={() => setopenExpenseUpdateForm(false)}>
-                        CLOSE
-                      </button>
-                    </Modal.Body>
-                  </Modal>
-                )}
-                {openExpenseDeleteForm && (
-                  <Modal show={true} backdrop={false} centered>
-                    <Modal.Header>
-                      <Modal.Title>Delete Expense</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <p>Are you sure you want to delete this expense?</p>
-                      <button onClick={deleteExpense}>YES</button>
-                      <button onClick={() => setopenExpenseDeleteForm(false)}>
-                        NO
-                      </button>
-                    </Modal.Body>
-                  </Modal>
-                )}
-              </div>
-            );
-          })}
-        </CardBody>
-      </Card>
-    </>
-  );
+                <CardBody>
+                    {expense.map((list, index) => {
+                        const utcDate = new Date(list.expense_time);
+                        const LocalDate = utcDate.toLocaleDateString();
+                        const ComDate = utcDate.toLocaleString();
+                        return (
+                            <div key={index} className="border-bottom border-bottom-dark">
+                                <br />
+                                <div className="d-flex flex-row justify-content-between">
+                                    <h4>{list.expense_name}</h4>
+                                    <p>Expense Amount: {formatNumberToPHP(list.expense_amount)}</p>
+                                    <div>
+                                        <button
+                                            onClick={() => {
+                                                setReadObject(list);
+                                                setModalOpen(true);
+                                            }}
+                                        >
+                                            <BsThreeDots size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="d-flex flex-row justify-content-between">
+                                    <div>
+                                        <p>Date: {LocalDate}</p>
+                                        <p>
+                                            From Budget: {list.budget_name}{" "}
+                                            {list.is_deleted ? "(Budget Deleted)" : ""}
+                                        </p>
+                                    </div>
+                                </div>
+                                <br />
+                                {modalOpen && (
+                                    <Modal show={true} backdrop={false} centered>
+                                        <Modal.Body>
+                                            <div className="d-flex flex-row justify-content-between">
+                                                <h4>{readObject.expense_name}</h4>
+                                                <p>Expense Amount: {formatNumberToPHP(readObject.expense_amount)}</p>
+                                            </div>
+                                            <p>Date: {exDate}</p>
+                                            <p>From Budget: {readObject.budget_name}</p>
+                                            <br />
+                                            <p>Expense Category: {readObject.expense_category}</p>
+                                        </Modal.Body>
+                                        <ModalFooter>
+                                                <button className="btn btn-primary"
+                                                    onClick={() => {
+                                                        setopenExpenseUpdateForm(true);
+                                                        setExpenseName(readObject.expense_name);
+                                                        setExpenseAmount(readObject.expense_amount);
+                                                        setExpenseCategory(readObject.expense_category);
+                                                    }}
+                                                >
+                                                    Update
+                                                </button>
+                                                <button className="btn btn-primary" onClick={() => setopenExpenseDeleteForm(true)}>
+                                                    Delete
+                                                </button>
+                                                <button className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
+                                        </ModalFooter>
+                                    </Modal>
+                                )}
+                                {openExpenseUpdateForm && (
+                                    <Modal show={true} backdrop={false} centered>
+                                        <Modal.Header>
+                                            <Modal.Title>Update Expense</Modal.Title>
+                                        </Modal.Header>
+                                        <Modal.Body>
+                                            <form onSubmit={updateExpense}>
+                                                <label>Name:</label>
+                                                <br />
+                                                <input
+                                                    type="text"
+                                                    onChange={(e) => setExpenseName(e.target.value)}
+                                                    placeholder={readObject.expense_name}
+                                                    className="form-control form-control-lg mt-2"
+                                                />
+                                                <br />
+                                                <label>Amount:</label>
+                                                <br />
+                                                <input
+                                                    type="number"
+                                                    onChange={(e) => setExpenseAmount(e.target.value)}
+                                                    placeholder={readObject.expense_amount}
+                                                    className="form-control form-control-lg mt-2"
+                                                />
+                                                <br />
+                                                <p>Current Category: {expenseCategory}  </p>
+                                                <select
+                                                    onChange={(e) => setExpenseCategory(e.target.value)}
+                                                    placeholder={readObject.expense_category}
+                                                >
+                                                    <option value="Others">Others</option>
+                                                    <option value="Food">Food</option>
+                                                    <option value="Transportation">Transportation</option>
+                                                    <option value="Utilities">Utilities</option>
+                                                    <option value="Rent">Rent</option>
+                                                </select>
+                                                <input type="submit" className="btn btn-primary m-3"/>
+                                                <button className="btn btn-primary" onClick={() => setopenExpenseUpdateForm(false)}>
+                                                    Close
+                                                </button>
+                                            </form>
+                                            <br />
+
+                                        </Modal.Body>
+                                    </Modal>
+                                )}
+                                {openExpenseDeleteForm && (
+                                    <Modal show={true} backdrop={false} centered>
+                                        <Modal.Header>
+                                            <Modal.Title>Delete Expense</Modal.Title>
+                                        </Modal.Header>
+                                        <Modal.Body>
+                                            <p>Are you sure you want to delete this expense?</p>
+                                            <button className='btn btn-primary m-2' onClick={deleteExpense}>YES</button>
+                                            <button className='btn btn-primary' onClick={() => setopenExpenseDeleteForm(false)}>
+                                                NO
+                                            </button>
+                                        </Modal.Body>
+                                    </Modal>
+                                )}
+                            </div>
+                        );
+                    })}
+                </CardBody>
+            </Card>
+        </>
+    );
 }
 
 export default Expenses;
