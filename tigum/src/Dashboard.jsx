@@ -31,6 +31,10 @@ function Dashboard() {
         history('/budget');
     }
 
+    const gotoreminders = () => {
+        history('/reminders');
+    }
+
     //intro
     useEffect(() => {
         if (showIntro) {
@@ -177,6 +181,7 @@ function Dashboard() {
                     <p className="col-8 text-start"><small>Kamusta,<br /><b>{user ? `${user.firstname} ${user.lastname}` : 'Guest'}</b></small></p>
                     <p className="col-2 text-center"><BiBell size={30} /></p>
                     <p className="col-2 align-center"><BiCog size={30} /></p>
+                    <button className="btn btn-primary" onClick={gotoreminders}>Show Reminders</button>
                 </div>
                 <hr />
             </section>
@@ -250,8 +255,6 @@ function Dashboard() {
         )
     })}
 </a>
-
-
 
             <div className="d-flex justify-content-center mt-4">
                 <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
