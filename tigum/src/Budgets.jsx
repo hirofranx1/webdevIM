@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
 import { BsThreeDots } from "react-icons/bs";
+import { ModalFooter } from "react-bootstrap";
 
 function Budget() {
   const { user, setUser } = useContext(UserContext);
@@ -132,9 +133,9 @@ function Budget() {
     ) {
       return setError("Please Select duration");
     }
-    if(
+    if (
       new Date().getTime() === new Date(endDate).getTime()
-    ){
+    ) {
       return setError("Please Select valid duration");
     }
     if (new Date(endDate).getTime() < new Date(startDate).getTime()) {
@@ -177,12 +178,11 @@ function Budget() {
         Back to dashboard
       </button>
 
-      {/* <div><button onClick={setShowCurrent(true)}>Current Budget</button></div>
-      <div><button onClick={setShowCurrent(false)}>Finished Budget</button></div>  */}
-
       <br />
       <br />
       <button onClick={toggleForm}>+ add new budget</button>
+
+
       <div className="showCurrentBudget">
         {showForm && (
           <Modal show={true} backdrop={false} centered>
@@ -278,7 +278,7 @@ function Budget() {
             <div key={index}>
               <div className="d-flex flex-row justify-content-between">
                 <h4>{budget.budget_name}</h4>
-                <p>Amount: {budget.budget_amount}</p>
+                <p>Amount: {budget.budget_amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</p>
                 <p>
                   Ends In:{" "}
                   {new Date(budget.budget_end_date).toLocaleDateString()}
@@ -303,50 +303,44 @@ function Budget() {
           <Modal.Header>
             <Modal.Title>Budget Details</Modal.Title>
             <div>
-              <p>Amount: {readObject.budget_amount}</p>
-              <p>Name: {readObject.budget_name}</p>
-              <p>Remaining: {readObject.current_budget}</p>
+            <p>Amount: {readObject.budget_amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</p>
+            <p>Name: {readObject.budget_name}</p>
+            <p>Remaining: {readObject.current_budget.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</p>
             </div>
           </Modal.Header>
           <Modal.Body>
-          <div> {/*turn this into a div box with fixed size, para kung daghan nga expenses data kay mag scroll ra siya. */}
-            {expenses.map((expense, index) => {
-              return(
-                <div key={index}>
-                  <div className="d-flex flex-row justify-content-between">
-                    <h4>{expense.expense_name}</h4>
-                    <p>Expense Amount: {expense.expense_amount}</p>
-                    <p>
-                      Expense Date:{" "}
-                      {new Date(expense.expense_time).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-
-            <button
-              onClick={() => {
-                setShowUpdateForm(true);
-                setAmount(readObject.budget_amount);
-                    setEndDate(readObject.budget_end_date);
-                    setTitle(readObject.budget_name);
-              }}
-            >
-              Update Budget
-            </button>
-            <button
-              onClick={() => {
-                setShowDeleteForm(true);
-              }}
-            >
-              Delete Bugdet
-            </button>
-            <button onClick={() => setShowDetails(false)}>Cancel</button>
+            <div className="scrollspy-example" data-spy="scroll" data-target="#expenseTable" style={{ overflowY: 'scroll', height: '200px' }}>
+              <table className="table table-striped" id="expenseTable">
+                <thead>
+                  <tr>
+                    <th>Expense Name</th>
+                    <th>Expense Amount</th>
+                    <th>Expense Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {expenses.map((expense, index) => {
+                    const expenseId = `expense-${index}`; // Unique ID for each expense item
+                    return (
+                      <tr key={index} id={expenseId}>
+                        <td>{expense.expense_name.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</td>
+                        <td>{expense.expense_amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' })}</td>
+                        <td>{new Date(expense.expense_time).toLocaleDateString()}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </Modal.Body>
+          <ModalFooter className="d-flex justify-content-around">
+            <button className="btn btn-primary" onClick={() => {setShowUpdateForm(true); setAmount(readObject.budget_amount);setEndDate(readObject.budget_end_date);setTitle(readObject.budget_name);}}>Update Budget</button>
+            <button className="btn btn-primary" onClick={() => setShowDeleteForm(true)}>Delete Budget</button>
+            <button className="btn btn-primary" onClick={() => setShowDetails(false)}>Cancel</button>
+          </ModalFooter>
         </Modal>
+
+
       )}
 
       {showUpdateForm && (
@@ -376,9 +370,9 @@ function Budget() {
               <br />
 
               <label>End Date: (Current) {new Date(
-                  readObject.budget_end_date
-                ).toLocaleDateString()} </label>
-                <br />
+                readObject.budget_end_date
+              ).toLocaleDateString()} </label>
+              <br />
               <input
                 type="date"
                 className="form-control form-control-lg mt-2"
@@ -387,11 +381,11 @@ function Budget() {
                   setEndDate(e.target.value);
                 }}
               />
-              <input type="submit"/>
-              </form>
-              {error && <p>{error}</p>}
-              <button onClick={() => setShowUpdateForm(false)}>Cancel</button>
-            
+              <input type="submit" />
+            </form>
+            {error && <p>{error}</p>}
+            <button onClick={() => setShowUpdateForm(false)}>Cancel</button>
+
           </Modal.Body>
         </Modal>
       )}
