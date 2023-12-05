@@ -91,7 +91,6 @@ function Expenses() {
     const elapsedTime = new Date(readObject.expense_time);
     const today = new Date();
     const diffDays = (today - elapsedTime) / (1000 * 60 * 60 * 24);
-    console.log(diffDays, "diffDays");
 
     const formatNumberToPHP = (number) => {
         return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(number);

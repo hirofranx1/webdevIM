@@ -12,6 +12,7 @@ function Login() {
   const [localuser, setLocaluser] = useState(null);
   const { user, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
+  const [navOut, setNavOut] = useState(false);
 
   const validateEmail = (email) => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -26,9 +27,10 @@ function Login() {
     setLoading(true); // Show loading state
     axios.post("http://localhost:5000/login", { email, password })
       .then((response) => {
-        console.log(response.data);
         setLocaluser(response.data.user);
         setUser(response.data.user); // Set user data in UserContext
+        setNavOut(true);
+        localStorage.setItem("navOut", JSON.stringify(navOut));
         localStorage.setItem("user", JSON.stringify(response.data.user));
         nav('/dashboard');
       }).catch((error) => {

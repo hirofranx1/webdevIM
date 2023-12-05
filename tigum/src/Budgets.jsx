@@ -24,7 +24,9 @@ function Budget() {
   const [readObject, setReadObject] = useState({});
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
+  const [remaining, setRemaining] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
+  const [addSaving, setAddSaving] = useState(false);
 
   const gotodashboard = () => {
     history("/dashboard");
@@ -116,6 +118,21 @@ function Budget() {
         console.log(error.response.data);
       });
   }
+  console.log(remaining, "remaining")
+  async function addtoSaving(remaining, budget_id){
+    const id = user.user_id;
+    axios.put(`http://localhost:5000/addtosavings`, {
+      id,
+      remaining,
+      budget_id
+  }).then((response) => {
+    console.log(response.data);
+    window.location.reload();
+  }
+  ).catch((error) => {
+    console.log(error.response.data);
+  }
+)}
 
 
   async function updateBudget(e) {
@@ -306,6 +323,7 @@ function Budget() {
                 <p>Amount: {formatNumberToPHP(readObject.budget_amount)}</p>
                 <p>Name: {readObject.budget_name}</p>
                 <p>Remaining: {formatNumberToPHP(total)}</p>
+                <p>End Date: {new Date(readObject.budget_end_date).toLocaleDateString()}</p>
               </div>
             </Modal.Header>
             <Modal.Body>
@@ -334,6 +352,7 @@ function Budget() {
               </div>
             </Modal.Body>
             <ModalFooter className="d-flex justify-content-around">
+              <button className="btn btn-primary" onClick={() => {setAddSaving(true); setRemaining(total)}}>Add to Savings</button>
               <button className="btn btn-primary" onClick={() => { setShowUpdateForm(true); setAmount(readObject.budget_amount); setEndDate(readObject.budget_end_date); setTitle(readObject.budget_name); }}>Update Budget</button>
               <button className="btn btn-primary" onClick={() => setShowDeleteForm(true)}>Delete Budget</button>
               <button className="btn btn-primary" onClick={() => setShowDetails(false)}>Cancel</button>
@@ -407,6 +426,26 @@ function Budget() {
             </Modal.Body>
           </Modal>
         )}
+
+        {addSaving && (
+          <Modal show={true} backdrop={false} centered>
+            <Modal.Body>
+              <div className="d-flex flex-row justify-content-between">
+                <h4>{readObject.budget_name}</h4>
+                <p>Remaining Amount: {formatNumberToPHP(remaining)}</p>
+                <p>
+                  Budget End Date:{" "}
+                  {new Date(readObject.budget_end_date).toLocaleDateString()}
+                </p>
+              </div>
+              <button className="btn btn-primary mx-2" onClick={() => addtoSaving(remaining, readObject.budget_id)}>Add to Savings</button>
+              <button className="btn btn-primary" onClick={() => setAddSaving(false)}>Cancel</button>
+            </Modal.Body>
+          </Modal>
+        )}
+
+
+
       </div>
     </>
   );

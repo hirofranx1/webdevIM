@@ -291,7 +291,39 @@ app.delete(`/deletereminder/:reminderId`, (req, res) => {
   });
 });
 
+app.get(`/getsavings/:id`, (req, res) => {
+  const id = req.params.id;
+  db.query(`SELECT * FROM savings WHERE user_id = ?`, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
+})
 
+app.put(`/addtosavings`, (req, res) => {
+  const { remaining, id, budget_id } = req.body;
+
+  const updateSql = `UPDATE savings SET savings_amount = savings_amount + ? WHERE savings_name = 'Budget Savings' AND user_id = ?`;
+  const deleteSql = `DELETE FROM budget WHERE budget_id = ?`;
+
+  db.query(updateSql, 
+  [remaining, id], (Updateerror, Updateresult) => {
+    if(Updateerror){
+      console.log(Updateerror);
+    }
+    if(Updateresult){
+      db.query(deleteSql, [budget_id], (Deleteerror, Deleteresult) => {
+        if(Deleteerror){
+          console.log(Deleteerror);
+        }
+      })
+      return res.json({result:Updateresult});
+    }
+  })
+})
 
 
 app.listen(port, () => {

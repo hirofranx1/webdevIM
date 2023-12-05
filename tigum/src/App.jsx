@@ -7,6 +7,7 @@ import Budget from './Budgets'
 import AccountsAndSettings from './AccountsAndSettings'
 import Expenses from './Expenses'
 import Reminders from "./Reminders"
+import Savings from "./Savings"
 import { UserProvider } from './UserContext'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -29,6 +30,7 @@ function App() {
           <Route path='/AccountsAndSettings' element={<AccountsAndSettings/>}/>
           <Route path='/expenses' element={<Expenses/>}/>
           <Route path='/reminders' element={<Reminders/>}/>
+          <Route path='/savings' element={<Savings/>}/>
         </Routes>
       </Router>
     </UserProvider>

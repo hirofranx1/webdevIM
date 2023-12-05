@@ -22,8 +22,14 @@ function Dashboard() {
     const [expenseCategory, setExpenseCategory] = useState("Others");
     const [expense, setExpense] = useState([{}]);
     const [error, setError] = useState("");
+    const [showAlert, setShowAlert] = useState(false);
     const [showIntro, setShowIntro] = useState(localStorage.getItem('showIntro') || true);
     const [showExpenseModal, setShowExpenseModal] = useState(false);
+    const navOut = localStorage.getItem('navOut');
+
+
+
+
 
     const id = user.user_id;
     const history = useNavigate();
@@ -34,12 +40,16 @@ function Dashboard() {
     const gotoreminders = () => {
         history('/reminders');
     }
+    const gotoExpense = () => {
+        history('/expenses');
+    }
 
     //intro
     useEffect(() => {
-        if (showIntro) {
+        if (showIntro && navOut === 'true') {
             const timeout = setTimeout(() => {
                 setShowIntro(false);
+                
             }, 5000);
 
             return () => clearTimeout(timeout);
@@ -49,6 +59,7 @@ function Dashboard() {
     const handleIntroClose = () => {
         setShowIntro(false);
         localStorage.setItem('showIntro', false);
+        localStorage.setItem('navOut', false);
         console.log(showIntro);
     }
 
@@ -136,10 +147,8 @@ function Dashboard() {
         axios.get(`http://localhost:5000/getexpenses/${budId}`)
             .then((response) => {
                 setExpense(response.data.result);
-                console.log(response.data.result);
                 const totalSpent = response.data.result.reduce((total, expense) => total + expense.expense_amount, 0);
                 setSpent(totalSpent);
-                console.log(totalSpent);
             })
             .catch((error) => {
                 console.log(error.message);
@@ -156,9 +165,29 @@ function Dashboard() {
             progressValue = (spent / budgets[selectedIndex].budget_amount) * 100;
             progressValue = 100 - progressValue;
             progressValue = Number(progressValue.toFixed(2));
-            console.log(progressValue);
         }
     }
+
+    async function deleteBudget(id) {
+        const deleteId = id;
+        axios.put(`http://localhost:5000/deletebudget/${deleteId}`)
+            .then((response) => {
+                console.log(response.data);
+                window.location.reload();
+            }).catch((error) => {
+                console.log(error);
+                if (error.response) {
+                    setError(error.response.data.message);
+                } else {
+                    setError("Something went wrong");
+                }
+            });
+    }
+
+
+
+
+
 
     const toggleExpenseModal = () => {
         setShowExpenseModal(!showExpenseModal);
@@ -185,6 +214,8 @@ function Dashboard() {
                 </div>
                 <hr />
             </section>
+            
+
 
 
             <div className="d-flex flex-column align-items-center justify-content-center" id="body">
@@ -257,6 +288,7 @@ function Dashboard() {
 
             <div className="d-flex justify-content-center mt-4">
                 <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
+                <button className="btn btn-primary mx-2" onClick={gotoExpense}>Expenses</button>
                 <button className="btn btn-primary mx-2" onClick={toggleExpenseModal}>Add Expense</button>
                 <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
                 <br />
@@ -319,7 +351,28 @@ function Dashboard() {
             
             )}
 
-
+            {budgets.map((budget, index) => {
+                const today = new Date();
+                const budgetDate = new Date(budget.budget_end_date);
+                const id = budget.budget_id;
+                if(today > budgetDate){
+                    return (
+                        <Modal show={true} key={index}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Alert</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <p>Your budget {budget.budget_name} has expired.</p>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={() => deleteBudget(id)}>
+                                    Delete
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+                    )
+                }
+            })}
         </>
     )
 }
