@@ -81,11 +81,11 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/addbudget', (req, res) => {
-    const {id, title, amount, curamount, startDate, endDate} = req.body;
-    console.log(id, title, amount, curamount, startDate, endDate);
-    const sql = `INSERT INTO budget(user_id, budget_name, budget_amount, current_budget, budget_start_date, budget_end_date) VALUES (?, ?, ?, ?, ?, ?)`;
+    const {id, title, amount, startDate, endDate} = req.body;
+    console.log(id, title, amount, startDate, endDate);
+    const sql = `INSERT INTO budget(user_id, budget_name, budget_amount, budget_start_date, budget_end_date) VALUES (?, ?, ?, ?, ?)`;
     if(id != null){
-      db.query(sql, [id, title, amount, curamount, startDate, endDate], (error, result) => {
+      db.query(sql, [id, title, amount, startDate, endDate], (error, result) => {
         if(error){
           console.log(error);
         }

@@ -80,13 +80,11 @@ function Budget() {
     if (new Date(endDate).getTime() < new Date(startDate).getTime()) {
       return setError("Please Select valid duration");
     }
-    const curamount = amount;
     axios
       .post("http://localhost:5000/addbudget", {
         id,
         title,
         amount,
-        curamount,
         startDate,
         endDate,
       })
