@@ -1,8 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "./UserContext";
 import axios from "axios";
-import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
+import { Container, Modal, Row, Col, Card } from 'react-bootstrap';
+import 'react-calendar/dist/Calendar.css';
+import Calendar from 'react-calendar';
 
 function Reminders() {
   const { user, setUser } = useContext(UserContext);
@@ -15,6 +17,7 @@ function Reminders() {
   const [reminderBudgetName, setReminderBudgetName] = useState("");
   const [reminders, setReminders] = useState([{}]);
   const [error, setError] = useState(null);
+  const [selectedReminderDate, setSelectedReminderDate] = useState(null);
 
   const [showRemindForm, setShowRemindForm] = useState(false);
 
@@ -37,6 +40,7 @@ function Reminders() {
         });
     }
   }, [id]);
+
   useEffect(() => {
     if (id) {
       axios
@@ -50,32 +54,30 @@ function Reminders() {
         });
     }
   }, [id]);
-  console.log(reminderBudget);
-  console.log(reminderBudgetName);
+
   async function addReminder(e) {
     e.preventDefault();
-    if(reminderBudget === ""){
-        setError("Please select a budget");
-        return;
+    if (reminderBudget === "") {
+      setError("Please select a budget");
+      return;
     }
-    if(reminderName === ""){
-        setError("Please enter a reminder name");
-        return;
+    if (reminderName === "") {
+      setError("Please enter a reminder name");
+      return;
     }
-    if(reminderAmount === ""){
-        setError("Please enter a reminder amount");
-        return;
+    if (reminderAmount === "") {
+      setError("Please enter a reminder amount");
+      return;
     }
-    if(reminderAmount <= 0){
-        setError("Please enter a valid amount");
-        return;
+    if (reminderAmount <= 0) {
+      setError("Please enter a valid amount");
+      return;
     }
-    if(new Date().getTime() > new Date(reminderDate).getTime()){
-        setError("Please enter a valid date");
-        return;
+    if (new Date().getTime() > new Date(reminderDate).getTime()) {
+      setError("Please enter a valid date");
+      return;
     }
 
-    
     const reminder = {
       reminder_name: reminderName,
       reminder_date: reminderDate,
@@ -98,96 +100,127 @@ function Reminders() {
   }
 
   return (
-    <>
-      <div>Reminders</div>
-      <button onClick={back}> Back </button>
-
-      <button onClick={() => {setShowRemindForm(true)
-        setReminderBudget(budgets[0].budget_name);
-    } }>Add Reminder</button>
-
-      {showRemindForm && (
-        <Modal show={showRemindForm} onHide={() => setShowRemindForm(false)}>
-          <Modal.Header>
-            <Modal.Title>Add Reminder</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <form onSubmit={addReminder}>
-              <label>Reminder Name</label>
-              <br />
-              <input
-                type="text"
-                required
-                onChange={(e) => setReminderName(e.target.value)}
-              />
-              <br />
-              <label>Reminder Amount</label>
-              <br />
-              <input
-                type="text"
-                required
-                onChange={(e) => setReminderAmount(e.target.value)}
-              />
-              <br />
-              <label>Reminder Description</label>
-              <br />
-              <input
-                type="text"
-                onChange={(e) => setReminderDescription(e.target.value)}
-              />
-              <br />
-              <br />
-              <input
-                type="date"
-                required
-                onChange={(e) => setReminderDate(e.target.value)}
-              />
-              <br />
-              <label>Reminder Budget: </label>
-              <br />
-              <select onChange={(e) => {
-                setReminderBudget(e.target.value)
-            }}>
-                {budgets.map((budget, index) => {
-                  return (
-                    <option
-                      key={`${budget.budget_id}-${index}`}
-                      value={budget.budget_name}
-                      className="text-center"
-                    >
-                      {budget.budget_name}
-                    </option>
-                  );
-                })}
-              </select>
-              <br />
-              <br />
-
-              <input type="submit" value="Add Reminder" />
-              {error && <div className="error">{error}</div>}
-            </form>
-            <br />
-            <button onClick={() => setShowRemindForm(false)}>Close</button>
-          </Modal.Body>
-        </Modal>
-      )}
-
-      {reminders.map((reminder, index) => {
-        return (
-          <div key={`${reminder.reminder_id}-${index}`}>
-            <div>Reminder Name: {reminder.reminder_name}</div>
-            <div>Reminder Amount: {reminder.reminder_amount}</div>
+    <Container className="d-flex justify-content-center mt-4">
+      <Card border="info" style={{ borderRadius: '5px', maxWidth: '400px' }}>
+        <Card.Body>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h2>Reminders</h2>
             <div>
-              Reminder Date:{" "}
-              {new Date(reminder.reminder_date).toLocaleDateString()}
+              <button className="btn btn-secondary me-2" onClick={back}>Back</button>
+              <button className="btn btn-primary" onClick={() => {
+                setShowRemindForm(true);
+                setReminderBudget(budgets[0].budget_name);
+              }}>Add Reminder</button>
             </div>
-            <div>Reminder Budget: {reminder.bud_name}</div>
-            <div>Reminder Description: {reminder.reminder_description}</div>
-            <br />
           </div>
-        );
-      })}
-    </>
+
+          {showRemindForm && (
+            <Modal show={showRemindForm} onHide={() => setShowRemindForm(false)}>
+              <Modal.Header>
+                <Modal.Title>Add Reminder</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <form onSubmit={addReminder}>
+                  <div className="mb-3">
+                    <label htmlFor="reminderName" className="form-label">Reminder Name</label>
+                    <input
+                      type="text"
+                      id="reminderName"
+                      className="form-control"
+                      required
+                      onChange={(e) => setReminderName(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="reminderAmount" className="form-label">Reminder Amount</label>
+                    <input
+                      type="text"
+                      id="reminderAmount"
+                      className="form-control"
+                      required
+                      onChange={(e) => setReminderAmount(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="reminderDescription" className="form-label">Reminder Description</label>
+                    <input
+                      type="text"
+                      id="reminderDescription"
+                      className="form-control"
+                      onChange={(e) => setReminderDescription(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="reminderDate" className="form-label">Reminder Date</label>
+                    <input
+                      type="date"
+                      id="reminderDate"
+                      className="form-control"
+                      required
+                      onChange={(e) => setReminderDate(e.target.value)}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="reminderBudget" className="form-label">Reminder Budget</label>
+                    <select
+                      id="reminderBudget"
+                      className="form-select"
+                      onChange={(e) => setReminderBudget(e.target.value)}
+                    >
+                      {budgets.map((budget, index) => {
+                        return (
+                          <option
+                            key={`${budget.budget_id}-${index}`}
+                            value={budget.budget_name}
+                            className="text-center"
+                          >
+                            {budget.budget_name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                  <div className="mb-3">
+                    <button type="submit" className="btn btn-primary">Add Reminder</button>
+                    {error && <div className="error">{error}</div>}
+                  </div>
+                </form>
+                <button onClick={() => setShowRemindForm(false)} className="btn btn-secondary">Close</button>
+              </Modal.Body>
+            </Modal>
+          )}
+
+          <div className="mt-3">
+            <Container className="text-center">
+              <Row>
+                <Col>
+                  <div className="border border-info rounded-3 p-3">
+                    <Calendar />
+                  </div>
+                </Col>
+              </Row>
+            </Container>
+          </div>
+
+          {/* Display reminders */}
+          {reminders.map((reminder, index) => {
+            return (
+              <div key={`${reminder.reminder_id}-${index}`}>
+                <div>Reminder Name: {reminder.reminder_name}</div>
+                <div>Reminder Amount: {reminder.reminder_amount}</div>
+                <div>
+                  Reminder Date:{" "}
+                  {new Date(reminder.reminder_date).toLocaleDateString()}
+                </div>
+                <div>Reminder Budget: {reminder.bud_name}</div>
+                <div>Reminder Description: {reminder.reminder_description}</div>
+                <br />
+              </div>
+            );
+          })}
+        </Card.Body>
+      </Card>
+    </Container>
   );
 }
 
