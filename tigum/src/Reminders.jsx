@@ -7,7 +7,9 @@ import 'react-calendar/dist/Calendar.css';
 import Calendar from 'react-calendar';
 import { BsThreeDots } from "react-icons/bs";
 
+
 function Reminders() {
+
   const { user, setUser } = useContext(UserContext);
   const [budgets, setBudgets] = useState([{}]);
   const [reminderName, setReminderName] = useState("");
@@ -23,6 +25,7 @@ function Reminders() {
   const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState(null);
   const [showRemindForm, setShowRemindForm] = useState(false);
+
 
   const id = user.user_id;
   const history = useNavigate();
@@ -57,6 +60,8 @@ function Reminders() {
         });
     }
   }, [id]);
+
+
   console.log(reminderBudget);
   console.log(reminderName + ": reminderName");
   async function addReminder(e) {
@@ -262,7 +267,9 @@ function Reminders() {
               <Row>
                 <Col>
                   <div className="border border-info rounded-3 p-3">
-                    <Calendar />
+                  <div>
+                    <Calendar/>
+                  </div>
                   </div>
                 </Col>
               </Row>
