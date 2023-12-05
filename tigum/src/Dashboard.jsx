@@ -150,7 +150,7 @@ function Dashboard() {
     let progressValue;
     if (budgets[selectedIndex]) {
         if (Number(spent) > Number(budgets[selectedIndex].budget_amount)) {
-            progressValue = 100;
+            progressValue = 0;
             console.log(progressValue);
         } else {
             progressValue = (spent / budgets[selectedIndex].budget_amount) * 100;
@@ -229,7 +229,6 @@ function Dashboard() {
                             )
                         })}
                     </select>
-                    // </div>
                 )}
             </div>
 

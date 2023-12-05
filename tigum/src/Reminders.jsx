@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Modal, Row, Col, Card } from 'react-bootstrap';
 import 'react-calendar/dist/Calendar.css';
 import Calendar from 'react-calendar';
+import { BsThreeDots } from "react-icons/bs";
 
 function Reminders() {
   const { user, setUser } = useContext(UserContext);
@@ -12,18 +13,15 @@ function Reminders() {
   const [reminderName, setReminderName] = useState("");
   const [reminderDate, setReminderDate] = useState("");
   const [reminderAmount, setReminderAmount] = useState("");
-  const [reminderBudget, setReminderBudget] = useState();
-  const [reminderDescription, setReminderDescription] = useState("");
-  const [reminderBudgetName, setReminderBudgetName] = useState("");
-  const [reminderBudgetId, setReminderBudgetId] = useState("");
+  const [reminderBudget, setReminderBudget] = useState({});
   const [reminders, setReminders] = useState([{}]);
   const [reminderObject, setReminderObject] = useState({});
+  const [reminderCategory, setReminderCategory] = useState("Others");
   const [payForm, setPayForm] = useState(false);
   const [updateForm, setUpdateForm] = useState(false);
   const [deleteForm, setDeleteForm] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedReminderDate, setSelectedReminderDate] = useState(null);
-
   const [showRemindForm, setShowRemindForm] = useState(false);
 
   const id = user.user_id;
@@ -60,13 +58,9 @@ function Reminders() {
     }
   }, [id]);
   console.log(reminderBudget);
+  console.log(reminderName + ": reminderName");
   async function addReminder(e) {
     e.preventDefault();
-    const budget = reminderBudget;
-    setReminderBudgetId(budget.budget_id);
-    setReminderBudgetName(budget.budget_name);
-    console.log(reminderBudgetId);
-    console.log(reminderBudgetName);
     if(reminderBudget === ""){
         setError("Please select a budget");
         return;
@@ -92,9 +86,9 @@ function Reminders() {
       reminder_name: reminderName,
       reminder_date: reminderDate,
       reminder_amount: reminderAmount,
-      bud_name: reminderBudgetName,
-      bud_id: reminderBudgetId,
-      reminder_description: reminderDescription,
+      bud_name: reminderBudget.budget_name,
+      bud_id: reminderBudget.budget_id,
+      reminder_category: reminderCategory,
       user_id: id,
     };
 
@@ -110,6 +104,65 @@ function Reminders() {
       });
   }
 
+  async function payReminder(e) {
+    e.preventDefault();
+    const reminder = {
+      reminder_id: reminderObject.reminder_id,
+      reminder_name: reminderObject.reminder_name,
+      reminder_amount: reminderObject.reminder_amount,
+      bud_id: reminderObject.budget_id,
+      reminder_category: reminderObject.reminder_category,
+    };
+
+    console.log(reminder);
+    axios
+      .post("http://localhost:5000/payreminder", reminder)
+      .then((response) => {
+        console.log(response.data.result);
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  }
+
+  async function updateReminder(e) {
+    e.preventDefault();
+    const reminder = {
+      reminder_id: reminderObject.reminder_id,
+      reminder_name: reminderName,
+      reminder_date: reminderDate,
+      reminder_amount: reminderAmount,
+      bud_id: reminderBudget.budget_id,
+      budget_name: reminderBudget.budget_name,
+      reminder_category: reminderCategory,
+    };
+
+    console.log(reminder);
+    axios
+      .put("http://localhost:5000/updatereminder", reminder)
+      .then((response) => {
+        console.log(response.data.result);
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  }
+
+  async function deleteReminder(e) {
+    e.preventDefault();
+    const id = reminderObject.reminder_id;
+
+    axios.delete(`http://localhost:5000/deletereminder/${id}`)
+    .then((response) => {
+      console.log(response.data.result);
+      window.location.reload();
+    }).catch((error) => {
+      console.log(error.message);
+    });
+  }
+
   return (
     <Container className="d-flex justify-content-center mt-4">
       <Card border="info" style={{ borderRadius: '5px', maxWidth: '400px' }}>
@@ -120,7 +173,7 @@ function Reminders() {
               <button className="btn btn-secondary me-2" onClick={back}>Back</button>
               <button className="btn btn-primary" onClick={() => {
                 setShowRemindForm(true);
-                setReminderBudget(budgets[0].budget_name);
+                setReminderBudget({budget_name: budgets[0].budget_name , budget_id: budgets[0].budget_id});
               }}>Add Reminder</button>
             </div>
           </div>
@@ -153,15 +206,6 @@ function Reminders() {
                     />
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="reminderDescription" className="form-label">Reminder Description</label>
-                    <input
-                      type="text"
-                      id="reminderDescription"
-                      className="form-control"
-                      onChange={(e) => setReminderDescription(e.target.value)}
-                    />
-                  </div>
-                  <div className="mb-3">
                     <label htmlFor="reminderDate" className="form-label">Reminder Date</label>
                     <input
                       type="date"
@@ -172,17 +216,29 @@ function Reminders() {
                     />
                   </div>
                   <div className="mb-3">
+                    <label htmlFor="reminderDate" className="form-label">Reminder Date</label>
+                    <select onChange={(e) => setReminderCategory(e.target.value)} className="form-select">
+                    <option value="Others">Others</option>
+                    <option value="Transportation">Transportation</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Food">Food</option>
+                    </select>
+                  </div>
+                  <div className="mb-3">
                     <label htmlFor="reminderBudget" className="form-label">Reminder Budget</label>
                     <select
                       id="reminderBudget"
                       className="form-select"
-                      onChange={(e) => setReminderBudget(e.target.value)}
+                      onChange={(e) => {
+                        const budget = JSON.parse(e.target.value);
+                        setReminderBudget(budget)}}
                     >
                       {budgets.map((budget, index) => {
                         return (
                           <option
                             key={`${budget.budget_id}-${index}`}
-                            value={budget.budget_name}
+                            value={JSON.stringify({budget_name: budget.budget_name, budget_id: budget.budget_id})}
                             className="text-center"
                           >
                             {budget.budget_name}
@@ -220,19 +276,185 @@ function Reminders() {
                 <div>Reminder Name: {reminder.reminder_name}</div>
                 <div>Reminder Amount: {reminder.reminder_amount}</div>
                 <div>
-                  Reminder Date:{" "}
+                  Pay Before:{" "}
                   {new Date(reminder.reminder_date).toLocaleDateString()}
                 </div>
-                <div>Reminder Budget: {reminder.bud_name}</div>
-                <div>Reminder Description: {reminder.reminder_description}</div>
+                <button className="btn btn-primary"
+                        onClick={() => {
+                          setReminderObject(reminder)
+                          setShowDetails(true)
+                        }}
+                      >
+                        <BsThreeDots size={20} />
+                      </button>
+
                 <br />
+                
               </div>
             );
           })}
+
         </Card.Body>
       </Card>
+      {showDetails && (
+        <Modal show={showDetails} onHide={() => setShowDetails(false)}>
+          <Modal.Header>
+            <Modal.Title>{reminderObject.reminder_name}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div>Reminder Name: {reminderObject.reminder_name}</div>
+            <div>Reminder Amount: {reminderObject.reminder_amount}</div>
+            <div>
+                  Pay Before:{" "}
+                  {new Date(reminderObject.reminder_date).toLocaleDateString()}
+                </div>
+                <div>Reminder Category: {reminderObject.reminder_category}</div>
+                <div>Reminder Budget: {reminderObject.budget_name}</div>
+          </Modal.Body>
+          <Modal.Footer>
+          <button onClick = {() => setPayForm(true) } className="btn btn-primary">Pay</button>
+                <button  className="btn btn-primary" onClick={() => {setUpdateForm(true) 
+                          setReminderName(reminderObject.reminder_name)
+                          setReminderDate(reminderObject.reminder_date)
+                          setReminderAmount(reminderObject.reminder_amount)
+                          setReminderCategory(reminderObject.reminder_category)
+                          setReminderBudget({budget_name: reminderObject.budget_name, budget_id: reminderObject.budget_id})}}>Update</button>
+                <button className="btn btn-primary" onClick={()=> {setDeleteForm(true)}}>Delete</button>
+                <button onClick={() => setShowDetails(false)} className="btn btn-primary">Close</button>
+            </Modal.Footer>
+        </Modal>
+        )}
+
+      {payForm && (
+        <Modal show={payForm} onHide={() => setPayForm(false)}>
+          <Modal.Header>
+          <Modal.Title>{reminderObject.reminder_name}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form onSubmit={payReminder}>
+              <div>Amount: {reminderObject.reminder_amount}</div>
+              <div>
+                Pay Before:{" "}
+                {new Date(reminderObject.reminder_date).toLocaleDateString()}
+              </div>
+              <div>Category: {reminderObject.reminder_category}</div>
+              <div>Budget: {reminderObject.budget_name}</div>
+              
+              <br />
+            
+            <Modal.Footer>
+            <div><button type="submit" className="btn btn-primary">Pay</button></div>
+            <div><button onClick={() => setPayForm(false)} className="btn btn-primary">Close</button></div>
+            </Modal.Footer>
+            </form>
+          </Modal.Body>
+        </Modal>
+      )}
+      {updateForm && (
+        <Modal show={updateForm} onHide={() => setUpdateForm(false)}>
+          <Modal.Header>
+          <Modal.Title>{reminderObject.reminder_name}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form onSubmit={updateReminder}>
+              <div>
+                <label htmlFor="reminderName" className="form-label">Reminder Name</label>
+                <input
+                  type="text"
+                  id="reminderName"
+                  className="form-control"
+                  placeholder={reminderObject.reminder_name}
+                  onChange={(e) => setReminderName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="reminderAmount" className="form-label">Reminder Amount</label>
+                <input
+                  type="text"
+                  id="reminderAmount"
+                  className="form-control"
+                  placeholder={reminderObject.reminder_amount}
+                  onChange={(e) => setReminderAmount(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="reminderDate" className="form-label">Reminder Date:(Current){new Date(reminderObject.reminder_date).toLocaleDateString()}</label>
+                <input
+                  type="date"
+                  id="reminderDate"
+                  className="form-control"
+                  onChange={(e) => setReminderDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="reminderDate" className="form-label">Category: (Current){reminderObject.reminder_category}</label>
+                <select onChange={(e) => setReminderCategory(e.target.value)} className="form-select">
+                <option value="Others">Others</option>
+                <option value="Transportation">Transportation</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Food">Food</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="reminderBudget" className="form-label">Budget: (Current){reminderBudget.budget_name}</label>
+                <select
+                  id="reminderBudget"
+                  className="form-select"
+                  onChange={(e) => {
+                    const budget = JSON.parse(e.target.value);
+                    setReminderBudget(budget)}}
+                >
+                  {budgets.map((budget, index) => {
+                    return (
+                      <option
+                        key={`${budget.budget_id}-${index}`}
+                        value={JSON.stringify({budget_name: budget.budget_name, budget_id: budget.budget_id})}
+                        className="text-center"
+                      >
+                        {budget.budget_name}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+              <Modal.Footer>
+              <input type="submit" className="btn btn-primary" value="Update" />
+              <button onClick={() => setUpdateForm(false)} className="btn btn-primary">Close</button>
+          </Modal.Footer>
+          </form>
+          </Modal.Body>
+            
+        </Modal>
+      )}
+
+      {deleteForm && (
+        <Modal show={deleteForm} onHide={() => setDeleteForm(false)}>
+          <Modal.Header>
+          <Modal.Title><div>Are you sure you want to delete this reminder?</div></Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div><h3>{reminderObject.reminder_name}</h3></div>
+            <div>Reminder Amount: {reminderObject.reminder_amount}</div>
+            <div>
+                  Pay Before:{" "}
+                  {new Date(reminderObject.reminder_date).toLocaleDateString()}
+                </div>
+                <div>Reminder Category: {reminderObject.reminder_category}</div>
+                <div>Reminder Budget: {reminderObject.budget_name}</div>
+          </Modal.Body>
+          <Modal.Footer>
+          <button onClick={deleteReminder} className="btn btn-primary">Delete</button>
+          <button onClick={() => setDeleteForm(false)} className="btn btn-primary">Close</button>
+          </Modal.Footer>
+        </Modal>
+      )}
+
+
     </Container>
   );
 }
 
 export default Reminders;
+
+

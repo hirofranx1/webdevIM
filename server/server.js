@@ -217,7 +217,7 @@ app.get(`/getexpensesinbud/:budId`, (req, res) => {
 
 app.get(`/getreminders/:id`, (req, res) => {
   const id = req.params.id;
-  db.query(`SELECT * FROM reminders WHERE user_id = ?`, [id], (error, result) => {
+  db.query(`SELECT * FROM reminders WHERE user_id = ? && isPaid = 0 ORDER BY reminder_date ASC`, [id], (error, result) => {
     if(error){
       console.log(error);
     }
@@ -229,9 +229,9 @@ app.get(`/getreminders/:id`, (req, res) => {
 })
 
 app.post(`/addreminder`, (req, res) => {
-  const {reminder_name, reminder_date, reminder_amount, bud_name,bud_id, reminder_description, user_id } = req.body;  
-  const sql = `INSERT INTO reminders(user_id, budget_id,reminder_name, reminder_description, reminder_date, budget_name, reminder_amount) VALUES (?, ?, ?, ?, ?, ?, ?) `;
-  db.query(sql, [user_id, bud_id, reminder_name, reminder_description, reminder_date, bud_name, reminder_amount], (error, result) => {
+  const {reminder_name, reminder_date, reminder_amount, bud_name,bud_id, reminder_category, user_id } = req.body;  
+  const sql = `INSERT INTO reminders(user_id, budget_id,reminder_name, reminder_category, reminder_date, budget_name, reminder_amount) VALUES (?, ?, ?, ?, ?, ?, ?) `;
+  db.query(sql, [user_id, bud_id, reminder_name, reminder_category, reminder_date, bud_name, reminder_amount], (error, result) => {
     if(error){
       console.log(error);
     }
@@ -241,6 +241,58 @@ app.post(`/addreminder`, (req, res) => {
     }
   });
 })
+
+app.post(`/payreminder`, (req, res) => {
+  const { reminder_id, reminder_name, reminder_amount, bud_id, reminder_category } = req.body;
+
+  const insertSQL = `INSERT INTO expenses (budget_id, expense_name, expense_amount, expense_category) VALUES (?, ?, ?, ?)`;
+  const updateSQL = `UPDATE reminders SET isPaid = 1 WHERE reminder_id = ?`;
+
+  db.query(insertSQL, [bud_id, reminder_name, reminder_amount, reminder_category], (insertError, insertResult) => {
+    if (insertError) {
+      console.log(insertError);
+      return res.status(500).json({ error: "Error inserting into expenses" });
+    }
+    db.query(updateSQL, [reminder_id], (updateError, updateResult) => {
+      if (updateError) {
+        console.log(updateError);
+        return res.status(500).json({ error: "Error updating reminders" });
+      }
+
+      console.log(updateResult);
+      return res.json({ result: updateResult });
+    });
+  });
+});
+
+app.put(`/updatereminder`, (req, res) => {
+  const {reminder_id, reminder_name, reminder_date, reminder_amount, reminder_category, bud_id, budget_name} = req.body;
+  db.query(`UPDATE reminders SET budget_id = ?, reminder_name = ?, reminder_date = ?,budget_name = ?, reminder_amount = ?, reminder_category = ? WHERE reminder_id = ?`,
+  [bud_id, reminder_name, reminder_date, budget_name, reminder_amount, reminder_category, reminder_id],
+  (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
+})
+
+app.delete(`/deletereminder/:reminderId`, (req, res) => {
+  const id = req.params.reminderId;
+  db.query(`DELETE FROM reminders WHERE reminder_id = ?`, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  });
+});
+
+
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
