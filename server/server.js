@@ -229,13 +229,14 @@ app.get(`/getreminders/:id`, (req, res) => {
 })
 
 app.post(`/addreminder`, (req, res) => {
-  const {reminder_name, reminder_date, reminder_amount, bud_name, reminder_description, user_id } = req.body;  
-  const sql = `INSERT INTO reminders(user_id, reminder_name, reminder_description, reminder_date, bud_name, reminder_amount) VALUES (?, ?, ?, ?, ?, ?) `;
-  db.query(sql, [user_id, reminder_name, reminder_description, reminder_date, bud_name, reminder_amount], (error, result) => {
+  const {reminder_name, reminder_date, reminder_amount, bud_name,bud_id, reminder_description, user_id } = req.body;  
+  const sql = `INSERT INTO reminders(user_id, budget_id,reminder_name, reminder_description, reminder_date, budget_name, reminder_amount) VALUES (?, ?, ?, ?, ?, ?, ?) `;
+  db.query(sql, [user_id, bud_id, reminder_name, reminder_description, reminder_date, bud_name, reminder_amount], (error, result) => {
     if(error){
       console.log(error);
     }
     if(result){
+      console.log(result);
       return res.json({result:result});
     }
   });

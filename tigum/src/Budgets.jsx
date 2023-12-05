@@ -20,6 +20,7 @@ function Budget() {
   const [error, setError] = useState("");
   const [budgets, setBudgets] = useState([{}]);
   const [expenses, setExpenses] = useState([{}]);
+  const [total, setTotal] = useState(0);
   const [readObject, setReadObject] = useState({});
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
@@ -162,6 +163,9 @@ function Budget() {
         .get(`http://localhost:5000/getexpensesinbud/${budId}`)
         .then((response) => {
           console.log(response.data.result);
+          const totalspent = response.data.result.reduce((total, expense) => { return total = total + expense.expense_amount}, 0);
+          setTotal(readObject.budget_amount - totalspent);
+          console.log(totalspent);
           setExpenses(response.data.result);
         })
         .catch((error) => {
@@ -301,7 +305,7 @@ function Budget() {
               <div>
                 <p>Amount: {formatNumberToPHP(readObject.budget_amount)}</p>
                 <p>Name: {readObject.budget_name}</p>
-                <p>Remaining: {formatNumberToPHP(readObject.current_budget)}</p>
+                <p>Remaining: {formatNumberToPHP(total)}</p>
               </div>
             </Modal.Header>
             <Modal.Body>

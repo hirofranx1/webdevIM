@@ -10,10 +10,15 @@ function Reminders() {
   const [reminderName, setReminderName] = useState("");
   const [reminderDate, setReminderDate] = useState("");
   const [reminderAmount, setReminderAmount] = useState("");
-  const [reminderBudget, setReminderBudget] = useState("");
+  const [reminderBudget, setReminderBudget] = useState();
   const [reminderDescription, setReminderDescription] = useState("");
   const [reminderBudgetName, setReminderBudgetName] = useState("");
+  const [reminderBudgetId, setReminderBudgetId] = useState("");
   const [reminders, setReminders] = useState([{}]);
+  const [reminderObject, setReminderObject] = useState({});
+  const [payForm, setPayForm] = useState(false);
+  const [updateForm, setUpdateForm] = useState(false);
+  const [deleteForm, setDeleteForm] = useState(false);
   const [error, setError] = useState(null);
 
   const [showRemindForm, setShowRemindForm] = useState(false);
@@ -51,9 +56,13 @@ function Reminders() {
     }
   }, [id]);
   console.log(reminderBudget);
-  console.log(reminderBudgetName);
   async function addReminder(e) {
     e.preventDefault();
+    const budget = reminderBudget;
+    setReminderBudgetId(budget.budget_id);
+    setReminderBudgetName(budget.budget_name);
+    console.log(reminderBudgetId);
+    console.log(reminderBudgetName);
     if(reminderBudget === ""){
         setError("Please select a budget");
         return;
@@ -80,7 +89,8 @@ function Reminders() {
       reminder_name: reminderName,
       reminder_date: reminderDate,
       reminder_amount: reminderAmount,
-      bud_name: reminderBudget,
+      bud_name: reminderBudgetName,
+      bud_id: reminderBudgetId,
       reminder_description: reminderDescription,
       user_id: id,
     };
@@ -103,7 +113,7 @@ function Reminders() {
       <button onClick={back}> Back </button>
 
       <button onClick={() => {setShowRemindForm(true)
-        setReminderBudget(budgets[0].budget_name);
+        setReminderBudget({budget_name: budgets[0].budget_name, budget_id: budgets[0].budget_id});
     } }>Add Reminder</button>
 
       {showRemindForm && (
@@ -146,13 +156,15 @@ function Reminders() {
               <label>Reminder Budget: </label>
               <br />
               <select onChange={(e) => {
-                setReminderBudget(e.target.value)
+                const budget = JSON.parse(e.target.value);
+                console.log(budget);
+                setReminderBudget(budget)
             }}>
                 {budgets.map((budget, index) => {
                   return (
                     <option
                       key={`${budget.budget_id}-${index}`}
-                      value={budget.budget_name}
+                      value={JSON.stringify({budget_name: budget.budget_name, budget_id: budget.budget_id})}
                       className="text-center"
                     >
                       {budget.budget_name}
@@ -181,12 +193,52 @@ function Reminders() {
               Reminder Date:{" "}
               {new Date(reminder.reminder_date).toLocaleDateString()}
             </div>
-            <div>Reminder Budget: {reminder.bud_name}</div>
+            <div>Reminder Budget: {reminder.budget_name}</div>
             <div>Reminder Description: {reminder.reminder_description}</div>
             <br />
+            <button onClick={() => {setPayForm(true)
+            setReminderObject(reminder)}}>Pay</button>
+            <button>Update</button>
+            <button>Delete</button>
           </div>
         );
       })}
+
+      {payForm && (
+        <Modal show={payForm} onHide={() => setPayForm(false)}>
+          <Modal.Header>
+            <Modal.Title>{reminderObject.reminder_name}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form>
+              <br />
+              <label>Amount</label>
+              <br />
+              <h2>{reminderObject.reminder_amount} </h2>
+              <input type="hidden"/>
+              <br />
+              <label>Description</label>
+              <br />
+              <h2>{reminderObject.reminder_description}</h2>
+              <br />
+              <label>Date</label>
+              <br />
+              <h2>{new Date(reminderObject.reminder_date).toLocaleDateString()}</h2>
+              <br />
+              <label>Budget</label>
+              <br />
+              <h2>{reminderObject.reminder_description}</h2>
+              <br />
+              <input type="submit" value="Pay Reminder" />
+            </form>
+            <br />
+            <button onClick={() => setPayForm(false)}>Close</button>
+          </Modal.Body>
+        </Modal>
+      )}
+
+
+
     </>
   );
 }
