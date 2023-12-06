@@ -198,6 +198,11 @@ function Dashboard() {
         return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(number);
     };
 
+    const [showRightSidebar, setShowRightSidebar] = useState(false);
+
+    const toggleRightSidebar = () => {
+        setShowRightSidebar(!showRightSidebar);
+    };
 
 
     return (
@@ -207,18 +212,36 @@ function Dashboard() {
             <section className="container">
                 <hr />
                 <div className="row align-items-center">
-                    <p className="col-8 text-start"><small>Kamusta,<br /><b>{user ? `${user.firstname} ${user.lastname}` : 'Guest'}</b></small></p>
-                    <p className="col-2 text-center"><BiBell size={30} /></p>
-                    <p className="col-2 align-center"><BiCog size={30} /></p>
-                    <button className="btn btn-primary" onClick={gotoreminders}>Show Reminders</button>
-                    <br/>
-                    <button className="btn btn-primary" onClick={gotoSavings}>Show Savings</button>
+                    <p className="col-8 text-start">
+                        <small>Kamusta,<br /><b>{user ? `${user.firstname} ${user.lastname}` : 'Guest'}</b></small>
+                    </p>
+                    <p className="col-2 text-center"><BiBell id="bell-icon" size={30} style={{ cursor: 'pointer' }}/></p>
+                    <p className="col-2 align-center"><BiCog size={30} onClick={toggleRightSidebar} style={{ cursor: 'pointer' }}/></p>
                 </div>
                 <hr />
             </section>
 
 
-
+            {/* Right Sidebar */}
+            <div className={`offcanvas offcanvas-end ${showRightSidebar ? 'show' : ''}`} tabIndex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+                <div className="offcanvas-header">
+                    <h5 className="offcanvas-title" id="offcanvasRightLabel">Right Sidebar</h5>
+                    <button type="button" className="btn-close" onClick={toggleRightSidebar} aria-label="Close"></button>
+                </div>
+                <div className="offcanvas-body">
+                    {/* Sidebar content */}
+                    {/* Show Reminders */}
+                    <button className="btn btn-primary w-100 mb-2" onClick={gotoreminders}>Show Reminders</button>
+                    {/* Show Savings */}
+                    <button className="btn btn-primary w-100 mb-2" onClick={gotoSavings}>Show Savings</button>
+                    {/* Show Budgets */}
+                    <button className="btn btn-primary w-100 mb-2" onClick={gotobudget}>Show Budgets</button>
+                    {/* Expenses */}
+                    <button className="btn btn-primary w-100 mb-2" onClick={gotoExpense}>Expenses</button>
+                    {/* Logout */}
+                    <button className="btn btn-primary w-100" onClick={handleLogout}>Logout</button>
+                </div>
+            </div>
 
             <div className="d-flex flex-column align-items-center justify-content-center" id="body">
                 <Card bg='info' className='my-4' style={{ width: '23rem', borderRadius: '12px' }}>
@@ -232,7 +255,7 @@ function Dashboard() {
                         <ProgressBar animated variant='success' now={progressValue} />
                     </div>
                     <p className='text-center mt-1'><small>You have a remaining budget of</small></p>
-                    <p className="display-3 text-center"><b>{(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent))? formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent)) : "0"}</b></p>
+                    <p className="display-3 text-center"><b>{(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent)) ? formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent)) : "0"}</b></p>
                     {spent > (budgets[selectedIndex] && (budgets[selectedIndex].budget_amount)) && <p className="text-center text-danger">You are over budget!</p>}
 
                     <div className="d-flex text-center mb-2 mx-2">
@@ -246,57 +269,63 @@ function Dashboard() {
                 </Card>
 
 
-                {(hasData) && (
-                    // <div className="d-flex align-items-center justify-content-center mb-4">
-                    <select
-                        value={localStorage.getItem('selectedIndex') || ''}
-                        onChange={(e) => {
-                            setSelectedIndex(e.target.value);
-                            localStorage.setItem('selectedIndex', e.target.value);
-                            setExpenseForm(false);
-                        }}
-                        style={{ width: '23rem' }} // Adjust the width as needed
-                    >
-                        {budgets.map((budget, index) => {
-                            return (
-                                <option key={`${budget.budget_id}-${index}`} value={index} className='text-center'>{budget.budget_name}</option>
-                            )
-                        })}
-                    </select>
+
+                {/* Dropdown using react-bootstrap */}
+                {hasData && (
+                    <Dropdown onSelect={(eventKey) => {
+                        setSelectedIndex(eventKey);
+                        localStorage.setItem('selectedIndex', eventKey);
+                        setExpenseForm(false);
+                    }} className="my-4" style={{ width: '23rem' }}>
+                        <Dropdown.Toggle variant="primary" id="dropdown-basic" style={{ width: '100%' }}>
+                            {budgets[selectedIndex]?.budget_name || 'Select Budget'}
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu style={{ width: '100%', minWidth: '23rem' }}>
+                            {budgets.map((budget, index) => (
+                                <Dropdown.Item
+                                    key={`${budget.budget_id}-${index}`}
+                                    eventKey={index}
+                                    className='text-center'
+                                >
+                                    {budget.budget_name}
+                                </Dropdown.Item>
+                            ))}
+                        </Dropdown.Menu>
+                    </Dropdown>
                 )}
+
+
                 <br />
                 {hasData && <button className="btn btn-primary mx-2" onClick={toggleExpenseModal} >Add Expense</button>}
             </div>
 
-{/* Expenses list */}
-<div className="d-flex justify-content-center">
-    {expense.slice(0, 3).map((expense, index) => { // Use slice(-3) to get the last three items
-        const utcDate = new Date(expense.expense_time);
-        const LocalDate = utcDate.toLocaleString();
+            {/* Expenses list as a table */}
+            <div className="d-flex justify-content-center">
+                <table className="table table-striped" style={{ maxWidth: '23rem' }}>
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {expense.slice(-3).map((expense, index) => {
+                            const utcDate = new Date(expense.expense_time);
+                            const LocalDate = utcDate.toLocaleString();
 
-        return (
-            <div key={index} className='w-100 mb-3 border-bottom border-dark' style={{ maxWidth: '23rem' }}>
-                <ul className='list-group list-group-flush'>
-                    <li className='list-group-item d-flex flex-column'>
-                        <div className='d-flex flex-row justify-content-between'>
-                            <h4>{expense.expense_name}</h4>
-                            <p>Expense Amount: {formatNumberToPHP(expense.expense_amount)}</p>
-                        </div>
-                        <p>Category: {expense.expense_category}</p>
-                        <p>Date: {LocalDate}</p>
-                    </li>
-                </ul>
-            </div>
-        )
-    })}
-</div>
-
-            <div className="d-flex justify-content-center mt-4">
-                <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
-                <button className="btn btn-primary mx-2" onClick={gotoExpense}>Expenses</button>
-                <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
-                <br />
-
+                            return (
+                                <tr key={index}>
+                                    <td>{expense.expense_name}</td>
+                                    <td>{formatNumberToPHP(expense.expense_amount)}</td>
+                                    <td>{expense.expense_category}</td>
+                                    <td>{LocalDate}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
             </div>
 
             {showExpenseModal && (
