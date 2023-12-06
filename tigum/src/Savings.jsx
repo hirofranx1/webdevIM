@@ -30,6 +30,8 @@ function Savings() {
 
   return (
     <>
+        <button onClick={back} className="btn btn-primary"> Back </button>
+
         {savings.map((val, key) => {
             return (
                 <div key = {key}>

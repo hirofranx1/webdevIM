@@ -57,6 +57,10 @@ function Expenses() {
     }, []);
 
     async function updateExpense(e) {
+        if (diffDays > 7) {
+            alert("You can only delete expenses within the past 7 days.");
+            return;
+        } else {
         const data = { expenseName, expenseAmount, expenseCategory };
         const updateId = readObject.expense_id;
         axios
@@ -68,6 +72,7 @@ function Expenses() {
             .catch((error) => {
                 console.log(error.response.data);
             });
+        }
     }
 
     async function deleteExpense(e) {
@@ -111,6 +116,11 @@ function Expenses() {
 
                 <CardBody>
                     {expense.map((list, index) => {
+                        const today = new Date();
+                        const expenseDate = new Date(list.expense_time);
+                        const differenceInMs = today - expenseDate;
+                        const millisecondsInDay = 1000 * 60 * 60 * 24; 
+                        const differenceInDays = differenceInMs / millisecondsInDay;
                         const utcDate = new Date(list.expense_time);
                         const LocalDate = utcDate.toLocaleDateString();
                         const ComDate = utcDate.toLocaleString();
@@ -140,6 +150,7 @@ function Expenses() {
                                 </div>
                                 <br />
                                 {modalOpen && (
+
                                     <Modal show={true} backdrop={false} centered>
                                         <Modal.Body>
                                             <div className="d-flex flex-row justify-content-between">
@@ -153,19 +164,19 @@ function Expenses() {
                                         </Modal.Body>
                                         <ModalFooter>
                                                 <button className="btn btn-primary"
-                                                    onClick={() => {
-                                                        setopenExpenseUpdateForm(true);
-                                                        setExpenseName(readObject.expense_name);
-                                                        setExpenseAmount(readObject.expense_amount);
-                                                        setExpenseCategory(readObject.expense_category);
-                                                    }}
-                                                >
-                                                    Update
-                                                </button>
-                                                <button className="btn btn-primary" onClick={() => setopenExpenseDeleteForm(true)}>
-                                                    Delete
-                                                </button>
-                                                <button className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
+                                                onClick={() => {
+                                                    setopenExpenseUpdateForm(true);
+                                                    setExpenseName(readObject.expense_name);
+                                                    setExpenseAmount(readObject.expense_amount);
+                                                    setExpenseCategory(readObject.expense_category);
+                                                }}
+                                            >
+                                                Update
+                                            </button>
+                                            <button className="btn btn-primary" onClick={() => setopenExpenseDeleteForm(true)}>
+                                                Delete
+                                            </button>
+                                            <button className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>
                                         </ModalFooter>
                                     </Modal>
                                 )}

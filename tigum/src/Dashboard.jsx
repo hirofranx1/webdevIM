@@ -43,6 +43,10 @@ function Dashboard() {
     const gotoExpense = () => {
         history('/expenses');
     }
+    const gotoSavings = () => {
+        history('/savings');
+    }
+
 
     //intro
     useEffect(() => {
@@ -211,6 +215,8 @@ function Dashboard() {
                     <p className="col-2 text-center"><BiBell size={30} /></p>
                     <p className="col-2 align-center"><BiCog size={30} /></p>
                     <button className="btn btn-primary" onClick={gotoreminders}>Show Reminders</button>
+                    <br/>
+                    <button className="btn btn-primary" onClick={gotoSavings}>Show Savings</button>
                 </div>
                 <hr />
             </section>
@@ -226,16 +232,16 @@ function Dashboard() {
                     </div>
 
                     <div className="p-2">
-                        <p className="display-6 text-center"><b>{progressValue + '%'}</b></p>
+                        <p className="display-6 text-center"><b>{(progressValue) ? progressValue : "0"}%</b></p>
                         <ProgressBar animated variant='success' now={progressValue} />
                     </div>
                     <p className='text-center mt-1'><small>You have a remaining budget of</small></p>
-                    <p className="display-3 text-center"><b>{formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent))}</b></p>
+                    <p className="display-3 text-center"><b>{(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent))? formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent)) : "0"}</b></p>
                     {spent > (budgets[selectedIndex] && (budgets[selectedIndex].budget_amount)) && <p className="text-center text-danger">You are over budget!</p>}
 
                     <div className="d-flex text-center mb-2 mx-2">
                         <div className="flex-fill border border-end-1 rounded-start-3 bg-light border-dark">
-                            <p className="text-center"><small>Budget</small><br /><b>{formatNumberToPHP(budgets[selectedIndex] && budgets[selectedIndex].budget_amount)}</b></p>
+                            <p className="text-center"><small>Budget</small><br /><b>{(budgets[selectedIndex] && budgets[selectedIndex].budget_amount) ? formatNumberToPHP(budgets[selectedIndex] && budgets[selectedIndex].budget_amount) : "0"}</b></p>
                         </div>
                         <div className="flex-fill border border-start-1 rounded-end-3 bg-light border-dark">
                             <p className="text-center"><small>Expense</small><br /><b>{formatNumberToPHP(spent)}</b></p>
@@ -261,10 +267,12 @@ function Dashboard() {
                         })}
                     </select>
                 )}
+                <br />
+                {hasData && <button className="btn btn-primary mx-2" onClick={toggleExpenseModal} >Add Expense</button>}
             </div>
 
 {/* Expenses list */}
-<a href='/expenses' className="d-flex flex-column align-items-center link-underline link-underline-opacity-0">
+<div className="d-flex justify-content-center">
     {expense.slice(0, 3).map((expense, index) => { // Use slice(-3) to get the last three items
         const utcDate = new Date(expense.expense_time);
         const LocalDate = utcDate.toLocaleString();
@@ -284,12 +292,11 @@ function Dashboard() {
             </div>
         )
     })}
-</a>
+</div>
 
             <div className="d-flex justify-content-center mt-4">
                 <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
                 <button className="btn btn-primary mx-2" onClick={gotoExpense}>Expenses</button>
-                <button className="btn btn-primary mx-2" onClick={toggleExpenseModal}>Add Expense</button>
                 <button className="btn btn-primary" onClick={handleLogout}>Logout</button>
                 <br />
 
