@@ -66,9 +66,9 @@ function Reminders() {
   console.log(reminderName + ": reminderName");
   async function addReminder(e) {
     e.preventDefault();
-    if(reminderBudget === ""){
-        setError("Please select a budget");
-        return;
+    if (reminderBudget === "") {
+      setError("Please select a budget");
+      return;
     }
     if (reminderName === "") {
       setError("Please enter a reminder name");
@@ -160,17 +160,24 @@ function Reminders() {
     const id = reminderObject.reminder_id;
 
     axios.delete(`http://localhost:5000/deletereminder/${id}`)
-    .then((response) => {
-      console.log(response.data.result);
-      window.location.reload();
-    }).catch((error) => {
-      console.log(error.message);
-    });
+      .then((response) => {
+        console.log(response.data.result);
+        window.location.reload();
+      }).catch((error) => {
+        console.log(error.message);
+      });
   }
+
+  // Sort reminders by date, closest date first
+  const sortedReminders = [...reminders].sort((a, b) => {
+    const dateA = new Date(a.reminder_date).getTime();
+    const dateB = new Date(b.reminder_date).getTime();
+    return dateA - dateB;
+  });
 
   return (
     <Container className="d-flex justify-content-center mt-4">
-      <Card border="info" style={{ borderRadius: '5px', maxWidth: '400px' }}>
+      <Card border="info" style={{ borderRadius: '5px', maxWidth: '600px' }}>
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2>Reminders</h2>
@@ -178,7 +185,7 @@ function Reminders() {
               <button className="btn btn-secondary me-2" onClick={back}>Back</button>
               <button className="btn btn-primary" onClick={() => {
                 setShowRemindForm(true);
-                setReminderBudget({budget_name: budgets[0].budget_name , budget_id: budgets[0].budget_id});
+                setReminderBudget({ budget_name: budgets[0].budget_name, budget_id: budgets[0].budget_id });
               }}>Add Reminder</button>
             </div>
           </div>
@@ -223,11 +230,11 @@ function Reminders() {
                   <div className="mb-3">
                     <label htmlFor="reminderDate" className="form-label">Reminder Date</label>
                     <select onChange={(e) => setReminderCategory(e.target.value)} className="form-select">
-                    <option value="Others">Others</option>
-                    <option value="Transportation">Transportation</option>
-                    <option value="Entertainment">Entertainment</option>
-                    <option value="Utilities">Utilities</option>
-                    <option value="Food">Food</option>
+                      <option value="Others">Others</option>
+                      <option value="Transportation">Transportation</option>
+                      <option value="Entertainment">Entertainment</option>
+                      <option value="Utilities">Utilities</option>
+                      <option value="Food">Food</option>
                     </select>
                   </div>
                   <div className="mb-3">
@@ -237,13 +244,14 @@ function Reminders() {
                       className="form-select"
                       onChange={(e) => {
                         const budget = JSON.parse(e.target.value);
-                        setReminderBudget(budget)}}
+                        setReminderBudget(budget)
+                      }}
                     >
                       {budgets.map((budget, index) => {
                         return (
                           <option
                             key={`${budget.budget_id}-${index}`}
-                            value={JSON.stringify({budget_name: budget.budget_name, budget_id: budget.budget_id})}
+                            value={JSON.stringify({ budget_name: budget.budget_name, budget_id: budget.budget_id })}
                             className="text-center"
                           >
                             {budget.budget_name}
@@ -266,40 +274,47 @@ function Reminders() {
             <Container className="text-center">
               <Row>
                 <Col>
-                  <div className="border border-info rounded-3 p-3">
-                  <div>
-                    <Calendar/>
-                  </div>
+                  <div className="rounded-3 p-3 d-flex justify-content-center">
+                    <div>
+                      <Calendar/>
+                    </div>
                   </div>
                 </Col>
               </Row>
             </Container>
           </div>
 
-          {/* Display reminders */}
-          {reminders.map((reminder, index) => {
-            return (
-              <div key={`${reminder.reminder_id}-${index}`}>
-                <div>Reminder Name: {reminder.reminder_name}</div>
-                <div>Reminder Amount: {reminder.reminder_amount}</div>
-                <div>
-                  Pay Before:{" "}
-                  {new Date(reminder.reminder_date).toLocaleDateString()}
-                </div>
-                <button className="btn btn-primary"
-                        onClick={() => {
-                          setReminderObject(reminder)
-                          setShowDetails(true)
-                        }}
-                      >
-                        <BsThreeDots size={20} />
-                      </button>
-
-                <br />
-                
-              </div>
-            );
-          })}
+          {/* Display reminders in a table sorted by closest date */}
+          <table className="table mt-3">
+            <thead>
+              <tr>
+                <th>Reminder Name</th>
+                <th>Reminder Amount</th>
+                <th>Pay Before</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedReminders.map((reminder, index) => (
+                <tr key={`${reminder.reminder_id}-${index}`}>
+                  <td>{reminder.reminder_name}</td>
+                  <td>{reminder.reminder_amount}</td>
+                  <td>{new Date(reminder.reminder_date).toLocaleDateString()}</td>
+                  <td>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => {
+                        setReminderObject(reminder);
+                        setShowDetails(true);
+                      }}
+                    >
+                      <BsThreeDots size={20} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
         </Card.Body>
       </Card>
@@ -312,30 +327,32 @@ function Reminders() {
             <div>Reminder Name: {reminderObject.reminder_name}</div>
             <div>Reminder Amount: {reminderObject.reminder_amount}</div>
             <div>
-                  Pay Before:{" "}
-                  {new Date(reminderObject.reminder_date).toLocaleDateString()}
-                </div>
-                <div>Reminder Category: {reminderObject.reminder_category}</div>
-                <div>Reminder Budget: {reminderObject.budget_name}</div>
+              Pay Before:{" "}
+              {new Date(reminderObject.reminder_date).toLocaleDateString()}
+            </div>
+            <div>Reminder Category: {reminderObject.reminder_category}</div>
+            <div>Reminder Budget: {reminderObject.budget_name}</div>
           </Modal.Body>
           <Modal.Footer>
-          <button onClick = {() => setPayForm(true) } className="btn btn-primary">Pay</button>
-                <button  className="btn btn-primary" onClick={() => {setUpdateForm(true) 
-                          setReminderName(reminderObject.reminder_name)
-                          setReminderDate(reminderObject.reminder_date)
-                          setReminderAmount(reminderObject.reminder_amount)
-                          setReminderCategory(reminderObject.reminder_category)
-                          setReminderBudget({budget_name: reminderObject.budget_name, budget_id: reminderObject.budget_id})}}>Update</button>
-                <button className="btn btn-primary" onClick={()=> {setDeleteForm(true)}}>Delete</button>
-                <button onClick={() => setShowDetails(false)} className="btn btn-primary">Close</button>
-            </Modal.Footer>
+            <button onClick={() => setPayForm(true)} className="btn btn-primary">Pay</button>
+            <button className="btn btn-primary" onClick={() => {
+              setUpdateForm(true)
+              setReminderName(reminderObject.reminder_name)
+              setReminderDate(reminderObject.reminder_date)
+              setReminderAmount(reminderObject.reminder_amount)
+              setReminderCategory(reminderObject.reminder_category)
+              setReminderBudget({ budget_name: reminderObject.budget_name, budget_id: reminderObject.budget_id })
+            }}>Update</button>
+            <button className="btn btn-primary" onClick={() => { setDeleteForm(true) }}>Delete</button>
+            <button onClick={() => setShowDetails(false)} className="btn btn-primary">Close</button>
+          </Modal.Footer>
         </Modal>
-        )}
+      )}
 
       {payForm && (
         <Modal show={payForm} onHide={() => setPayForm(false)}>
           <Modal.Header>
-          <Modal.Title>{reminderObject.reminder_name}</Modal.Title>
+            <Modal.Title>{reminderObject.reminder_name}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <form onSubmit={payReminder}>
@@ -346,13 +363,13 @@ function Reminders() {
               </div>
               <div>Category: {reminderObject.reminder_category}</div>
               <div>Budget: {reminderObject.budget_name}</div>
-              
+
               <br />
-            
-            <Modal.Footer>
-            <div><button type="submit" className="btn btn-primary">Pay</button></div>
-            <div><button onClick={() => setPayForm(false)} className="btn btn-primary">Close</button></div>
-            </Modal.Footer>
+
+              <Modal.Footer>
+                <div><button type="submit" className="btn btn-primary">Pay</button></div>
+                <div><button onClick={() => setPayForm(false)} className="btn btn-primary">Close</button></div>
+              </Modal.Footer>
             </form>
           </Modal.Body>
         </Modal>
@@ -360,7 +377,7 @@ function Reminders() {
       {updateForm && (
         <Modal show={updateForm} onHide={() => setUpdateForm(false)}>
           <Modal.Header>
-          <Modal.Title>{reminderObject.reminder_name}</Modal.Title>
+            <Modal.Title>{reminderObject.reminder_name}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <form onSubmit={updateReminder}>
@@ -396,11 +413,11 @@ function Reminders() {
               <div>
                 <label htmlFor="reminderDate" className="form-label">Category: (Current){reminderObject.reminder_category}</label>
                 <select onChange={(e) => setReminderCategory(e.target.value)} className="form-select">
-                <option value="Others">Others</option>
-                <option value="Transportation">Transportation</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Utilities">Utilities</option>
-                <option value="Food">Food</option>
+                  <option value="Others">Others</option>
+                  <option value="Transportation">Transportation</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Food">Food</option>
                 </select>
               </div>
               <div>
@@ -410,13 +427,14 @@ function Reminders() {
                   className="form-select"
                   onChange={(e) => {
                     const budget = JSON.parse(e.target.value);
-                    setReminderBudget(budget)}}
+                    setReminderBudget(budget)
+                  }}
                 >
                   {budgets.map((budget, index) => {
                     return (
                       <option
                         key={`${budget.budget_id}-${index}`}
-                        value={JSON.stringify({budget_name: budget.budget_name, budget_id: budget.budget_id})}
+                        value={JSON.stringify({ budget_name: budget.budget_name, budget_id: budget.budget_id })}
                         className="text-center"
                       >
                         {budget.budget_name}
@@ -426,33 +444,33 @@ function Reminders() {
                 </select>
               </div>
               <Modal.Footer>
-              <input type="submit" className="btn btn-primary" value="Update" />
-              <button onClick={() => setUpdateForm(false)} className="btn btn-primary">Close</button>
-          </Modal.Footer>
-          </form>
+                <input type="submit" className="btn btn-primary" value="Update" />
+                <button onClick={() => setUpdateForm(false)} className="btn btn-primary">Close</button>
+              </Modal.Footer>
+            </form>
           </Modal.Body>
-            
+
         </Modal>
       )}
 
       {deleteForm && (
         <Modal show={deleteForm} onHide={() => setDeleteForm(false)}>
           <Modal.Header>
-          <Modal.Title><div>Are you sure you want to delete this reminder?</div></Modal.Title>
+            <Modal.Title><div>Are you sure you want to delete this reminder?</div></Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <div><h3>{reminderObject.reminder_name}</h3></div>
             <div>Reminder Amount: {reminderObject.reminder_amount}</div>
             <div>
-                  Pay Before:{" "}
-                  {new Date(reminderObject.reminder_date).toLocaleDateString()}
-                </div>
-                <div>Reminder Category: {reminderObject.reminder_category}</div>
-                <div>Reminder Budget: {reminderObject.budget_name}</div>
+              Pay Before:{" "}
+              {new Date(reminderObject.reminder_date).toLocaleDateString()}
+            </div>
+            <div>Reminder Category: {reminderObject.reminder_category}</div>
+            <div>Reminder Budget: {reminderObject.budget_name}</div>
           </Modal.Body>
           <Modal.Footer>
-          <button onClick={deleteReminder} className="btn btn-primary">Delete</button>
-          <button onClick={() => setDeleteForm(false)} className="btn btn-primary">Close</button>
+            <button onClick={deleteReminder} className="btn btn-primary">Delete</button>
+            <button onClick={() => setDeleteForm(false)} className="btn btn-primary">Close</button>
           </Modal.Footer>
         </Modal>
       )}

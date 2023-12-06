@@ -53,7 +53,7 @@ function Dashboard() {
         if (showIntro && navOut === 'true') {
             const timeout = setTimeout(() => {
                 setShowIntro(false);
-                
+
             }, 5000);
 
             return () => clearTimeout(timeout);
@@ -109,7 +109,7 @@ function Dashboard() {
         localStorage.removeItem("showIntro");
         history('/');
         console.log(user);
-    } 
+    }
 
     //toggle expense form
     const toggleExpense = () => {
@@ -200,8 +200,8 @@ function Dashboard() {
 
     const formatNumberToPHP = (number) => {
         return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(number);
-      };
-    
+    };
+
 
 
     return (
@@ -220,7 +220,7 @@ function Dashboard() {
                 </div>
                 <hr />
             </section>
-            
+
 
 
 
@@ -248,6 +248,7 @@ function Dashboard() {
                         </div>
                     </div>
                 </Card>
+
 
                 {(hasData) && (
                     // <div className="d-flex align-items-center justify-content-center mb-4">
@@ -355,14 +356,14 @@ function Dashboard() {
                         </Modal.Footer>
                     </form>
                 </Modal>
-            
+
             )}
 
             {budgets.map((budget, index) => {
                 const today = new Date();
                 const budgetDate = new Date(budget.budget_end_date);
                 const id = budget.budget_id;
-                if(today > budgetDate){
+                if (today > budgetDate) {
                     return (
                         <Modal show={true} key={index}>
                             <Modal.Header closeButton>
