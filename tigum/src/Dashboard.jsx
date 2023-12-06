@@ -49,7 +49,7 @@ function Dashboard() {
         if (showIntro && navOut === 'true') {
             const timeout = setTimeout(() => {
                 setShowIntro(false);
-                
+
             }, 5000);
 
             return () => clearTimeout(timeout);
@@ -105,7 +105,7 @@ function Dashboard() {
         localStorage.removeItem("showIntro");
         history('/');
         console.log(user);
-    } 
+    }
 
     //toggle expense form
     const toggleExpense = () => {
@@ -196,8 +196,8 @@ function Dashboard() {
 
     const formatNumberToPHP = (number) => {
         return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(number);
-      };
-    
+    };
+
 
 
     return (
@@ -214,7 +214,7 @@ function Dashboard() {
                 </div>
                 <hr />
             </section>
-            
+
 
 
 
@@ -226,22 +226,23 @@ function Dashboard() {
                     </div>
 
                     <div className="p-2">
-                        <p className="display-6 text-center"><b>{progressValue + '%'}</b></p>
-                        <ProgressBar animated variant='success' now={progressValue} />
+                        <p className="display-6 text-center"><b>{(progressValue !== undefined ? progressValue + '%' : 'No Budget')}</b></p>
+                        {progressValue !== undefined ? <ProgressBar animated variant='success' now={progressValue} /> : null}
                     </div>
                     <p className='text-center mt-1'><small>You have a remaining budget of</small></p>
-                    <p className="display-3 text-center"><b>{formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent))}</b></p>
-                    {spent > (budgets[selectedIndex] && (budgets[selectedIndex].budget_amount)) && <p className="text-center text-danger">You are over budget!</p>}
+                    <p className="display-3 text-center"><b>{formatNumberToPHP((budgets[selectedIndex]?.budget_amount || 0) - spent)}</b></p>
+                    {(budgets[selectedIndex]?.budget_amount || 0) < spent && <p className="text-center text-danger">You are over budget!</p>}
 
                     <div className="d-flex text-center mb-2 mx-2">
                         <div className="flex-fill border border-end-1 rounded-start-3 bg-light border-dark">
-                            <p className="text-center"><small>Budget</small><br /><b>{formatNumberToPHP(budgets[selectedIndex] && budgets[selectedIndex].budget_amount)}</b></p>
+                            <p className="text-center"><small>Budget</small><br /><b>{formatNumberToPHP(budgets[selectedIndex]?.budget_amount || 0)}</b></p>
                         </div>
                         <div className="flex-fill border border-start-1 rounded-end-3 bg-light border-dark">
                             <p className="text-center"><small>Expense</small><br /><b>{formatNumberToPHP(spent)}</b></p>
                         </div>
                     </div>
                 </Card>
+
 
                 {(hasData) && (
                     // <div className="d-flex align-items-center justify-content-center mb-4">
@@ -263,28 +264,28 @@ function Dashboard() {
                 )}
             </div>
 
-{/* Expenses list */}
-<a href='/expenses' className="d-flex flex-column align-items-center link-underline link-underline-opacity-0">
-    {expense.slice(0, 3).map((expense, index) => { // Use slice(-3) to get the last three items
-        const utcDate = new Date(expense.expense_time);
-        const LocalDate = utcDate.toLocaleString();
+            {/* Expenses list */}
+            <a href='/expenses' className="d-flex flex-column align-items-center link-underline link-underline-opacity-0">
+                {expense.slice(0, 3).map((expense, index) => { // Use slice(-3) to get the last three items
+                    const utcDate = new Date(expense.expense_time);
+                    const LocalDate = utcDate.toLocaleString();
 
-        return (
-            <div key={index} className='w-100 mb-3 border-bottom border-dark' style={{ maxWidth: '23rem' }}>
-                <ul className='list-group list-group-flush'>
-                    <li className='list-group-item d-flex flex-column'>
-                        <div className='d-flex flex-row justify-content-between'>
-                            <h4>{expense.expense_name}</h4>
-                            <p>Expense Amount: {formatNumberToPHP(expense.expense_amount)}</p>
+                    return (
+                        <div key={index} className='w-100 mb-3 border-bottom border-dark' style={{ maxWidth: '23rem' }}>
+                            <ul className='list-group list-group-flush'>
+                                <li className='list-group-item d-flex flex-column'>
+                                    <div className='d-flex flex-row justify-content-between'>
+                                        <h4>{expense.expense_name}</h4>
+                                        <p>Expense Amount: {formatNumberToPHP(expense.expense_amount)}</p>
+                                    </div>
+                                    <p>Category: {expense.expense_category}</p>
+                                    <p>Date: {LocalDate}</p>
+                                </li>
+                            </ul>
                         </div>
-                        <p>Category: {expense.expense_category}</p>
-                        <p>Date: {LocalDate}</p>
-                    </li>
-                </ul>
-            </div>
-        )
-    })}
-</a>
+                    )
+                })}
+            </a>
 
             <div className="d-flex justify-content-center mt-4">
                 <button className="btn btn-primary" onClick={gotobudget}>Show Budgets</button>
@@ -348,14 +349,14 @@ function Dashboard() {
                         </Modal.Footer>
                     </form>
                 </Modal>
-            
+
             )}
 
             {budgets.map((budget, index) => {
                 const today = new Date();
                 const budgetDate = new Date(budget.budget_end_date);
                 const id = budget.budget_id;
-                if(today > budgetDate){
+                if (today > budgetDate) {
                     return (
                         <Modal show={true} key={index}>
                             <Modal.Header closeButton>
