@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 04, 2023 at 05:06 PM
+-- Generation Time: Dec 06, 2023 at 10:38 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -42,9 +42,9 @@ CREATE TABLE `budget` (
 --
 
 INSERT INTO `budget` (`budget_id`, `user_id`, `budget_name`, `budget_amount`, `budget_start_date`, `budget_end_date`, `is_deleted`) VALUES
-(1, 2, 'Weekly', 10000.00, '2023-11-22', '2023-12-14', 0),
-(2, 2, 'Hatdog', 633333.00, '2023-11-22', '2023-11-29', 0),
-(3, 2, 'PangMotr', 60000.00, '2023-11-22', '2023-11-29', 0),
+(1, 2, 'Weekly', 10000.00, '2023-11-22', '2023-12-14', 1),
+(2, 2, 'Hatdog', 633333.00, '2023-11-22', '2023-11-29', 1),
+(3, 2, 'PangMotr', 60000.00, '2023-11-22', '2023-11-29', 1),
 (4, 1, 'Palit Laptop', 56984.00, '2023-11-22', '0000-00-00', 0),
 (5, 1, 'asda', 23123.00, '2023-11-22', '0000-00-00', 0),
 (6, 1, 'adasdasd', 12313123.00, '2023-11-22', '2023-11-30', 0),
@@ -53,8 +53,9 @@ INSERT INTO `budget` (`budget_id`, `user_id`, `budget_name`, `budget_amount`, `b
 (9, 1, '123', 123.00, '2023-11-22', '2023-12-12', 0),
 (10, 1, 'tarong na', 60325.00, '2023-11-22', '2023-11-27', 0),
 (11, 2, 'Weekend', 111111.00, '2023-11-23', '2023-12-28', 1),
-(12, 2, 'Secrettttt', 1000.00, '2023-12-04', '2024-01-02', 0),
-(13, 2, 'sample', 100000.00, '2023-12-04', '2023-12-11', 0);
+(12, 2, 'Secrettttt', 2000.00, '2023-12-04', '2024-01-01', 1),
+(14, 2, 'asd', 123.00, '2023-12-05', '2023-12-12', 1),
+(15, 2, 'BudgetSample', 50.00, '2023-12-05', '2023-12-12', 1);
 
 -- --------------------------------------------------------
 
@@ -95,7 +96,12 @@ INSERT INTO `expenses` (`expense_id`, `budget_id`, `expense_name`, `expense_amou
 (76, 3, 'expense', 111.00, 'Transportation', '2023-12-04 12:49:29'),
 (77, 1, 'hmmm', 123.00, 'Transportation', '2023-12-04 12:49:59'),
 (78, 1, 'adasdasdasd', 231.00, 'Others', '2023-12-04 12:50:31'),
-(79, 3, 'vct cleaning', 500.00, 'Others', '2023-12-04 12:53:44');
+(79, 3, 'vct cleaning', 500.00, 'Others', '2023-12-04 12:53:44'),
+(113, 14, 'asd', 100.00, 'Entertainment', '2023-12-05 15:02:05'),
+(116, 14, 'ASDsample', 23.00, 'Entertainment', '2023-12-05 17:30:25'),
+(117, 12, 'Sample', 1000.00, 'Entertainment', '2023-12-05 19:48:27'),
+(118, 12, 'Gastonsasd', 500.00, 'Utilities', '2023-12-05 19:49:44'),
+(119, 2, 'Hello', 123.00, 'Others', '2023-12-05 23:05:47');
 
 -- --------------------------------------------------------
 
@@ -106,24 +112,24 @@ INSERT INTO `expenses` (`expense_id`, `budget_id`, `expense_name`, `expense_amou
 CREATE TABLE `reminders` (
   `reminder_id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
+  `budget_id` int(11) NOT NULL,
   `reminder_name` varchar(50) NOT NULL,
   `reminder_description` varchar(255) NOT NULL,
   `reminder_date` date DEFAULT NULL,
-  `bud_id` int(11) DEFAULT NULL,
+  `budget_name` varchar(11) DEFAULT NULL,
   `reminder_amount` int(11) DEFAULT NULL,
-  `budget_name` varchar(255) DEFAULT NULL
+  `reminder_category` varchar(255) NOT NULL,
+  `isPaid` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `reminders`
 --
 
-INSERT INTO `reminders` (`reminder_id`, `user_id`, `reminder_name`, `reminder_description`, `reminder_date`, `bud_id`, `reminder_amount`, `budget_name`) VALUES
-(16, 2, 'Sample', 'Sample Description', '2023-12-21', 12, 100, NULL),
-(17, 2, 'Hello', '1321', '2023-12-15', 2, 123123, 'PangMotr'),
-(18, 2, 'asdas', 'asd', '2023-12-16', 13, 213, NULL),
-(19, 2, '123', '123', '2023-12-23', 2, 123, 'PangMotr'),
-(20, 2, '123', '123123', '2023-12-30', 13, 123123, NULL);
+INSERT INTO `reminders` (`reminder_id`, `user_id`, `budget_id`, `reminder_name`, `reminder_description`, `reminder_date`, `budget_name`, `reminder_amount`, `reminder_category`, `isPaid`) VALUES
+(40, 2, 14, 'ASDsample', '', '2023-12-07', 'asd', 23, 'Entertainment', 1),
+(41, 2, 12, 'Sample', '', '2023-12-22', 'Secrettttt', 1000, 'Entertainment', 1),
+(43, 2, 2, 'Hello', '', '2023-12-22', 'Hatdog', 123, 'Others', 1);
 
 -- --------------------------------------------------------
 
@@ -133,11 +139,20 @@ INSERT INTO `reminders` (`reminder_id`, `user_id`, `reminder_name`, `reminder_de
 
 CREATE TABLE `savings` (
   `savings_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `budget_id` int(11) DEFAULT NULL,
   `savings_name` varchar(50) NOT NULL,
   `savings_amount` float(10,2) NOT NULL,
   `savings_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `savings`
+--
+
+INSERT INTO `savings` (`savings_id`, `user_id`, `budget_id`, `savings_name`, `savings_amount`, `savings_date`) VALUES
+(1, 2, NULL, 'Budget Savings', 107446.00, '2023-12-06'),
+(2, 4, NULL, 'Budget Savings', 0.00, '2023-12-06');
 
 -- --------------------------------------------------------
 
@@ -160,7 +175,17 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`user_id`, `firstname`, `lastname`, `email`, `password`) VALUES
 (1, 'hat', 'dog', 'hat@dog.hatdog', 'Hat12345'),
 (2, 'hat', 'dog', 'hat@hat.hat', 'Hat12345'),
-(3, 'new', 'new', 'new@new.new', 'New12345');
+(3, 'new', 'new', 'new@new.new', 'New12345'),
+(4, 'Hello', 'World', 'sample@sample.sample', 'Sample12345');
+
+--
+-- Triggers `users`
+--
+DELIMITER $$
+CREATE TRIGGER `afterUserInsert` AFTER INSERT ON `users` FOR EACH ROW INSERT INTO savings (user_id, savings_name, savings_amount, savings_date)
+    VALUES (NEW.user_id, 'Budget Savings', 0, CURRENT_TIMESTAMP)
+$$
+DELIMITER ;
 
 --
 -- Indexes for dumped tables
@@ -191,8 +216,7 @@ ALTER TABLE `reminders`
 -- Indexes for table `savings`
 --
 ALTER TABLE `savings`
-  ADD PRIMARY KEY (`savings_id`),
-  ADD KEY `budget_id` (`budget_id`);
+  ADD PRIMARY KEY (`savings_id`);
 
 --
 -- Indexes for table `users`
@@ -208,31 +232,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `budget`
 --
 ALTER TABLE `budget`
-  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `expenses`
 --
 ALTER TABLE `expenses`
-  MODIFY `expense_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
+  MODIFY `expense_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=120;
 
 --
 -- AUTO_INCREMENT for table `reminders`
 --
 ALTER TABLE `reminders`
-  MODIFY `reminder_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `reminder_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `savings`
 --
 ALTER TABLE `savings`
-  MODIFY `savings_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `savings_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
