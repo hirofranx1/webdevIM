@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 06, 2023 at 10:38 AM
+-- Generation Time: Dec 06, 2023 at 05:11 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -42,7 +42,7 @@ CREATE TABLE `budget` (
 --
 
 INSERT INTO `budget` (`budget_id`, `user_id`, `budget_name`, `budget_amount`, `budget_start_date`, `budget_end_date`, `is_deleted`) VALUES
-(1, 2, 'Weekly', 10000.00, '2023-11-22', '2023-12-14', 1),
+(1, 2, 'Weekly', 10000.00, '2023-11-22', '2023-12-14', 0),
 (2, 2, 'Hatdog', 633333.00, '2023-11-22', '2023-11-29', 1),
 (3, 2, 'PangMotr', 60000.00, '2023-11-22', '2023-11-29', 1),
 (4, 1, 'Palit Laptop', 56984.00, '2023-11-22', '0000-00-00', 0),
@@ -52,10 +52,14 @@ INSERT INTO `budget` (`budget_id`, `user_id`, `budget_name`, `budget_amount`, `b
 (8, 1, '123', 213123.00, '2023-11-22', '2000-02-23', 0),
 (9, 1, '123', 123.00, '2023-11-22', '2023-12-12', 0),
 (10, 1, 'tarong na', 60325.00, '2023-11-22', '2023-11-27', 0),
-(11, 2, 'Weekend', 111111.00, '2023-11-23', '2023-12-28', 1),
-(12, 2, 'Secrettttt', 2000.00, '2023-12-04', '2024-01-01', 1),
-(14, 2, 'asd', 123.00, '2023-12-05', '2023-12-12', 1),
-(15, 2, 'BudgetSample', 50.00, '2023-12-05', '2023-12-12', 1);
+(11, 2, 'Weekend', 111111.00, '2023-11-23', '2023-12-28', 0),
+(12, 2, 'Secrettttt', 2000.00, '2023-12-04', '2024-01-01', 0),
+(14, 2, 'asd', 123.00, '2023-12-05', '2023-12-12', 0),
+(15, 2, 'BudgetSample', 50.00, '2023-12-05', '2023-12-12', 0),
+(18, 2, 'sample', 1000.00, '2023-12-06', '2023-12-13', 0),
+(19, 4, 'sample', 231.00, '2023-12-06', '2023-12-13', 1),
+(20, 4, 'Sample', 100.00, '2023-12-06', '2023-12-13', 0),
+(21, 4, 'Samplke', 1000.00, '2023-12-06', '2023-12-13', 0);
 
 -- --------------------------------------------------------
 
@@ -101,7 +105,10 @@ INSERT INTO `expenses` (`expense_id`, `budget_id`, `expense_name`, `expense_amou
 (116, 14, 'ASDsample', 23.00, 'Entertainment', '2023-12-05 17:30:25'),
 (117, 12, 'Sample', 1000.00, 'Entertainment', '2023-12-05 19:48:27'),
 (118, 12, 'Gastonsasd', 500.00, 'Utilities', '2023-12-05 19:49:44'),
-(119, 2, 'Hello', 123.00, 'Others', '2023-12-05 23:05:47');
+(119, 2, 'Hello', 123.00, 'Others', '2023-12-05 23:05:47'),
+(121, 19, 'sample ', 100.00, 'Food', '2023-01-06 10:53:58'),
+(122, NULL, 'asd', 100.00, 'Others', '2023-12-06 10:55:01'),
+(123, 20, '100', 100.00, 'Entertainment', '2023-12-06 11:22:43');
 
 -- --------------------------------------------------------
 
@@ -139,20 +146,36 @@ INSERT INTO `reminders` (`reminder_id`, `user_id`, `budget_id`, `reminder_name`,
 
 CREATE TABLE `savings` (
   `savings_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `budget_id` int(11) DEFAULT NULL,
   `savings_name` varchar(50) NOT NULL,
   `savings_amount` float(10,2) NOT NULL,
-  `savings_date` date DEFAULT NULL
+  `savings_date` date DEFAULT current_timestamp(),
+  `is_deleted` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `savings`
 --
 
-INSERT INTO `savings` (`savings_id`, `user_id`, `budget_id`, `savings_name`, `savings_amount`, `savings_date`) VALUES
-(1, 2, NULL, 'Budget Savings', 107446.00, '2023-12-06'),
-(2, 4, NULL, 'Budget Savings', 0.00, '2023-12-06');
+INSERT INTO `savings` (`savings_id`, `user_id`, `budget_id`, `savings_name`, `savings_amount`, `savings_date`, `is_deleted`) VALUES
+(1, 2, NULL, 'Budget Savings', 108446.00, '2023-12-06', 0),
+(2, 4, NULL, 'Budget Savings', 0.00, '2023-12-06', 0),
+(3, 2, NULL, 'sample', 123.00, NULL, 0),
+(4, 2, NULL, 'Save For Xmas', 100.00, '2023-12-06', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `savings_add`
+--
+
+CREATE TABLE `savings_add` (
+  `savings_add_id` int(11) NOT NULL,
+  `savings_id` int(11) DEFAULT NULL,
+  `savings_add_amount` int(11) DEFAULT NULL,
+  `savings_add_date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -219,6 +242,13 @@ ALTER TABLE `savings`
   ADD PRIMARY KEY (`savings_id`);
 
 --
+-- Indexes for table `savings_add`
+--
+ALTER TABLE `savings_add`
+  ADD PRIMARY KEY (`savings_add_id`),
+  ADD KEY `savings_id` (`savings_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -232,13 +262,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `budget`
 --
 ALTER TABLE `budget`
-  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `budget_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `expenses`
 --
 ALTER TABLE `expenses`
-  MODIFY `expense_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=120;
+  MODIFY `expense_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=125;
 
 --
 -- AUTO_INCREMENT for table `reminders`
@@ -250,7 +280,13 @@ ALTER TABLE `reminders`
 -- AUTO_INCREMENT for table `savings`
 --
 ALTER TABLE `savings`
-  MODIFY `savings_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `savings_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `savings_add`
+--
+ALTER TABLE `savings_add`
+  MODIFY `savings_add_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -281,10 +317,10 @@ ALTER TABLE `reminders`
   ADD CONSTRAINT `reminders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
--- Constraints for table `savings`
+-- Constraints for table `savings_add`
 --
-ALTER TABLE `savings`
-  ADD CONSTRAINT `savings_ibfk_1` FOREIGN KEY (`budget_id`) REFERENCES `budget` (`budget_id`);
+ALTER TABLE `savings_add`
+  ADD CONSTRAINT `savings_add_ibfk_1` FOREIGN KEY (`savings_id`) REFERENCES `savings` (`savings_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
