@@ -325,6 +325,18 @@ app.put(`/addtosavings`, (req, res) => {
   })
 })
 
+app.post(`/addsavings`, (req, res) => {
+  const { user_id, savings_amount, savings_name } = req.body;
+  const sql = `INSERT INTO savings(user_id, savings_amount, savings_name) VALUES (?, ?, ?)`;
+  db.query(sql, [user_id, savings_amount, savings_name], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  })
+})
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

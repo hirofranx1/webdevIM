@@ -189,10 +189,6 @@ function Dashboard() {
     }
 
 
-
-
-
-
     const toggleExpenseModal = () => {
         setShowExpenseModal(!showExpenseModal);
         setError(""); // Resetting the error state when toggling the modal
