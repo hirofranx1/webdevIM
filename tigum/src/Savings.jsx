@@ -38,6 +38,19 @@ function Savings() {
     };
 
     useEffect(() => {
+        function checkUser() {
+          const storedUser = localStorage.getItem("user");
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
+            return;
+          } else {
+            history("/");
+          }
+        }
+        checkUser();
+      }, []);
+
+    useEffect(() => {
         axios.get(`http://localhost:5000/getsavings/${id}`)
         .then((response) => {
             setSavings(response.data.result);
@@ -121,9 +134,6 @@ function Savings() {
         if(new Date(savingsDate) < new Date()){
             return setError("Goal Date cannot be in the past");
         }
-
-
-
 
         const savingsData = {
             savings_name: savingsName,

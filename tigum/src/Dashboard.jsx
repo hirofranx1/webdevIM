@@ -13,6 +13,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 function Dashboard() {
 
     const { user, setUser } = useContext(UserContext);
+    const [getUser, setGetUser] = useState([{}]);
     const [budgets, setBudgets] = useState([]);
     const [selectedIndex, setSelectedIndex] = useState(localStorage.getItem('selectedIndex') || 0);
     const [hasData, setHasData] = useState(false);
@@ -23,7 +24,7 @@ function Dashboard() {
     const [expenseCategory, setExpenseCategory] = useState("Others");
     const [expense, setExpense] = useState([{}]);
     const [error, setError] = useState("");
-    const [showAlert, setShowAlert] = useState(false);
+
     const [showIntro, setShowIntro] = useState(localStorage.getItem('showIntro') || true);
     const [showExpenseModal, setShowExpenseModal] = useState(false);
     const [getSavings, setGetSavings] = useState([{}]);
@@ -31,14 +32,29 @@ function Dashboard() {
     const [addToSavings, setAddToSavings] = useState(false);
     const [readRemain, setReadRemain] = useState(0);
     const [readBudgetId, setReadBudgetId] = useState(0);
+    const [hasExpense, setHasExpense] = useState(0);
     const navOut = localStorage.getItem('navOut');
 
-
+    console.log(showIntro);
     const id = user.user_id;
     const history = useNavigate();
     const gotobudget = () => {
         history('/budget');
     }
+
+    useEffect(() => {
+        if(id)
+        axios.get(`http://localhost:5000/getuser/${id}`)
+            .then((response) => {
+                setGetUser(response.data.user);
+                console.log(response.data.user);
+            })
+            .catch((error) => {
+                console.log(error.message);
+            });
+    }, [id]);
+
+
 
     const gotoreminders = () => {
         history('/reminders');
@@ -56,7 +72,7 @@ function Dashboard() {
 
     //intro
     useEffect(() => {
-        if (showIntro && navOut === 'true') {
+        if (showIntro === 'true' && navOut === 'true') {
             const timeout = setTimeout(() => {
                 setShowIntro(false);
 
@@ -68,7 +84,7 @@ function Dashboard() {
     //intro close
     const handleIntroClose = () => {
         setShowIntro(false);
-        localStorage.setItem('showIntro', false);
+        localStorage.setItem("showIntro", JSON.stringify(false));
         localStorage.setItem('navOut', false);
         console.log(showIntro);
     }
@@ -157,6 +173,7 @@ function Dashboard() {
             .then((response) => {
                 setExpense(response.data.result);
                 const totalSpent = response.data.result.reduce((total, expense) => total + expense.expense_amount, 0);
+                setHasExpense(response.data.result.length)
                 setSpent(totalSpent);
             })
             .catch((error) => {
@@ -176,7 +193,7 @@ function Dashboard() {
             });
     }, [id]);
 
-    console.log(getSavingsIndex);
+
     //add budget to savings
     async function addToSaving(e) {
         e.preventDefault();
@@ -249,12 +266,13 @@ function Dashboard() {
     return (
 
         <>
-            {showIntro && <Intro onClose={handleIntroClose} />}
+            {showIntro === "true" && <Intro onClose={handleIntroClose} />}
+        
             <section className="container">
                 <hr />
                 <div className="row align-items-center">
                     <div className="col-8">
-                        <p className="text-start"><small>Kamusta,<br /><b>{user ? `${user.firstname} ${user.lastname}` : 'Guest'}</b></small></p>
+                        <p className="text-start"><small>Kamusta,<br /><b>{getUser ? `${getUser.firstname} ${getUser.lastname}` : 'Guest'}</b></small></p>
                     </div>
                     <div className="col-2 text-end">
                         <p><BiBell id="bell-icon" onClick={gotoreminders} size={30} style={{ cursor: 'pointer' }} /></p>
@@ -378,33 +396,35 @@ function Dashboard() {
             </div>
 
             {/* Expenses list as a table */}
-            <div className="d-flex justify-content-center">
-                <table className="table table-striped" style={{ maxWidth: '23rem' }}>
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Amount</th>
-                            <th scope="col">Category</th>
-                            <th scope="col">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {expense.slice(-3).map((expense, index) => {
-                            const utcDate = new Date(expense.expense_time);
-                            const LocalDate = utcDate.toLocaleString();
+            {hasExpense > 0 && (
+                <div className="d-flex justify-content-center">
+                    <table className="table table-striped" style={{ maxWidth: '23rem' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {expense.slice(-3).map((expense, index) => {
+                                const utcDate = new Date(expense.expense_time);
+                                const LocalDate = utcDate.toLocaleString();
 
-                            return (
-                                <tr key={index}>
-                                    <td>{expense.expense_name}</td>
-                                    <td>{formatNumberToPHP(expense.expense_amount)}</td>
-                                    <td>{expense.expense_category}</td>
-                                    <td>{LocalDate}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            </div>
+                                return (
+                                    <tr key={index}>
+                                        <td>{expense.expense_name}</td>
+                                        <td>{formatNumberToPHP(expense.expense_amount)}</td>
+                                        <td>{expense.expense_category}</td>
+                                        <td>{LocalDate}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {showExpenseModal && (
                 <Modal show={true} onHide={toggleExpenseModal}>
@@ -537,11 +557,16 @@ function Dashboard() {
                     </form>
                 </Modal>
             )}
+            
+
+            {/* <button onClick={() => localStorage.setItem("showIntro", JSON.stringify(false))}>false</button>
+            <button onClick={() => localStorage.setItem("showIntro", JSON.stringify(true))}>true</button> */}
         </>
     )
 }
 
 function Intro({ onClose }) {
+
     return (
         <>
             <Modal show={true} onHide={onClose} centered>

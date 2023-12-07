@@ -34,6 +34,19 @@ function Reminders() {
   };
 
   useEffect(() => {
+    function checkUser() {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+        return;
+      } else {
+        history("/");
+      }
+    }
+    checkUser();
+  }, []);
+
+  useEffect(() => {
     if (id) {
       axios
         .get(`http://localhost:5000/getbudgets/${id}`)

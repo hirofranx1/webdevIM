@@ -24,12 +24,13 @@ function Login() {
     if (!validateEmail(email)) {
       return setError("Invalid Email")
     }
-    setLoading(true); // Show loading state
+    setLoading(true);
     axios.post("http://localhost:5000/login", { email, password })
       .then((response) => {
         setLocaluser(response.data.user);
-        setUser(response.data.user); // Set user data in UserContext
+        setUser(response.data.user); 
         setNavOut(true);
+        localStorage.setItem("showIntro", JSON.stringify(true));
         localStorage.setItem("navOut", JSON.stringify(navOut));
         localStorage.setItem("user", JSON.stringify(response.data.user));
         nav('/dashboard');

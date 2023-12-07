@@ -1,7 +1,6 @@
 import React from 'react'
 import Login from './login'
 import Register from './register'
-import Homepage from './Homepage'
 import Dashboard from './Dashboard'
 import Budget from './Budgets'
 import AccountsAndSettings from './AccountsAndSettings'
@@ -24,7 +23,6 @@ function App() {
         <Routes>
           <Route path='/' element={<Login/>}/>
           <Route path='/register' element={<Register/>}/>
-          <Route path='/hompage' element={<Homepage/>}/>
           <Route path='/dashboard' element={<Dashboard/>}/>
           <Route path='/budget' element={<Budget/>}/>
           <Route path='/settings' element={<AccountsAndSettings/>}/>

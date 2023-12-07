@@ -29,6 +29,19 @@ function Expenses() {
     };
 
     useEffect(() => {
+        function checkUser() {
+          const storedUser = localStorage.getItem("user");
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
+            return;
+          } else {
+            history("/");
+          }
+        }
+        checkUser();
+      }, []);
+
+    useEffect(() => {
         if (id) {
             console.log(id, "id");
             axios

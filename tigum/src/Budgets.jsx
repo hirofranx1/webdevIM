@@ -27,6 +27,7 @@ function Budget() {
   const [addSaving, setAddSaving] = useState(false);
   const [savings, setSavings] = useState([{}]);
   const [previousAmount, setPreviousAmount] = useState(0);
+  const [hasBudget, setHasBudget] = useState(0);
   const [getSavingsIndex, setGetSavingsIndex] = useState(0);
   
   const gotodashboard = () => {
@@ -45,7 +46,6 @@ function Budget() {
     function checkUser() {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
-        console.log(user, "in");
         setUser(JSON.parse(storedUser));
         return;
       } else {
@@ -61,6 +61,7 @@ function Budget() {
         .get(`http://localhost:5000/getbudgets/${id}`)
         .then((response) => {
           console.log(response.data.result);
+          setHasBudget(response.data.result.length);
           setBudgets(response.data.result);
         })
         .catch((error) => {
@@ -302,38 +303,47 @@ function Budget() {
               </Modal.Body>
             </Modal>
           )}
-          <table className="table table-striped">
-            <thead>
-              <tr>
-                <th>Budget Name</th>
-                <th>Budget Amount</th>
-                <th>Ends In</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {budgets.map((budget, index) => {
-                return (
-                  <tr key={index}>
-                    <td>{budget.budget_name}</td>
-                    <td>{formatNumberToPHP(budget.budget_amount)}</td>
-                    <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
-                    <td>
-                      <button className="btn"
-                        onClick={() => {
-                          setReadObject(budget);
-                          setShowDetails(true);
-                          setPreviousAmount(budget.budget_amount);
-                        }}
-                      >
-                        <BsThreeDots size={20} />
-                      </button>
-                    </td>
+          {hasBudget > 0 && (
+              <table className="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Budget Name</th>
+                    <th>Budget Amount</th>
+                    <th>Ends In</th>
+                    <th>Action</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                {budgets.map((budget, index) => {
+                  return (
+                    <tr key={index}>
+                      <td>{budget.budget_name}</td>
+                      <td>{formatNumberToPHP(budget.budget_amount)}</td>
+                      <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
+                      <td>
+                        <button className="btn"
+                          onClick={() => {
+                            setReadObject(budget);
+                            setShowDetails(true);
+                            setPreviousAmount(budget.budget_amount);
+                          }}
+                        >
+                          <BsThreeDots size={20} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+
+          {hasBudget === 0 && (
+            <div className="d-flex justify-content-center">
+              <h3>No Budgets</h3>
+            </div>
+          )
+        }
         </div>
 
         {showDetails && (
