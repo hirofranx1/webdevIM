@@ -8,6 +8,7 @@ import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { Dropdown, DropdownButton } from 'react-bootstrap';
+import { GiHamburgerMenu } from "react-icons/gi";
 
 function Dashboard() {
 
@@ -252,13 +253,20 @@ function Dashboard() {
             <section className="container">
                 <hr />
                 <div className="row align-items-center">
-                    <p className="col-8 text-start">
-                        <small>Kamusta,<br /><b>{user ? `${user.firstname} ${user.lastname}` : 'Guest'}</b></small>
-                    </p>
-                    <p className="col-2 text-center"><BiBell id="bell-icon" size={30} style={{ cursor: 'pointer' }}/></p>
-                    <p className="col-2 align-center"><BiCog size={30} onClick={gotoSettings} style={{ cursor: 'pointer' }}/></p>
-                    <p className="col-2 align-center"><BiCog size={30} onClick={toggleRightSidebar} style={{ cursor: 'pointer' }}/></p>
+                    <div className="col-8">
+                        <p className="text-start"><small>Kamusta,<br /><b>{user ? `${user.firstname} ${user.lastname}` : 'Guest'}</b></small></p>
+                    </div>
+                    <div className="col-2 text-end">
+                        <p><BiBell id="bell-icon" onClick={gotoreminders} size={30} style={{ cursor: 'pointer' }} /></p>
+                    </div>
+                    <div className="col-1 text-end">
+                        <p><BiCog size={30} onClick={gotoSettings} style={{ cursor: 'pointer' }} /></p>
+                    </div>
+                    <div className="col-1 text-end">
+                        <p><GiHamburgerMenu size={30} onClick={toggleRightSidebar} style={{ cursor: 'pointer' }} /></p>
+                    </div>
                 </div>
+
                 <hr />
             </section>
 
@@ -269,18 +277,16 @@ function Dashboard() {
                     <h5 className="offcanvas-title" id="offcanvasRightLabel">Right Sidebar</h5>
                     <button type="button" className="btn-close" onClick={toggleRightSidebar} aria-label="Close"></button>
                 </div>
-                <div className="offcanvas-body">
+                <div className="offcanvas-body d-flex flex-column">
                     {/* Sidebar content */}
-                    {/* Show Reminders */}
-                    <button className="btn btn-primary w-100 mb-2" onClick={gotoreminders}>Show Reminders</button>
                     {/* Show Savings */}
-                    <button className="btn btn-primary w-100 mb-2" onClick={gotoSavings}>Show Savings</button>
+                    <button className="btn btn-success w-100 mb-2" onClick={gotoSavings}>Show Savings</button>
                     {/* Show Budgets */}
                     <button className="btn btn-primary w-100 mb-2" onClick={gotobudget}>Show Budgets</button>
                     {/* Expenses */}
-                    <button className="btn btn-primary w-100 mb-2" onClick={gotoExpense}>Expenses</button>
+                    <button className="btn btn-warning w-100 mb-2" onClick={gotoExpense}>Expenses</button>
                     {/* Logout */}
-                    <button className="btn btn-primary w-100" onClick={handleLogout}>Logout</button>
+                    <button className="btn btn-dark w-100 mt-auto" onClick={handleLogout}>Logout</button>
                 </div>
             </div>
 
@@ -351,8 +357,8 @@ function Dashboard() {
                         setSelectedIndex(eventKey);
                         localStorage.setItem('selectedIndex', eventKey);
                         setExpenseForm(false);
-                    }} className="my-4" style={{ width: '23rem' }}>
-                        <Dropdown.Toggle variant="primary" id="dropdown-basic" style={{ width: '100%' }}>
+                    }} className="my-4 mt-1" style={{ width: '23rem' }}>
+                        <Dropdown.Toggle variant="info" id="dropdown-basic" style={{ width: '100%' }}>
                             {budgets[selectedIndex]?.budget_name || 'Select Budget'}
                         </Dropdown.Toggle>
                         <Dropdown.Menu style={{ width: '100%', minWidth: '23rem' }}>
@@ -368,10 +374,7 @@ function Dashboard() {
                         </Dropdown.Menu>
                     </Dropdown>
                 )}
-
-
-                <br />
-                {hasData && <button className="btn btn-primary mx-2" onClick={toggleExpenseModal} >Add Expense</button>}
+                {hasData && <button className="btn btn-primary mx-2 " style={{ width: '23rem' }} onClick={toggleExpenseModal} >Add Expense</button>}
             </div>
 
             {/* Expenses list as a table */}
@@ -542,17 +545,19 @@ function Intro({ onClose }) {
     return (
         <>
             <Modal show={true} onHide={onClose} centered>
-                <Modal.Header closeButton>
+                <Modal.Header>
                     <Modal.Title>Welcome to Tigum Pinas</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="text-center">
-                    Take Control of Your Finances with Budget Genius.
-                    <br /><br />
-                    Stay on top of your finances and achieve your financial goals.
-                    <br /><br />
-                    Secure your financial future and take charge of your money.
-                    <br /><br />
-                    Eliminate financial stress and never overspend again.
+                    <em>
+                        Take Control of Your Finances with Budget Genius.
+                        <br /><br />
+                        Stay on top of your finances and achieve your financial goals.
+                        <br /><br />
+                        Secure your financial future and take charge of your money.
+                        <br /><br />
+                        Eliminate financial stress and never overspend again.
+                    </em>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={onClose}>
@@ -560,6 +565,7 @@ function Intro({ onClose }) {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
         </>
     );
 }

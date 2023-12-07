@@ -292,7 +292,7 @@ function Reminders() {
                   <td>{new Date(reminder.reminder_date).toLocaleDateString()}</td>
                   <td>
                     <button
-                      className="btn btn-primary"
+                      className="btn"
                       onClick={() => {
                         setReminderObject(reminder);
                         setShowDetails(true);
