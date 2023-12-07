@@ -9,7 +9,6 @@ import { ModalFooter } from "react-bootstrap";
 function Budget() {
   const { user, setUser } = useContext(UserContext);
   const id = user.user_id;
-  console.log(id, "id");
   const history = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [calender, setCalender] = useState(false);
@@ -20,14 +19,16 @@ function Budget() {
   const [error, setError] = useState("");
   const [budgets, setBudgets] = useState([{}]);
   const [expenses, setExpenses] = useState([{}]);
-  const [total, setTotal] = useState(0);
   const [readObject, setReadObject] = useState({});
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
   const [remaining, setRemaining] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
   const [addSaving, setAddSaving] = useState(false);
-
+  const [savings, setSavings] = useState([{}]);
+  const [previousAmount, setPreviousAmount] = useState(0);
+  const [getSavingsIndex, setGetSavingsIndex] = useState(0);
+  
   const gotodashboard = () => {
     history("/dashboard");
   };
@@ -118,26 +119,47 @@ function Budget() {
         console.log(error.response.data);
       });
   }
-  console.log(remaining, "remaining")
-  async function addtoSaving(remaining, budget_id){
+
+  async function addtoSaving(e){
+    e.preventDefault();
+    const savings_id = getSavingsIndex;
+    const budget_id = readObject.budget_id;
+    console.log(remaining);
+    axios
+      .put(`http://localhost:5000/addtosavingsdash`, {
+        remaining,
+        savings_id,
+        budget_id
+      })
+      .then((response) => {
+        console.log(response.data);
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+      });
+  }
+
+
+  useEffect(() => {
     const id = user.user_id;
-    axios.put(`http://localhost:5000/addtosavings`, {
-      id,
-      remaining,
-      budget_id
-  }).then((response) => {
-    console.log(response.data);
-    window.location.reload();
-  }
-  ).catch((error) => {
-    console.log(error.response.data);
-  }
-)}
+    if (id) {
+      axios
+        .get(`http://localhost:5000/getsavings/${id}`)
+        .then((response) => {
+          setSavings(response.data.result);
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
+    }
+  })
 
 
   async function updateBudget(e) {
     e.preventDefault();
     const updateId = readObject.budget_id;
+    const previous_amount = previousAmount;
     if (amount <= 0) {
       return setError("Please input valid amount");
     }
@@ -162,6 +184,7 @@ function Budget() {
         title,
         amount,
         endDate,
+        previous_amount
       })
       .then((response) => {
         console.log(response.data);
@@ -180,9 +203,6 @@ function Budget() {
         .get(`http://localhost:5000/getexpensesinbud/${budId}`)
         .then((response) => {
           console.log(response.data.result);
-          const totalspent = response.data.result.reduce((total, expense) => { return total = total + expense.expense_amount}, 0);
-          setTotal(readObject.budget_amount - totalspent);
-          console.log(totalspent);
           setExpenses(response.data.result);
         })
         .catch((error) => {
@@ -303,6 +323,7 @@ function Budget() {
                         onClick={() => {
                           setReadObject(budget);
                           setShowDetails(true);
+                          setPreviousAmount(budget.budget_amount);
                         }}
                       >
                         <BsThreeDots size={20} />
@@ -322,7 +343,7 @@ function Budget() {
               <div>
                 <p>Amount: {formatNumberToPHP(readObject.budget_amount)}</p>
                 <p>Name: {readObject.budget_name}</p>
-                <p>Remaining: {formatNumberToPHP(total)}</p>
+                <p>Remaining: {formatNumberToPHP(readObject.remaining_budget)}</p>
                 <p>End Date: {new Date(readObject.budget_end_date).toLocaleDateString()}</p>
               </div>
             </Modal.Header>
@@ -352,7 +373,7 @@ function Budget() {
               </div>
             </Modal.Body>
             <ModalFooter className="d-flex justify-content-around">
-              <button className="btn btn-primary" onClick={() => {setAddSaving(true); setRemaining(total)}}>Add to Savings</button>
+              <button className="btn btn-primary" onClick={() => {setAddSaving(true); setRemaining(readObject.remaining_budget)}}>Add to Savings</button>
               <button className="btn btn-primary" onClick={() => { setShowUpdateForm(true); setAmount(readObject.budget_amount); setEndDate(readObject.budget_end_date); setTitle(readObject.budget_name); }}>Update Budget</button>
               <button className="btn btn-primary" onClick={() => setShowDeleteForm(true)}>Delete Budget</button>
               <button className="btn btn-primary" onClick={() => setShowDetails(false)}>Cancel</button>
@@ -429,18 +450,36 @@ function Budget() {
 
         {addSaving && (
           <Modal show={true} backdrop={false} centered>
+            <Modal.Header>
+              <Modal.Title>Add to Savings</Modal.Title>
+            </Modal.Header>
+            <form onSubmit={addtoSaving}>
             <Modal.Body>
-              <div className="d-flex flex-row justify-content-between">
+
                 <h4>{readObject.budget_name}</h4>
                 <p>Remaining Amount: {formatNumberToPHP(remaining)}</p>
                 <p>
                   Budget End Date:{" "}
                   {new Date(readObject.budget_end_date).toLocaleDateString()}
                 </p>
-              </div>
-              <button className="btn btn-primary mx-2" onClick={() => addtoSaving(remaining, readObject.budget_id)}>Add to Savings</button>
+                <select
+                  className="form-select"
+                  id="savings"
+                  value={getSavingsIndex}
+                  onChange={(e) => setGetSavingsIndex(e.target.value)}>
+                      <option value="Choose">Choose</option>
+                  {savings.map((savings, index) => {
+                      return (
+                          <option value={savings.savings_id} key={index}>{savings.savings_name}</option>
+                      )
+                  })}
+                  </select>
+                  </Modal.Body>
+                  <Modal.Footer>
+              <input type="submit" className="btn btn-primary mx-2" value="Add to Savings" />
               <button className="btn btn-primary" onClick={() => setAddSaving(false)}>Cancel</button>
-            </Modal.Body>
+              </Modal.Footer>
+            </form>
           </Modal>
         )}
 

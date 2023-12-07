@@ -83,9 +83,9 @@ app.post('/login', (req, res) => {
 app.post('/addbudget', (req, res) => {
     const {id, title, amount, startDate, endDate} = req.body;
     console.log(id, title, amount, startDate, endDate);
-    const sql = `INSERT INTO budget(user_id, budget_name, budget_amount, budget_start_date, budget_end_date) VALUES (?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO budget(user_id, budget_name, budget_amount, budget_start_date, budget_end_date, remaining_budget) VALUES (?, ?, ?, ?, ?, ?)`;
     if(id != null){
-      db.query(sql, [id, title, amount, startDate, endDate], (error, result) => {
+      db.query(sql, [id, title, amount, startDate, endDate, amount], (error, result) => {
         if(error){
           console.log(error);
         }
@@ -113,14 +113,22 @@ app.post('/addexpense', (req, res) => {
   const { bud_id, expenseName, expenseAmount, expenseCategory } = req.body;
   console.log(bud_id, expenseName, expenseAmount, expenseCategory);
   const sql = `INSERT INTO expenses(budget_id, expense_name, expense_amount, expense_category) VALUES (?, ?, ?, ?)`;
+  const updateRemaining = `UPDATE budget SET remaining_budget = remaining_budget - ? WHERE budget_id = ?`;
   db.query(sql, [bud_id, expenseName, expenseAmount, expenseCategory], (error, result) => {
     if(error){
       console.log(error);
     }
     if(result){
-      return res.json({result:result});
+      db.query(updateRemaining, [expenseAmount, bud_id], (error, result) => {
+        if(error){
+          console.log(error);
+        }
+        if(result){
+          return res.json({result:result});
+        }
+      })
     }
-  })
+  });
 });
 
 app.get('/getexpenses/:budId', (req, res) => {
@@ -153,43 +161,77 @@ app.get('/getallexpenses/:id', (req, res) => {
 
 app.put(`/updateexpense/:updateId`, (req, res) => {
   const id = req.params.updateId;
-  const { expenseName, expenseAmount, expenseCategory } = req.body;
-  db.query(`UPDATE expenses SET expense_name = ?, expense_amount = ?, expense_category = ? WHERE expense_id = ?`, [expenseName, expenseAmount, expenseCategory, id], 
-  (error, result) => {
+  const { expenseName, expenseAmount, expenseCategory, budget_id, previous_expense } = req.body;
+  const sql = `UPDATE expenses SET expense_name = ?, expense_amount = ?, expense_category = ? WHERE expense_id = ?`;
+  const updateRemaining = `UPDATE budget SET remaining_budget = (remaining_budget + ?) - ? WHERE budget_id = ?`;
+  db.query(sql, [expenseName, expenseAmount, expenseCategory, id], (error, result) => {
     if(error){
       console.log(error);
     }
     if(result){
-      return res.json({result:result});
+      db.query(updateRemaining, [previous_expense, expenseAmount, budget_id], (error, result) => {
+        if(error){
+          console.log(error);
+        }
+        if(result){
+          return res.json({result:result});
+        }
+      })
+    }
+  });
+
+})
+
+
+app.put(`/deleteexpense/:deleteId`, (req, res) => {
+  const {budget_id, previous_expense} = req.body;
+  const id = req.params.deleteId;
+  console.log(previous_expense, "previous_expense");
+  const sql = `DELETE FROM expenses WHERE expense_id = ?`;
+  const updateRemaining = `UPDATE budget SET remaining_budget = remaining_budget + ? WHERE budget_id = ?`;
+  db.query(sql, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      db.query(updateRemaining, [previous_expense, budget_id], (error, result) => {
+        if(error){
+          console.log(error);
+        }
+        if(result){
+          return res.json({result:result});
+        }
+      })
     }
   });
 })
 
-app.delete(`/deleteexpense/:deleteId`, (req, res) => {
-  const id = req.params.deleteId;
-  db.query(`DELETE FROM expenses WHERE expense_id = ?`, [id], (error, result) => {
-    if(error){
-      console.log(error);
-    }
-    if(result){
-      return res.json({result:result});
-    }
-  });
-})
 
 app.put(`/updatebudget/:updateId`, (req, res) => {
   const id = req.params.updateId;
-  const {title, amount, endDate} = req.body;
-  db.query(`UPDATE budget SET budget_name = ?, budget_amount = ?, budget_end_date = ? WHERE budget_id = ?`, [title, amount, endDate, id],
-  (error, result) => {
+  const {title, amount, endDate, previous_amount} = req.body;
+  console.log(previous_amount, "previous_amount");
+  const sql = `UPDATE budget SET budget_name = ?, budget_amount = ?, budget_end_date = ? WHERE budget_id = ?`;
+  const updateRemaining = `UPDATE budget SET remaining_budget = (budget_amount - ( ? - remaining_budget)) WHERE budget_id = ?`;
+  db.query(sql, [title, amount, endDate, id], (error, result) => {
     if(error){
       console.log(error);
     }
     if(result){
-      return res.json({result:result});
+      db.query(updateRemaining, [previous_amount, id], (error, result) => {
+        if(error){
+          console.log(error);
+        }
+        if(result){
+          return res.json({result:result});
+        }
+      })
     }
   });
 })
+
+
+
 
 app.put(`/deletebudget/:deleteId`, (req, res) => {
   const id = req.params.deleteId;
@@ -293,7 +335,7 @@ app.delete(`/deletereminder/:reminderId`, (req, res) => {
 
 app.get(`/getsavings/:id`, (req, res) => {
   const id = req.params.id;
-  db.query(`SELECT * FROM savings WHERE user_id = ?`, [id], (error, result) => {
+  db.query(`SELECT * FROM savings WHERE user_id = ? AND is_deleted = 0`, [id], (error, result) => {
     if(error){
       console.log(error);
     }
@@ -305,9 +347,9 @@ app.get(`/getsavings/:id`, (req, res) => {
 
 app.put(`/addtosavings`, (req, res) => {
   const { remaining, id, budget_id } = req.body;
-
+  
   const updateSql = `UPDATE savings SET savings_amount = savings_amount + ? WHERE savings_name = 'Budget Savings' AND user_id = ?`;
-  const deleteSql = `DELETE FROM budget WHERE budget_id = ?`;
+  const deleteSql = `UPDATE budget SET is_deleted = 1 WHERE budget_id = ?`;
 
   db.query(updateSql, 
   [remaining, id], (Updateerror, Updateresult) => {
@@ -326,9 +368,10 @@ app.put(`/addtosavings`, (req, res) => {
 })
 
 app.post(`/addsavings`, (req, res) => {
-  const { user_id, savings_amount, savings_name } = req.body;
-  const sql = `INSERT INTO savings(user_id, savings_amount, savings_name) VALUES (?, ?, ?)`;
-  db.query(sql, [user_id, savings_amount, savings_name], (error, result) => {
+  const { user_id, savings_amount, savings_name, savings_goal, savings_date } = req.body;
+  console.log(savings_date);
+  const sql = `INSERT INTO savings(user_id, savings_amount, savings_name, savings_started, savings_goal, savings_goal_date) VALUES (?, ?, ?, ?, ?, ?)`;
+  db.query(sql, [user_id, savings_amount, savings_name, savings_amount, savings_goal, savings_date], (error, result) => {
     if(error){
       console.log(error);
     }
@@ -337,6 +380,139 @@ app.post(`/addsavings`, (req, res) => {
     }
   })
 })
+
+app.put(`/deletesavings/:id`, (req, res) => {
+  const id = req.params.id;
+  db.query(`UPDATE savings SET is_deleted = 1 WHERE savings_id = ?`, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  })
+})
+
+app.post(`/addmoney`, (req, res) => {
+  const {id, savings_amount}  = req.body;
+  const addsql = `INSERT into savings_add(savings_id, savings_add_amount) VALUES (?, ?)`;
+  const updatesql = `UPDATE savings SET savings_amount = savings_amount + ? WHERE savings_id = ?`;
+  db.query(addsql, [id, savings_amount], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      db.query(updatesql, [savings_amount, id], (error, result) => {
+        if(error){
+          console.log(error);
+        }
+        if(result){
+          return res.json({result:result});
+        }
+      })
+    }
+  })
+})
+
+app.get(`/getadds/:id`, (req, res) => {
+  const id = req.params.id;
+  db.query(`SELECT * FROM savings_add WHERE savings_id = ? ORDER BY savings_add_date DESC`, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  })
+})
+
+app.put(`/deleteaddsavings`, (req, res) => {
+    const {id, amount, savings_id} = req.body;
+    console.log(id, amount, savings_id);
+    const deletesql = `DELETE FROM savings_add WHERE savings_add_id = ?`;
+    const updatesql = `UPDATE savings SET savings_amount = savings_amount - ? WHERE savings_id = ?`;
+    db.query(deletesql, [id], (error, result) => {
+      if(error){
+        console.log(error);
+      }
+      if(result){
+        db.query(updatesql, [amount, savings_id], (error, result) => {
+          if(error){
+            console.log(error);
+          }
+          if(result){
+            console.log(result);
+            return res.json({result:result});
+          }
+        })
+      }
+    })
+})
+
+app.post(`/subtractmoney`, (req, res) => {
+  const {id, savings_amount}  = req.body;
+  const subtractsql = `INSERT into savings_add(savings_id, savings_add_amount) VALUES (?, -?)`;
+  const updatesql = `UPDATE savings SET savings_amount = savings_amount - ? WHERE savings_id = ?`;
+  db.query(subtractsql, [id, savings_amount], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      db.query(updatesql, [savings_amount, id], (error, result) => {
+        if(error){
+          console.log(error);
+        }
+        if(result){
+          return res.json({result:result});
+        }
+      })
+    }
+  })
+})
+
+app.put(`/editsavings/:id`, (req, res) => {
+  const id = req.params.id;
+  const {savings_name, savings_goal, savings_goal_date} = req.body;
+  db.query(`UPDATE savings SET savings_name = ?, savings_goal = ?, savings_goal_date = ? WHERE savings_id = ?`, [savings_name, savings_goal, savings_goal_date, id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  })
+})
+
+app.put(`/addtosavingsdash`, (req, res) => {
+  const {remaining, savings_id, budget_id} = req.body;
+  const addMoney = `INSERT INTO savings_add(savings_id, savings_add_amount) VALUES (?, ?)`;
+  const updateSavings = `UPDATE savings SET savings_amount = savings_amount + ? WHERE savings_id = ?`;
+  const deleteBudget = `UPDATE budget SET is_deleted = 1 WHERE budget_id = ?`;
+  console.log("hello");
+  db.query(addMoney, [savings_id, remaining], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      db.query(updateSavings, [remaining, savings_id], (error, result) => {
+        if(error){
+          console.log(error);
+        }
+        if(result){
+          db.query(deleteBudget, [budget_id], (error, result) => {
+            if(error){
+              console.log(error);
+            }
+            if(result){
+              return res.json({result:result});
+            }
+          })
+        }
+      })
+    }
+  })
+})
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

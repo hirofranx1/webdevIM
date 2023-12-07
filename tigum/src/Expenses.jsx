@@ -17,6 +17,7 @@ function Expenses() {
     const [expenseCategory, setExpenseCategory] = useState("");
     const [readObject, setReadObject] = useState({});
     const { user, setUser } = useContext(UserContext);
+    const [previousExpense, setPreviousExpense] = useState(0);
     const id = user.user_id;
     console.log(id, "id");
     const history = useNavigate();
@@ -61,7 +62,9 @@ function Expenses() {
             alert("You can only delete expenses within the past 7 days.");
             return;
         } else {
-        const data = { expenseName, expenseAmount, expenseCategory };
+        const budget_id = readObject.budget_id;
+        const previous_expense = previousExpense;
+        const data = { expenseName, expenseAmount, expenseCategory, budget_id, previous_expense  };
         const updateId = readObject.expense_id;
         axios
             .put(`http://localhost:5000/updateexpense/${updateId}`, data)
@@ -74,15 +77,17 @@ function Expenses() {
             });
         }
     }
-
+    console.log(previousExpense, "previous expense")
     async function deleteExpense(e) {
         if (diffDays > 7) {
             alert("You can only delete expenses within the past 7 days.");
             return;
         } else {
             const deleteId = readObject.expense_id;
+            const budget_id = readObject.budget_id;
+            const previous_expense = previousExpense;
             axios
-                .delete(`http://localhost:5000/deleteexpense/${deleteId}`)
+                .put(`http://localhost:5000/deleteexpense/${deleteId}`, {budget_id, previous_expense})
                 .then((response) => {
                     console.log(response.data);
                     window.location.reload();
@@ -166,6 +171,7 @@ function Expenses() {
                                                 <button className="btn btn-primary"
                                                 onClick={() => {
                                                     setopenExpenseUpdateForm(true);
+                                                    setPreviousExpense(readObject.expense_amount);
                                                     setExpenseName(readObject.expense_name);
                                                     setExpenseAmount(readObject.expense_amount);
                                                     setExpenseCategory(readObject.expense_category);
@@ -173,7 +179,8 @@ function Expenses() {
                                             >
                                                 Update
                                             </button>
-                                            <button className="btn btn-primary" onClick={() => setopenExpenseDeleteForm(true)}>
+                                            <button className="btn btn-primary" onClick={() => {setopenExpenseDeleteForm(true);
+                                            setPreviousExpense(readObject.expense_amount)}}>
                                                 Delete
                                             </button>
                                             <button className="btn btn-primary" onClick={() => setModalOpen(false)}>Close</button>

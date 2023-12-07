@@ -25,10 +25,12 @@ function Dashboard() {
     const [showAlert, setShowAlert] = useState(false);
     const [showIntro, setShowIntro] = useState(localStorage.getItem('showIntro') || true);
     const [showExpenseModal, setShowExpenseModal] = useState(false);
+    const [getSavings, setGetSavings] = useState([{}]);
+    const [getSavingsIndex, setGetSavingsIndex] = useState(0);
+    const [addToSavings, setAddToSavings] = useState(false);
+    const [readRemain, setReadRemain] = useState(0);
+    const [readBudgetId, setReadBudgetId] = useState(0);
     const navOut = localStorage.getItem('navOut');
-
-
-
 
 
     const id = user.user_id;
@@ -159,6 +161,42 @@ function Dashboard() {
             });
     }, [selectedIndex, budgets]);
 
+    //get savings
+    useEffect(() => {
+        axios.get(`http://localhost:5000/getsavings/${id}`)
+            .then((response) => {
+                setGetSavings(response.data.result);
+                console.log(response.data.result);
+            })
+            .catch((error) => {
+                console.log(error.message);
+            });
+    }, [id]);
+
+    console.log(getSavingsIndex);
+    //add budget to savings
+    async function addToSaving(e) {
+        e.preventDefault();
+        const savings_id = getSavingsIndex;
+        const remaining = readRemain;
+        const budget_id = readBudgetId;
+        axios.put(`http://localhost:5000/addtosavingsdash`, {remaining, savings_id, budget_id})
+            .then((response) => {
+                console.log(response.data);
+                setAddToSavings(false);
+                window.location.reload();
+            }).catch((error) => {
+                console.log(error);
+                if (error.response) {
+                    setError(error.response.data.message);
+                } else {
+                    setError("Something went wrong");
+                }
+            });
+        }
+
+
+
     //progress bar
     let progressValue;
     if (budgets[selectedIndex]) {
@@ -255,7 +293,7 @@ function Dashboard() {
                         <ProgressBar animated variant='success' now={progressValue} />
                     </div>
                     <p className='text-center mt-1'><small>You have a remaining budget of</small></p>
-                    <p className="display-3 text-center"><b>{(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent)) ? formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].budget_amount - spent)) : "0"}</b></p>
+                    <p className="display-3 text-center"><b>{(budgets[selectedIndex] && (budgets[selectedIndex].remaining_budget)) ? formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].remaining_budget)) : "0"}</b></p>
                     {spent > (budgets[selectedIndex] && (budgets[selectedIndex].budget_amount)) && <p className="text-center text-danger">You are over budget!</p>}
 
                     <div className="d-flex text-center mb-2 mx-2">
@@ -392,20 +430,80 @@ function Dashboard() {
                     return (
                         <Modal show={true} key={index}>
                             <Modal.Header closeButton>
-                                <Modal.Title>Alert</Modal.Title>
+                                <Modal.Title>Your budget date has finished, add remaining money to savings?</Modal.Title>
                             </Modal.Header>
                             <Modal.Body>
                                 <p>Your budget {budget.budget_name} has expired.</p>
+
                             </Modal.Body>
                             <Modal.Footer>
-                                <Button variant="secondary" onClick={() => deleteBudget(id)}>
-                                    Delete
+                                {budget.remaining_budget > 0 &&
+                                <>
+                                <Button variant="primary" onClick={() => {setAddToSavings(true);
+                                setReadRemain(budget.remaining_budget);
+                                setReadBudgetId(id)}} >
+                                    Add to Savings
                                 </Button>
+                                <Button variant="secondary" onClick={() => deleteBudget(id)}>
+                                    Keep
+                                </Button> 
+                                </>
+                                }
+                                {budget.remaining_budget <= 0 &&
+                                <>
+                                <Button variant="primary" onClick={() => deleteBudget(id)}>
+                                    Okay
+                                </Button>
+                                </>
+                                }
                             </Modal.Footer>
                         </Modal>
                     )
                 }
             })}
+
+            {addToSavings &&(
+                <Modal show={true} backdrop={false}>
+                    <Modal.Header>
+                        <Modal.Title>Add to Savings</Modal.Title>
+                    </Modal.Header>
+                    <form onSubmit={addToSaving}>
+                    <Modal.Body>
+                        <p>Amount: {readRemain}</p>
+                        <p>Choose Savings:</p>
+                        <select
+                            className="form-select"
+                            id="savings"
+                            value={getSavingsIndex}
+                            onChange={(e) => setGetSavingsIndex(e.target.value)}>
+                                <option value="Choose">Choose</option>
+                            {getSavings.map((savings, index) => {
+                                return (
+                                    <option value={savings.savings_id} key={index}>{savings.savings_name}</option>
+                                )
+                            })}
+                            </select>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setAddToSavings(false)}>
+                            Close
+                        </Button>
+                        <Button variant="primary" type="submit">
+                            Add to Savings
+                        </Button>
+                    </Modal.Footer>
+                    
+
+
+                    </form>
+
+
+
+
+                </Modal>
+            )}
+
+
         </>
     )
 }
