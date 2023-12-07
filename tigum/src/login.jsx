@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useContext } from 'react'
 import axios from 'axios';
 import { UserContext } from "./UserContext";
+import logo from './assets/tigum_logos/logopinas.png';
 
 function Login() {
 
@@ -48,10 +49,11 @@ function Login() {
 
   return (
     <>
-      <form onSubmit={(e) => handleLogin(e)}>
+      <form onSubmit={(e) => handleLogin(e)} style={{ width: '45%'}} className='p-4 m-3 rounded-2 position-absolute top-50 start-50 translate-middle'>
         <div className="container mb-5">
           {/* Existing content */}
-          <h1 className="text-big mb-5 text-center">LOGO <small className="text-body-secondary">here!</small></h1>
+          <img src={logo} alt='Logo' style={{ width: '200px' }}/>
+          {/* <h1 className="text-big mb-5 text-center">LOGO <small className="text-body-secondary">here!</small></h1> */}
 
           {/* Email Address */}
           <label className="text-start fw-bold mb-3">Email Address:</label>
