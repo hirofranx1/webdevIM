@@ -70,14 +70,6 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {/* Keep me signed in */}
-          <div className="form-check text-start mb-3">
-            <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-            <label className="form-check-label" htmlFor="flexCheckDefault">
-              Keep me signed in
-            </label>
-          </div>
-
           {/* Login Button */}
           <div className="d-grid">
             <input type="submit" value="Login" className="btn bg-black text-white mb-3" />

@@ -80,12 +80,6 @@ const validatePassword = (password, repassword) => {
       </div>
 
       <div className="d-grid gap-2">
-        <div className="form-check mt-3 text-start">
-          <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-          <label className="form-check-label" htmlFor="flexCheckDefault">
-            <small className="text-secondary text-wrap">Do You Agree with the Terms and Conditions</small>
-          </label>
-        </div>
         <input type="submit" className="btn bg-black text-white" value="Sign Up" />
         
       </div>
