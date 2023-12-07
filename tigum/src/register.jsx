@@ -12,12 +12,38 @@ function Register() {
   const [repassword, setRepassword] = useState('');
   const [passError, setPassError] = useState('');
 
-  // Validation functions...
+  const validateEmail = (email) => {
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    return emailRegex.test(email);
+};
+
+const validatePassword = (password, repassword) => {
+    if(password !== repassword){
+        return setPassError("Passwords Does not Match");
+    }
+    if(password.length < 8){
+        return setPassError("Passwords must be at least 8 characters longs");
+    }
+    if(!/[A-Z]/.test(password)){
+        return setPassError("Password must contain at least one uppercase letter");  
+    }
+    if(!/\d/.test(password)){
+        return setPassError("Password must contain at least one number");
+    }
+
+    return true;
+}
+  
 
   async function handleSignUp(e) {
     e.preventDefault();
-    // Validation logic...
-
+    if(!validateEmail(email)){
+        return setError("Invalid Email")
+    }
+    if(!validatePassword(password, repassword)){
+        return;
+    }
+  
     axios
       .post('http://localhost:5000/register', { firstname, lastname, email, password })
       .then((response) => {
@@ -37,17 +63,18 @@ function Register() {
         <div className="row">
           <div className="col-md-6">
             <label className="text-start fw-bold mb-3">First Name</label>
-            <input type="text" placeholder='First Name' className='form-control mb-3' onChange={(e) => setFirstname(e.target.value)} />
+            <input type="text" placeholder='First Name' className='form-control mb-3' required onChange={(e) => setFirstname(e.target.value)} />
             <label className="text-start fw-bold mb-3">Last Name</label>
-            <input type="text" placeholder='Last Name' className='form-control mb-3' onChange={(e) => setLastname(e.target.value)} />
+            <input type="text" placeholder='Last Name' className='form-control mb-3' required onChange={(e) => setLastname(e.target.value)} />
           </div>
           <div className="col-md-6">
             <label className="text-start fw-bold mb-3">Email Address</label>
-            <input type="email" placeholder='Email' className='form-control mb-3' onChange={(e) => setEmail(e.target.value)} />
+            <input type="email" placeholder='Email' className='form-control mb-3' required onChange={(e) => setEmail(e.target.value)} />
             <label className="text-start fw-bold mb-3">Password</label>
-            <input type="password" placeholder='Password' className='form-control mb-3' onChange={(e) => setPassword(e.target.value)} />
+            <input type="password" placeholder='Password' className='form-control mb-3' required onChange={(e) => setPassword(e.target.value)} />
             <label className="text-start fw-bold mb-3">Re-type Password</label>
-            <input type="password" placeholder='Re-type Password' className='form-control mb-3' onChange={(e) => setRepassword(e.target.value)} />
+            <input type="password" placeholder='Re-type Password' className='form-control mb-3' required onChange={(e) => setRepassword(e.target.value)} />
+            {(passError || error) && <p style={{ color: 'red' }}>{passError || error}</p>}
           </div>
         </div>
       </div>
@@ -60,7 +87,7 @@ function Register() {
           </label>
         </div>
         <input type="submit" className="btn bg-black text-white" value="Sign Up" />
-        {(passError || error) && <p style={{ color: 'red' }}>{passError || error}</p>}
+        
       </div>
 
       <div className="mt-5 text-center">

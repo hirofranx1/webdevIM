@@ -28,6 +28,7 @@ function Savings() {
     const [subtractMoneyForm, setSubtractMoneyForm] = useState(false);
     const [savingsGoal, setSavingsGoal] = useState(0);
     const [savingsDate, setSavingsDate] = useState(new Date());
+    const [error, setError] = useState("");
 
 
     const id = user.user_id;
@@ -48,6 +49,12 @@ function Savings() {
 
     async function addSavings(e) {
         e.preventDefault();
+        if(savingsAmount < 0){
+            return setError("Starting Amount must be 0 or greater than 0");
+        }
+        if(savingsGoal < 0){
+            return setError("Goal Amount cannot be negative");
+        }
         try {
             const savingsData = {
                 savings_name: savingsName,
@@ -79,6 +86,7 @@ function Savings() {
 
     async function addMoney(e){
         e.preventDefault();
+
         const id = readSave.savings_id;
         axios.post(`http://localhost:5000/addmoney`, {id, savings_amount: moneyAmount})
         .then((response) => {
@@ -107,6 +115,16 @@ function Savings() {
     async function EditSavings(e) {
         e.preventDefault();
         const id = readSave.savings_id;
+        if(savingsGoal < 0){
+            return setError("Goal Amount cannot be negative");
+        }
+        if(new Date(savingsDate) < new Date()){
+            return setError("Goal Date cannot be in the past");
+        }
+
+
+
+
         const savingsData = {
             savings_name: savingsName,
             savings_goal: savingsGoal,
@@ -158,7 +176,10 @@ function Savings() {
         <h1>Savings</h1>
         
         {savings.map((val, key) => {   
-            const progressValue = Math.round((val.savings_amount / val.savings_goal) * 100); 
+            let progressValue = Math.round((val.savings_amount / val.savings_goal) * 100); 
+            if(progressValue > 100){
+                progressValue = 100;
+            }
             return (
                 <div key = {key}>
                     <div>
@@ -170,6 +191,7 @@ function Savings() {
                         <div className="p-2">
                         <p className="display-6 text-center"><b>{(progressValue) ? progressValue : "0"}%</b></p>
                         <ProgressBar animated variant='success' now={progressValue} />
+                        {progressValue === 100 && <p className="text-center">Goal Reached!</p>}
                     </div>
                         <div>
                             Goal Amount
@@ -180,7 +202,7 @@ function Savings() {
                          Goal Date 
                         <h2> {new Date(val.savings_goal_date).toLocaleDateString()} </h2>
                     </div>
-                    <button onClick={() => {setShowDetails(true); setReadSave(val)}}>
+                    <button onClick={() => {setShowDetails(true); setReadSave(val)}} className="btn btn-primary">
                         <BsThreeDots />
                     </button>
                 </div>
@@ -196,19 +218,19 @@ function Savings() {
                         Savings Name
                     </label>
                     <br/>
-                    <input type="text" onChange={(e) => setSavingsName(e.target.value)} className="form-control" placeholder="Savings Name" />
+                    <input type="text" onChange={(e) => setSavingsName(e.target.value)} required className="form-control" placeholder="Savings Name" />
                     <br/>
                     <label>
                         Starting Amount
                     </label>
                     <br/>
-                    <input type="number" onChange={(e) => setSavingsAmount(e.target.value)} className="form-control" placeholder="Savings Amount" />
+                    <input type="number" onChange={(e) => setSavingsAmount(e.target.value)} required className="form-control" placeholder="Savings Amount" />
                     <br/>
                     <label>
                         Goal Amount
                     </label>
                     <br/>
-                    <input type="number" onChange={(e) => setSavingsGoal(e.target.value)} className="form-control" placeholder="Savings Goal" />
+                    <input type="number" onChange={(e) => setSavingsGoal(e.target.value)} required className="form-control" placeholder="Savings Goal" />
                     <label>
                         Goal Date
                     </label>
@@ -292,7 +314,7 @@ function Savings() {
                     </label>
                     <br/>
                     <input type="date" onChange={(e) => setSavingsDate(e.target.value)} className="form-control" placeholder="Savings Date" />
-                    
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
                     </Modal.Body>
                     <Modal.Footer>
                     <input type="submit" className="btn btn-primary" value="Edit Savings" />

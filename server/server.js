@@ -80,6 +80,65 @@ app.post('/login', (req, res) => {
   })
 });
 
+app.get('/getuser/:id', (req, res) => {
+  const id = req.params.id;
+  const sql = `SELECT * FROM users WHERE user_id = ?`;
+  db.query(sql, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({user:result[0]});
+    }
+  })
+});
+
+app.put('/updateuser/:id', (req, res) => {
+  const id = req.params.id;
+  const {firstname, lastname, email} = req.body;
+  const sql = `UPDATE users SET firstname = ?, lastname = ? WHERE user_id = ?`;
+  db.query(sql, [firstname, lastname, id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({user:result});
+    }
+  })
+});
+
+app.put('/changepassword/:id', (req, res) => {
+  const id = req.params.id;
+  const {oldpassword, newpassword, retypepassword} = req.body;
+  const sql = `SELECT * FROM users WHERE user_id = ?`;
+  db.query(sql, [id], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      const user = result[0];
+      if(user.password === oldpassword){
+        if(newpassword === retypepassword){
+          const updateSql = `UPDATE users SET password = ? WHERE user_id = ?`;
+          db.query(updateSql, [newpassword, id], (error, result) => {
+            if(error){
+              console.log(error);
+            }
+            if(result){
+              return res.json({result:result});
+            }
+          })
+        } else {
+          return res.status(401).json({message: "New Password and Retype Password does not match"});
+        }
+      } else {
+        return res.status(401).json({message: "Old Password is incorrect"});
+      }
+    }
+  })
+});
+
+
 app.post('/addbudget', (req, res) => {
     const {id, title, amount, startDate, endDate} = req.body;
     console.log(id, title, amount, startDate, endDate);
@@ -289,22 +348,30 @@ app.post(`/payreminder`, (req, res) => {
 
   const insertSQL = `INSERT INTO expenses (budget_id, expense_name, expense_amount, expense_category) VALUES (?, ?, ?, ?)`;
   const updateSQL = `UPDATE reminders SET isPaid = 1 WHERE reminder_id = ?`;
+  const updateRemaining = `UPDATE budget SET remaining_budget = remaining_budget - ? WHERE budget_id = ?`;
 
-  db.query(insertSQL, [bud_id, reminder_name, reminder_amount, reminder_category], (insertError, insertResult) => {
-    if (insertError) {
-      console.log(insertError);
-      return res.status(500).json({ error: "Error inserting into expenses" });
+  db.query(insertSQL, [bud_id, reminder_name, reminder_amount, reminder_category], (error, result) => {
+    if(error){
+      console.log(error);
     }
-    db.query(updateSQL, [reminder_id], (updateError, updateResult) => {
-      if (updateError) {
-        console.log(updateError);
-        return res.status(500).json({ error: "Error updating reminders" });
-      }
-
-      console.log(updateResult);
-      return res.json({ result: updateResult });
-    });
-  });
+    if(result){
+      db.query(updateSQL, [reminder_id], (error, result) => {
+        if(error){
+          console.log(error);
+        }
+        if(result){
+          db.query(updateRemaining, [reminder_amount, bud_id], (error, result) => {
+            if(error){
+              console.log(error);
+            }
+            if(result){
+              return res.json({result:result});
+            }
+          })
+        }
+      })
+    }
+  })
 });
 
 app.put(`/updatereminder`, (req, res) => {

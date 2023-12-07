@@ -27,7 +27,7 @@ function App() {
           <Route path='/hompage' element={<Homepage/>}/>
           <Route path='/dashboard' element={<Dashboard/>}/>
           <Route path='/budget' element={<Budget/>}/>
-          <Route path='/AccountsAndSettings' element={<AccountsAndSettings/>}/>
+          <Route path='/settings' element={<AccountsAndSettings/>}/>
           <Route path='/expenses' element={<Expenses/>}/>
           <Route path='/reminders' element={<Reminders/>}/>
           <Route path='/savings' element={<Savings/>}/>

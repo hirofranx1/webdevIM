@@ -23,7 +23,7 @@ function Reminders() {
   const [updateForm, setUpdateForm] = useState(false);
   const [deleteForm, setDeleteForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [showRemindForm, setShowRemindForm] = useState(false);
 
 
@@ -38,7 +38,6 @@ function Reminders() {
       axios
         .get(`http://localhost:5000/getbudgets/${id}`)
         .then((response) => {
-          console.log(response.data.result);
           setBudgets(response.data.result);
         })
         .catch((error) => {
@@ -52,7 +51,6 @@ function Reminders() {
       axios
         .get(`http://localhost:5000/getreminders/${id}`)
         .then((response) => {
-          console.log(response.data.result);
           setReminders(response.data.result);
         })
         .catch((error) => {
@@ -133,6 +131,11 @@ function Reminders() {
 
   async function updateReminder(e) {
     e.preventDefault();
+    if(reminderAmount <= 0){
+      setError("Please enter a valid amount");
+      return;
+    }
+
     const reminder = {
       reminder_id: reminderObject.reminder_id,
       reminder_name: reminderName,
@@ -260,29 +263,16 @@ function Reminders() {
                       })}
                     </select>
                   </div>
+                  
                   <div className="mb-3">
                     <button type="submit" className="btn btn-primary">Add Reminder</button>
                     {error && <div className="error">{error}</div>}
                   </div>
                 </form>
-                <button onClick={() => setShowRemindForm(false)} className="btn btn-secondary">Close</button>
+                <button onClick={() => {setShowRemindForm(false); setError("")}} className="btn btn-secondary">Close</button>
               </Modal.Body>
             </Modal>
           )}
-
-          <div className="mt-3">
-            <Container className="text-center">
-              <Row>
-                <Col>
-                  <div className="rounded-3 p-3 d-flex justify-content-center">
-                    <div>
-                      <Calendar/>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-            </Container>
-          </div>
 
           {/* Display reminders in a table sorted by closest date */}
           <table className="table mt-3">
@@ -442,10 +432,12 @@ function Reminders() {
                     );
                   })}
                 </select>
+                {error && <p className="text-danger">{error}</p>}
               </div>
+              {error && <p className="text-danger">{error}</p>}
               <Modal.Footer>
                 <input type="submit" className="btn btn-primary" value="Update" />
-                <button onClick={() => setUpdateForm(false)} className="btn btn-primary">Close</button>
+                <button onClick={() => {setUpdateForm(false); setError("")}} className="btn btn-primary">Close</button>
               </Modal.Footer>
             </form>
           </Modal.Body>

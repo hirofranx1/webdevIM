@@ -77,7 +77,6 @@ function Expenses() {
             });
         }
     }
-    console.log(previousExpense, "previous expense")
     async function deleteExpense(e) {
         if (diffDays > 7) {
             alert("You can only delete expenses within the past 7 days.");

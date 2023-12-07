@@ -48,6 +48,9 @@ function Dashboard() {
     const gotoSavings = () => {
         history('/savings');
     }
+    const gotoSettings = () => {
+        history('/settings');
+    }
 
 
     //intro
@@ -75,7 +78,6 @@ function Dashboard() {
             axios.get(`http://localhost:5000/getbudgets/${id}`)
                 .then((response) => {
                     setBudgets(response.data.result);
-                    console.log(response.data.result.length);
                     if (response.data.result.length > 0) {
                         setHasData(true);
                     }
@@ -254,6 +256,7 @@ function Dashboard() {
                         <small>Kamusta,<br /><b>{user ? `${user.firstname} ${user.lastname}` : 'Guest'}</b></small>
                     </p>
                     <p className="col-2 text-center"><BiBell id="bell-icon" size={30} style={{ cursor: 'pointer' }}/></p>
+                    <p className="col-2 align-center"><BiCog size={30} onClick={gotoSettings} style={{ cursor: 'pointer' }}/></p>
                     <p className="col-2 align-center"><BiCog size={30} onClick={toggleRightSidebar} style={{ cursor: 'pointer' }}/></p>
                 </div>
                 <hr />
@@ -293,7 +296,7 @@ function Dashboard() {
                         <ProgressBar animated variant='success' now={progressValue} />
                     </div>
                     <p className='text-center mt-1'><small>You have a remaining budget of</small></p>
-                    <p className="display-3 text-center"><b>{(budgets[selectedIndex] && (budgets[selectedIndex].remaining_budget)) ? formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].remaining_budget)) : "0"}</b></p>
+                    <p className="display-3 text-center"><b>{(budgets[selectedIndex] && (budgets[selectedIndex].remaining_budget) < budgets[selectedIndex].budget_amount) ? formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].remaining_budget)) : "0"}</b></p>
                     {spent > (budgets[selectedIndex] && (budgets[selectedIndex].budget_amount)) && <p className="text-center text-danger">You are over budget!</p>}
 
                     <div className="d-flex text-center mb-2 mx-2">
