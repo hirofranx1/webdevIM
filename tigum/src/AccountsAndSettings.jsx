@@ -11,6 +11,7 @@ function AccountsAndSettings() {
   const [userAcc, setUserAcc] = useState({});
   const [show, setShow] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [email, setEmail] = useState('');
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
   const [oldpassword, setOldpassword] = useState('');
@@ -18,6 +19,7 @@ function AccountsAndSettings() {
   const [retypepassword, setRetypepassword] = useState('');
   const [error, setError] = useState('');
   const [passError, setPassError] = useState('');
+  const [deleteAccount, setDeleteAccount] = useState(false);
 
 
 
@@ -109,6 +111,33 @@ function AccountsAndSettings() {
     })
   }
 
+  async function deleteAccountForm(e) {
+    e.preventDefault();
+    if (id)
+
+    if (email !== userAcc.email) {
+      return setError("Email does not match");
+    }
+    if (oldpassword !== userAcc.password) {
+      return setError("Password does not match");
+    }
+      axios.put(`http://localhost:5000/deleteuser/${id}`)
+    .then((response) => {
+      setUser({
+        user_id: "",
+        });
+        localStorage.removeItem("user");
+        localStorage.removeItem("selectedIndex");
+        localStorage.removeItem("showIntro");
+        history('/');
+        console.log(user);
+        console.log(response.data.result)
+      }).catch(error => {
+        setError(error.response.data.message)
+        console.log(error)
+      })
+  }
+
   return (
     <>
       <button onClick={goback} className="btn btn-dark m-4">Go Back</button>
@@ -134,7 +163,7 @@ function AccountsAndSettings() {
                     setLastname(userAcc.lastname);
                   }}>Update Credentials</button>
                   <button className="btn btn-primary" onClick={() => setShowChangePassword(true)}>Change Password</button>
-                  <button className="btn btn-danger">Delete Account</button>
+                  <button className="btn btn-danger" onClick={() => setDeleteAccount(true)}>Delete Account</button>
                 </div>
               </div>
             </div>
@@ -193,6 +222,34 @@ function AccountsAndSettings() {
             </form>
 
           </Modal.Body>
+        </Modal>
+      )}
+
+      {deleteAccount && (
+        <Modal show={true} backdrop={false}>
+          <Modal.Header>
+            <Modal.Title>Delete Account</Modal.Title>
+          </Modal.Header>
+          <form onSubmit={deleteAccountForm}>
+          <Modal.Body>
+            <p>Are you sure you want to delete your account?</p>
+            <div className="d-grid gap-2">
+              <label>Enter Email</label>
+              <input type="email" className="form-control" required id="email" name="email" placeholder="Enter Email" onChange={(e) => setEmail(e.target.value)} />
+              <br/>
+              <label>Enter Password</label>
+              <input type="password" className="form-control" required id="password" name="password" placeholder="Enter Password" onChange={(e) => setOldpassword(e.target.value)} />
+              <br />
+              {error && (<p className="text-danger">{error}</p>)}
+              
+            </div>
+              </Modal.Body>
+              <Modal.Footer>
+              <button type="submit" className="btn btn-danger">Yes</button>
+              <button className="btn btn-primary" onClick={() => setDeleteAccount(false)}>No</button>
+              </Modal.Footer>
+
+          </form>
         </Modal>
       )}
     </>

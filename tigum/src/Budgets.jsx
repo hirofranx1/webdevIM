@@ -26,9 +26,13 @@ function Budget() {
   const [showDetails, setShowDetails] = useState(false);
   const [addSaving, setAddSaving] = useState(false);
   const [savings, setSavings] = useState([{}]);
+  const [hasSavings, setHasSavings] = useState(0);
   const [previousAmount, setPreviousAmount] = useState(0);
   const [hasBudget, setHasBudget] = useState(0);
+  const [isDeleted, setIsDeleted] = useState(0);
+  const [isNotDeleted, setIsNotDeleted] = useState(0);
   const [getSavingsIndex, setGetSavingsIndex] = useState(0);
+  const [showActiveBudgets, setShowActiveBudgets] = useState(true);
   
   const gotodashboard = () => {
     history("/dashboard");
@@ -61,6 +65,8 @@ function Budget() {
         .get(`http://localhost:5000/getbudgets/${id}`)
         .then((response) => {
           console.log(response.data.result);
+          setIsDeleted(response.data.result.filter((budget) => budget.is_deleted === 1).length);
+          setIsNotDeleted(response.data.result.filter((budget) => budget.is_deleted === 0).length);
           setHasBudget(response.data.result.length);
           setBudgets(response.data.result);
         })
@@ -149,6 +155,7 @@ function Budget() {
         .get(`http://localhost:5000/getsavings/${id}`)
         .then((response) => {
           setSavings(response.data.result);
+          setHasSavings(response.data.result.length);
         })
         .catch((error) => {
           console.log(error.message);
@@ -214,6 +221,10 @@ function Budget() {
 
   const formatNumberToPHP = (number) => {
     return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(number);
+  };
+
+  const toggleActiveInactive = () => {
+    setShowActiveBudgets(!showActiveBudgets);
   };
 
   return (
@@ -303,41 +314,95 @@ function Budget() {
               </Modal.Body>
             </Modal>
           )}
-          {hasBudget > 0 && (
-              <table className="table table-striped">
+          <div className="d-flex justify-content-center">
+          <h3
+          className={showActiveBudgets ? 'text-decoration-underline' : ''}
+          onClick={() => {
+            if (!showActiveBudgets) {
+              toggleActiveInactive();
+            }
+          }}
+        >
+          Active Budgets
+        </h3>
+        <div style={{ marginLeft: '10px' }}></div>
+        <h3
+          className={!showActiveBudgets ? 'text-decoration-underline' : ''}
+          onClick={() => {
+            if (showActiveBudgets) {
+              toggleActiveInactive();
+            }
+          }}
+        >
+          Inactive Budgets
+        </h3>
+          </div>
+
+          <div className="Active Budgets">
+            {(showActiveBudgets && hasBudget > 0 && isNotDeleted > 0) && (
+                <table className="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Budget Name</th>
+                      <th>Budget Amount</th>
+                      <th>Ends In</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {budgets.map((budget, index) => {
+                    if(budget.is_deleted === 0)
+                    return (
+                      <tr key={index}>
+                        <td>{budget.budget_name}</td>
+                        <td>{formatNumberToPHP(budget.budget_amount)}</td>
+                        <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
+                        <td>
+                          <button className="btn"
+                            onClick={() => {
+                              setReadObject(budget);
+                              setShowDetails(true);
+                              setPreviousAmount(budget.budget_amount);
+                            }}
+                          >
+                            <BsThreeDots size={20} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+
+            {(!showActiveBudgets && hasBudget > 0 && isDeleted > 0) && (
+                <table className="table table-striped">
                 <thead>
                   <tr>
                     <th>Budget Name</th>
                     <th>Budget Amount</th>
                     <th>Ends In</th>
-                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                 {budgets.map((budget, index) => {
+                  if(budget.is_deleted === 1)
                   return (
                     <tr key={index}>
                       <td>{budget.budget_name}</td>
                       <td>{formatNumberToPHP(budget.budget_amount)}</td>
                       <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
-                      <td>
-                        <button className="btn"
-                          onClick={() => {
-                            setReadObject(budget);
-                            setShowDetails(true);
-                            setPreviousAmount(budget.budget_amount);
-                          }}
-                        >
-                          <BsThreeDots size={20} />
-                        </button>
-                      </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-          )}
+            )}
 
+          </div>
+        
+
+          
           {hasBudget === 0 && (
             <div className="d-flex justify-content-center">
               <h3>No Budgets</h3>
@@ -383,7 +448,7 @@ function Budget() {
               </div>
             </Modal.Body>
             <ModalFooter className="d-flex justify-content-around">
-              <button className="btn btn-primary" onClick={() => {setAddSaving(true); setRemaining(readObject.remaining_budget)}}>Add to Savings</button>
+              {(hasSavings > 0  && (readObject.remaining_budget > 0)) && <button className="btn btn-primary" onClick={() => {setAddSaving(true); setRemaining(readObject.remaining_budget)}}>Add to Savings</button>}
               <button className="btn btn-primary" onClick={() => { setShowUpdateForm(true); setAmount(readObject.budget_amount); setEndDate(readObject.budget_end_date); setTitle(readObject.budget_name); }}>Update Budget</button>
               <button className="btn btn-primary" onClick={() => setShowDeleteForm(true)}>Delete Budget</button>
               <button className="btn btn-primary" onClick={() => setShowDetails(false)}>Cancel</button>

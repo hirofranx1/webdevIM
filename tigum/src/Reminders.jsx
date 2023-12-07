@@ -15,6 +15,7 @@ function Reminders() {
   const [reminderName, setReminderName] = useState("");
   const [reminderDate, setReminderDate] = useState("");
   const [reminderAmount, setReminderAmount] = useState("");
+  const [reminderCount, setReminderCount] = useState(0);
   const [reminderBudget, setReminderBudget] = useState({});
   const [reminders, setReminders] = useState([{}]);
   const [reminderObject, setReminderObject] = useState({});
@@ -65,6 +66,7 @@ function Reminders() {
         .get(`http://localhost:5000/getreminders/${id}`)
         .then((response) => {
           setReminders(response.data.result);
+          setReminderCount(response.data.result.length);
         })
         .catch((error) => {
           console.log(error.message);
@@ -207,7 +209,7 @@ function Reminders() {
           </div>
 
           {showRemindForm && (
-            <Modal show={showRemindForm} onHide={() => setShowRemindForm(false)}>
+            <Modal show={showRemindForm} onHide={() => setShowRemindForm(false)} centered>
               <Modal.Header>
                 <Modal.Title>Add Reminder</Modal.Title>
               </Modal.Header>
@@ -264,6 +266,7 @@ function Reminders() {
                       }}
                     >
                       {budgets.map((budget, index) => {
+                        if(budget.is_deleted === 0)
                         return (
                           <option
                             key={`${budget.budget_id}-${index}`}
@@ -279,7 +282,7 @@ function Reminders() {
                   
                   <div className="mb-3">
                     <button type="submit" className="btn btn-primary">Add Reminder</button>
-                    {error && <div className="error">{error}</div>}
+                    {error && <div className="text-danger">{error}</div>}
                   </div>
                 </form>
                 <button onClick={() => {setShowRemindForm(false); setError("")}} className="btn btn-secondary">Close</button>
@@ -288,36 +291,38 @@ function Reminders() {
           )}
 
           {/* Display reminders in a table sorted by closest date */}
-          <table className="table mt-3">
-            <thead>
-              <tr>
-                <th>Reminder Name</th>
-                <th>Reminder Amount</th>
-                <th>Pay Before</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedReminders.map((reminder, index) => (
-                <tr key={`${reminder.reminder_id}-${index}`}>
-                  <td>{reminder.reminder_name}</td>
-                  <td>{reminder.reminder_amount}</td>
-                  <td>{new Date(reminder.reminder_date).toLocaleDateString()}</td>
-                  <td>
-                    <button
-                      className="btn"
-                      onClick={() => {
-                        setReminderObject(reminder);
-                        setShowDetails(true);
-                      }}
-                    >
-                      <BsThreeDots size={20} />
-                    </button>
-                  </td>
+          {reminderCount > 0 && 
+            <table className="table mt-3">
+              <thead>
+                <tr>
+                  <th>Reminder Name</th>
+                  <th>Reminder Amount</th>
+                  <th>Pay Before</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {sortedReminders.map((reminder, index) => (
+                  <tr key={`${reminder.reminder_id}-${index}`}>
+                    <td>{reminder.reminder_name}</td>
+                    <td>{reminder.reminder_amount}</td>
+                    <td>{new Date(reminder.reminder_date).toLocaleDateString()}</td>
+                    <td>
+                      <button
+                        className="btn"
+                        onClick={() => {
+                          setReminderObject(reminder);
+                          setShowDetails(true);
+                        }}
+                      >
+                        <BsThreeDots size={20} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+        }
 
         </Card.Body>
       </Card>

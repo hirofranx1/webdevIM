@@ -155,9 +155,22 @@ app.post('/addbudget', (req, res) => {
     }
 });
 
-app.get('/getbudgets/:id', (req, res) => {
+app.get('/getbudgetsdash/:id', (req, res) => {
   const userId = req.params.id;
   const sql = `SELECT * FROM budget WHERE user_id = ? && is_deleted = 0`;
+  db.query(sql, [userId], (error, result) => {
+    if(error){
+      console.log(error);
+    }
+    if(result){
+      return res.json({result:result});
+    }
+  })
+});
+
+app.get('/getbudgets/:id', (req, res) => {
+  const userId = req.params.id;
+  const sql = `SELECT * FROM budget WHERE user_id = ?`;
   db.query(sql, [userId], (error, result) => {
     if(error){
       console.log(error);
@@ -577,6 +590,55 @@ app.put(`/addtosavingsdash`, (req, res) => {
         }
       })
     }
+  })
+})
+
+app.put('/deleteuser/:id',(req, res)=>{
+  const id = req.params.id;
+ 
+  const deleteExpenses = `DELETE expenses FROM expenses LEFT JOIN budget on expenses.budget_id = budget.budget_id WHERE user_id = ?`;
+  const deleteReminders = `DELETE reminders FROM reminders WHERE user_id = ?`;
+  const deleteBudget = `DELETE budget FROM budget WHERE user_id = ?`;
+  const deleteSavingsAdd = `DELETE savings_add FROM savings_add LEFT JOIN savings on savings_add.savings_id = savings.savings_id WHERE user_id = ?`;
+  const deleteSavings = `DELETE savings FROM savings WHERE user_id = ?`;
+  const deleteUser = `DELETE users FROM users WHERE user_id = ?`;
+  console.log(id);
+  db.query(deleteExpenses, [id], (err, result)=>{
+      if(err){
+          console.log(err);
+      }else{
+          db.query(deleteReminders, [id], (err, result)=>{
+              if(err){
+                  console.log(err);
+              }else{
+                  db.query(deleteBudget, [id], (err, result)=>{
+                      if(err){
+                          console.log(err);
+                      }else{
+                          db.query(deleteSavingsAdd, [id], (err, result)=>{
+                              if(err){
+                                  console.log(err);
+                              }else{
+                                  db.query(deleteSavings, [id], (err, result)=>{
+                                      if(err){
+                                          console.log(err);
+                                      }else{
+                                          db.query(deleteUser, [id], (err, result)=>{
+                                              if(err){
+                                                  console.log(err);
+                                              }else{
+                                                  res.send(result);
+                                              }
+                                          })
+                                      }
+                                  })
+                              }
+                          })
+                      }
+                  })
+              }
+          })
+      }
   })
 })
 

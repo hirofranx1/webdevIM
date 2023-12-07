@@ -24,7 +24,6 @@ function Dashboard() {
     const [expenseCategory, setExpenseCategory] = useState("Others");
     const [expense, setExpense] = useState([{}]);
     const [error, setError] = useState("");
-
     const [showIntro, setShowIntro] = useState(localStorage.getItem('showIntro') || true);
     const [showExpenseModal, setShowExpenseModal] = useState(false);
     const [getSavings, setGetSavings] = useState([{}]);
@@ -92,7 +91,7 @@ function Dashboard() {
     //get budget data
     useEffect(() => {
         if (id) {
-            axios.get(`http://localhost:5000/getbudgets/${id}`)
+            axios.get(`http://localhost:5000/getbudgetsdash/${id}`)
                 .then((response) => {
                     setBudgets(response.data.result);
                     if (response.data.result.length > 0) {
@@ -380,15 +379,20 @@ function Dashboard() {
                             {budgets[selectedIndex]?.budget_name || 'Select Budget'}
                         </Dropdown.Toggle>
                         <Dropdown.Menu style={{ width: '100%', minWidth: '23rem' }}>
-                            {budgets.map((budget, index) => (
-                                <Dropdown.Item
-                                    key={`${budget.budget_id}-${index}`}
-                                    eventKey={index}
-                                    className='text-center'
-                                >
-                                    {budget.budget_name}
-                                </Dropdown.Item>
-                            ))}
+                            {budgets.map((budget, index) => 
+                             {
+                               return(
+                                <>
+                                    <Dropdown.Item
+                                        key={`${budget.budget_id}-${index}`}
+                                        eventKey={index}
+                                        className='text-center'
+                                    >
+                                        {budget.budget_name}
+                                    </Dropdown.Item>
+                                </>
+                               )
+                        })}
                         </Dropdown.Menu>
                     </Dropdown>
                 )}

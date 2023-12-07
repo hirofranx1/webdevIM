@@ -68,6 +68,9 @@ function Savings() {
         if(savingsGoal < 0){
             return setError("Goal Amount cannot be negative");
         }
+        if(new Date(savingsDate) < new Date()){
+            return setError("Goal Date cannot be in the past");
+        }
         try {
             const savingsData = {
                 savings_name: savingsName,
@@ -241,12 +244,13 @@ function Savings() {
                     </label>
                     <br/>
                     <input type="number" onChange={(e) => setSavingsGoal(e.target.value)} required className="form-control" placeholder="Savings Goal" />
+                    <br/>
                     <label>
                         Goal Date
                     </label>
                     <br/>
                     <input type="date" onChange={(e) => setSavingsDate(e.target.value)} className="form-control" placeholder="Savings Date" />
-                    
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
                     </Modal.Body>
                     <Modal.Footer>
                     <input type="submit" className="btn btn-primary" value="Add Savings" />
