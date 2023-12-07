@@ -182,7 +182,7 @@ function Dashboard() {
         const savings_id = getSavingsIndex;
         const remaining = readRemain;
         const budget_id = readBudgetId;
-        axios.put(`http://localhost:5000/addtosavingsdash`, {remaining, savings_id, budget_id})
+        axios.put(`http://localhost:5000/addtosavingsdash`, { remaining, savings_id, budget_id })
             .then((response) => {
                 console.log(response.data);
                 setAddToSavings(false);
@@ -195,7 +195,7 @@ function Dashboard() {
                     setError("Something went wrong");
                 }
             });
-        }
+    }
 
 
 
@@ -286,28 +286,62 @@ function Dashboard() {
 
             <div className="d-flex flex-column align-items-center justify-content-center" id="body">
                 <Card bg='info' className='my-4' style={{ width: '23rem', borderRadius: '12px' }}>
-                    <div className="d-flex justify-content-between p-2">
-                        <p className="display-7 fw-bold">Balance</p>
-                        <p className="small">Active Wallet</p>
-                    </div>
+                    {budgets && budgets[selectedIndex] ? (
+                        <>
+                            <div className="d-flex justify-content-between p-2">
+                                <p className="display-7 fw-bold">Balance</p>
+                                <p className="small">Active Wallet</p>
+                            </div>
 
-                    <div className="p-2">
-                        <p className="display-6 text-center"><b>{(progressValue) ? progressValue : "0"}%</b></p>
-                        <ProgressBar animated variant='success' now={progressValue} />
-                    </div>
-                    <p className='text-center mt-1'><small>You have a remaining budget of</small></p>
-                    <p className="display-3 text-center"><b>{(budgets[selectedIndex] && (budgets[selectedIndex].remaining_budget) < budgets[selectedIndex].budget_amount) ? formatNumberToPHP(budgets[selectedIndex] && (budgets[selectedIndex].remaining_budget)) : "0"}</b></p>
-                    {spent > (budgets[selectedIndex] && (budgets[selectedIndex].budget_amount)) && <p className="text-center text-danger">You are over budget!</p>}
+                            <div className="p-2">
+                                <p className="display-6 text-center">
+                                    <b>{progressValue ? progressValue : "0"}%</b>
+                                </p>
+                                <ProgressBar animated variant='success' now={progressValue} />
+                            </div>
+                            <p className='text-center mt-1'>
+                                <small>You have a remaining budget of</small>
+                            </p>
+                            <p className="display-3 text-center">
+                                <b>
+                                    {budgets[selectedIndex].remaining_budget
+                                        ? formatNumberToPHP(budgets[selectedIndex].remaining_budget)
+                                        : "0"}
+                                </b>
+                            </p>
+                            {spent > budgets[selectedIndex].budget_amount && (
+                                <p className="text-center text-danger">You are over budget!</p>
+                            )}
 
-                    <div className="d-flex text-center mb-2 mx-2">
-                        <div className="flex-fill border border-end-1 rounded-start-3 bg-light border-dark">
-                            <p className="text-center"><small>Budget</small><br /><b>{(budgets[selectedIndex] && budgets[selectedIndex].budget_amount) ? formatNumberToPHP(budgets[selectedIndex] && budgets[selectedIndex].budget_amount) : "0"}</b></p>
+                            <div className="d-flex text-center mb-2 mx-2">
+                                <div className="flex-fill border border-end-1 rounded-start-3 bg-light border-dark">
+                                    <p className="text-center">
+                                        <small>Budget</small>
+                                        <br />
+                                        <b>
+                                            {budgets[selectedIndex].budget_amount
+                                                ? formatNumberToPHP(budgets[selectedIndex].budget_amount)
+                                                : "0"}
+                                        </b>
+                                    </p>
+                                </div>
+                                <div className="flex-fill border border-start-1 rounded-end-3 bg-light border-dark">
+                                    <p className="text-center">
+                                        <small>Expense</small>
+                                        <br />
+                                        <b>{formatNumberToPHP(spent)}</b>
+                                    </p>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="p-4 text-center">
+                            <p className="display-6">Add your first budget!!</p>
+                            <button className="btn btn-outline-light w-100 mb-2" onClick={gotobudget}>Let's Go!</button>
                         </div>
-                        <div className="flex-fill border border-start-1 rounded-end-3 bg-light border-dark">
-                            <p className="text-center"><small>Expense</small><br /><b>{formatNumberToPHP(spent)}</b></p>
-                        </div>
-                    </div>
+                    )}
                 </Card>
+
 
 
 
@@ -441,23 +475,25 @@ function Dashboard() {
                             </Modal.Body>
                             <Modal.Footer>
                                 {budget.remaining_budget > 0 &&
-                                <>
-                                <Button variant="primary" onClick={() => {setAddToSavings(true);
-                                setReadRemain(budget.remaining_budget);
-                                setReadBudgetId(id)}} >
-                                    Add to Savings
-                                </Button>
-                                <Button variant="secondary" onClick={() => deleteBudget(id)}>
-                                    Keep
-                                </Button> 
-                                </>
+                                    <>
+                                        <Button variant="primary" onClick={() => {
+                                            setAddToSavings(true);
+                                            setReadRemain(budget.remaining_budget);
+                                            setReadBudgetId(id)
+                                        }} >
+                                            Add to Savings
+                                        </Button>
+                                        <Button variant="secondary" onClick={() => deleteBudget(id)}>
+                                            Keep
+                                        </Button>
+                                    </>
                                 }
                                 {budget.remaining_budget <= 0 &&
-                                <>
-                                <Button variant="primary" onClick={() => deleteBudget(id)}>
-                                    Okay
-                                </Button>
-                                </>
+                                    <>
+                                        <Button variant="primary" onClick={() => deleteBudget(id)}>
+                                            Okay
+                                        </Button>
+                                    </>
                                 }
                             </Modal.Footer>
                         </Modal>
@@ -465,48 +501,39 @@ function Dashboard() {
                 }
             })}
 
-            {addToSavings &&(
+            {addToSavings && (
                 <Modal show={true} backdrop={false}>
                     <Modal.Header>
                         <Modal.Title>Add to Savings</Modal.Title>
                     </Modal.Header>
                     <form onSubmit={addToSaving}>
-                    <Modal.Body>
-                        <p>Amount: {readRemain}</p>
-                        <p>Choose Savings:</p>
-                        <select
-                            className="form-select"
-                            id="savings"
-                            value={getSavingsIndex}
-                            onChange={(e) => setGetSavingsIndex(e.target.value)}>
+                        <Modal.Body>
+                            <p>Amount: {readRemain}</p>
+                            <p>Choose Savings:</p>
+                            <select
+                                className="form-select"
+                                id="savings"
+                                value={getSavingsIndex}
+                                onChange={(e) => setGetSavingsIndex(e.target.value)}>
                                 <option value="Choose">Choose</option>
-                            {getSavings.map((savings, index) => {
-                                return (
-                                    <option value={savings.savings_id} key={index}>{savings.savings_name}</option>
-                                )
-                            })}
+                                {getSavings.map((savings, index) => {
+                                    return (
+                                        <option value={savings.savings_id} key={index}>{savings.savings_name}</option>
+                                    )
+                                })}
                             </select>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setAddToSavings(false)}>
-                            Close
-                        </Button>
-                        <Button variant="primary" type="submit">
-                            Add to Savings
-                        </Button>
-                    </Modal.Footer>
-                    
-
-
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={() => setAddToSavings(false)}>
+                                Close
+                            </Button>
+                            <Button variant="primary" type="submit">
+                                Add to Savings
+                            </Button>
+                        </Modal.Footer>
                     </form>
-
-
-
-
                 </Modal>
             )}
-
-
         </>
     )
 }
@@ -536,10 +563,4 @@ function Intro({ onClose }) {
         </>
     );
 }
-
-
-
 export default Dashboard;
-
-
-
