@@ -49,7 +49,7 @@ function Login() {
 
   return (
     <>
-      <form onSubmit={(e) => handleLogin(e)}>
+      <form onSubmit={(e) => handleLogin(e)} style={{ width: '45%'}} className='p-4 m-3 rounded-2 position-absolute top-50 start-50 translate-middle'>
         <div className="container mb-5">
           {/* Existing content */}
           <img src={logo} alt='Logo' style={{ width: '200px' }}/>
