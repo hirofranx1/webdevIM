@@ -321,7 +321,7 @@ function Reminders() {
               {new Date(reminderObject.reminder_date).toLocaleDateString()}
             </div>
             <div>Reminder Category: {reminderObject.reminder_category}</div>
-            <div>Reminder Budget: {reminderObject.budget_name}</div>
+            <div>Reminder Budget: {reminderObject.budget_name && reminderObject.is_deleted ? <div className="text-decoration-line-through">{reminderObject.budget_name} </div>: <div>{reminderObject.budget_name}</div>}</div>
           </Modal.Body>
           <Modal.Footer>
             <button onClick={() => setPayForm(true)} className="btn btn-primary">Pay</button>
