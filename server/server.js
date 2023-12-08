@@ -155,6 +155,32 @@ app.post('/addbudget', (req, res) => {
     }
 });
 
+app.post(`/addbudgetandDelete`, (req, res) => {
+  const {id, title, amount, startDate, endDate, bud_id} = req.body;
+  console.log(id, title, amount, startDate, endDate);
+  const sql = `INSERT INTO budget(user_id, budget_name, budget_amount, budget_start_date, budget_end_date, remaining_budget) VALUES (?, ?, ?, ?, ?, ?)`;
+  const deletebudget = `UPDATE budget SET is_deleted = 1 WHERE budget_id = ?`;
+  if(id != null){
+    db.query(sql, [id, title, amount, startDate, endDate, amount], (error, result) => {
+      if(error){
+        console.log(error);
+      }
+      if(result){
+        db.query(deletebudget, [bud_id], (error, result) => {
+          if(error){
+            console.log(error);
+          }
+          if(result){
+            return res.json({result:result});
+          }
+        })
+      }
+    })
+  }
+
+});
+
+
 app.get('/getbudgetsdash/:id', (req, res) => {
   const userId = req.params.id;
   const sql = `SELECT * FROM budget WHERE user_id = ? && is_deleted = 0`;
@@ -567,6 +593,7 @@ app.put(`/addtosavingsdash`, (req, res) => {
   const {remaining, savings_id, budget_id} = req.body;
   const addMoney = `INSERT INTO savings_add(savings_id, savings_add_amount) VALUES (?, ?)`;
   const updateSavings = `UPDATE savings SET savings_amount = savings_amount + ? WHERE savings_id = ?`;
+  const updateRemaining = `UPDATE budget SET remaining_budget = remaining_budget - ? WHERE budget_id = ?`;
   const deleteBudget = `UPDATE budget SET is_deleted = 1 WHERE budget_id = ?`;
   console.log("hello");
   db.query(addMoney, [savings_id, remaining], (error, result) => {
@@ -579,12 +606,19 @@ app.put(`/addtosavingsdash`, (req, res) => {
           console.log(error);
         }
         if(result){
-          db.query(deleteBudget, [budget_id], (error, result) => {
+          db.query(updateRemaining, [remaining, budget_id], (error, result) => {
             if(error){
               console.log(error);
             }
             if(result){
-              return res.json({result:result});
+              db.query(deleteBudget, [budget_id], (error, result) => {
+                if(error){
+                  console.log(error);
+                }
+                if(result){
+                  return res.json({result:result});
+                }
+              })
             }
           })
         }

@@ -29,6 +29,8 @@ function Budget() {
   const [hasSavings, setHasSavings] = useState(0);
   const [previousAmount, setPreviousAmount] = useState(0);
   const [hasBudget, setHasBudget] = useState(0);
+  const [hasdata, setHasData] = useState(0);
+  const [hasBudgets, setHasBudgets] = useState(0);
   const [isDeleted, setIsDeleted] = useState(0);
   const [isNotDeleted, setIsNotDeleted] = useState(0);
   const [getSavingsIndex, setGetSavingsIndex] = useState(0);
@@ -68,6 +70,7 @@ function Budget() {
           setIsDeleted(response.data.result.filter((budget) => budget.is_deleted === 1).length);
           setIsNotDeleted(response.data.result.filter((budget) => budget.is_deleted === 0).length);
           setHasBudget(response.data.result.length);
+          setHasData(response.data.result.length);
           setBudgets(response.data.result);
         })
         .catch((error) => {
@@ -310,10 +313,11 @@ function Budget() {
                     />
                   )}
                   <div className="mt-3">
+                  {error && <p className="text-danger">{error}</p>}
                     <input type="submit" value="Add" className="btn bg-primary text-white mx-2" />
                     <button onClick={toggleForm} className="btn bg-secondary text-white">Cancel</button>
                   </div>
-                  {error && <p>{error}</p>}
+                  
                   <br />
                 </form>
               </Modal.Body>
@@ -323,110 +327,114 @@ function Budget() {
 
 
           <div className="container">
-            <div className="d-flex justify-content-center">
-              <ul className="nav nav-tabs">
-                <li className="nav-item">
-                  <button
-                    className={`nav-link ${showActiveBudgets ? 'active bg-dark text-white' : 'text-dark'}`}
-                    onClick={() => {
-                      if (!showActiveBudgets) {
-                        toggleActiveInactive();
-                      }
-                    }}
-                  >
-                    Active Budgets
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className={`nav-link ${!showActiveBudgets ? 'active bg-dark text-white' : 'text-dark'}`}
-                    onClick={() => {
-                      if (showActiveBudgets) {
-                        toggleActiveInactive();
-                      }
-                    }}
-                  >
-                    Inactive Budgets
-                  </button>
-                </li>
-              </ul>
-            </div>
+            { hasdata > 0 && (
+              <>
+                <div className="d-flex justify-content-center">
+                  <ul className="nav nav-tabs">
+                    <li className="nav-item">
+                      <button
+                        className={`nav-link ${showActiveBudgets ? 'active bg-dark text-white' : 'text-dark'}`}
+                        onClick={() => {
+                          if (!showActiveBudgets) {
+                            toggleActiveInactive();
+                          }
+                        }}
+                      >
+                        Active Budgets
+                      </button>
+                    </li>
+                    <li className="nav-item">
+                      <button
+                        className={`nav-link ${!showActiveBudgets ? 'active bg-dark text-white' : 'text-dark'}`}
+                        onClick={() => {
+                          if (showActiveBudgets) {
+                            toggleActiveInactive();
+                          }
+                        }}
+                      >
+                        Inactive Budgets
+                      </button>
+                    </li>
+                  </ul>
+                </div>
 
-            {/* Content */}
-            <div className="tab-content">
-              <div className={`tab-pane fade ${showActiveBudgets ? 'show active bg-secondary text-white' : ''}`}>
-                {/* Content for Active Budgets */}
-                {showActiveBudgets && (
-                  <div className="Active Budgets">
-                    <table className="table table-striped bg-secondary text-white">
-                      <thead>
-                        {/* Table Header for Active Budgets */}
-                        <tr>
-                          <th className="bg-dark text-white">Budget Name</th>
-                          <th className="bg-dark text-white">Budget Amount</th>
-                          <th className="bg-dark text-white">Ends In</th>
-                          <th className="bg-dark text-white">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {budgets.map((budget, index) => {
-                          if (budget.is_deleted === 0)
-                            return (
-                              <tr key={index} className="border-bottom border-dark">
-                                <td>{budget.budget_name}</td>
-                                <td>{formatNumberToPHP(budget.budget_amount)}</td>
-                                <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
-                                <td>
-                                  <button
-                                    className="btn"
-                                    onClick={() => {
-                                      setReadObject(budget);
-                                      setShowDetails(true);
-                                      setPreviousAmount(budget.budget_amount);
-                                    }}
-                                  >
-                                    <BsThreeDots size={20} />
-                                  </button>
-                                </td>
-                              </tr>
-                            );
-                        })}
-                      </tbody>
-                    </table>
+                <div className="tab-content">
+                  <div className={`tab-pane fade ${showActiveBudgets ? 'show active bg-secondary text-white' : ''}`}>
+                    {/* Content for Active Budgets */}
+                    {showActiveBudgets && (
+                      <div className="Active Budgets">
+                        <table className="table table-striped bg-secondary text-white">
+                          <thead>
+                            {/* Table Header for Active Budgets */}
+                            <tr>
+                              <th className="bg-dark text-white">Budget Name</th>
+                              <th className="bg-dark text-white">Budget Amount</th>
+                              <th className="bg-dark text-white">Ends In</th>
+                              <th className="bg-dark text-white">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {budgets.map((budget, index) => {
+                              if (budget.is_deleted === 0)
+                                return (
+                                  <tr key={index} className="border-bottom border-dark">
+                                    <td>{budget.budget_name}</td>
+                                    <td>{formatNumberToPHP(budget.budget_amount)}</td>
+                                    <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
+                                    <td>
+                                      <button
+                                        className="btn"
+                                        onClick={() => {
+                                          setReadObject(budget);
+                                          setShowDetails(true);
+                                          setPreviousAmount(budget.budget_amount);
+                                        }}
+                                      >
+                                        <BsThreeDots size={20} />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <div className={`tab-pane fade ${!showActiveBudgets ? 'show active bg-secondary text-white' : ''}`}>
-                {/* Content for Inactive Budgets */}
-                {!showActiveBudgets && (
-                  <div className="Inactive Budgets">
-                    <table className="table table-striped bg-secondary text-white">
-                      <thead>
-                        {/* Table Header for Inactive Budgets */}
-                        <tr>
-                          <th className="bg-dark text-white">Budget Name</th>
-                          <th className="bg-dark text-white">Budget Amount</th>
-                          <th className="bg-dark text-white">Ends In</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {budgets.map((budget, index) => {
-                          if (budget.is_deleted === 1)
-                            return (
-                              <tr key={index} className="border-bottom border-dark">
-                                <td>{budget.budget_name}</td>
-                                <td>{formatNumberToPHP(budget.budget_amount)}</td>
-                                <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
-                              </tr>
-                            );
-                        })}
-                      </tbody>
-                    </table>
+                  <div className={`tab-pane fade ${!showActiveBudgets ? 'show active bg-secondary text-white' : ''}`}>
+                    {/* Content for Inactive Budgets */}
+                    {!showActiveBudgets && (
+                      <div className="Inactive Budgets">
+                        <table className="table table-striped bg-secondary text-white">
+                          <thead>
+                            {/* Table Header for Inactive Budgets */}
+                            <tr>
+                              <th className="bg-dark text-white">Budget Name</th>
+                              <th className="bg-dark text-white">Budget Amount</th>
+                              <th className="bg-dark text-white">Ends In</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {budgets.map((budget, index) => {
+                              if (budget.is_deleted === 1)
+                                return (
+                                  <tr key={index} className="border-bottom border-dark">
+                                    <td>{budget.budget_name}</td>
+                                    <td>{formatNumberToPHP(budget.budget_amount)}</td>
+                                    <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
+                                  </tr>
+                                );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
             </div>
+            </>
+            )}
           </div>
+          
 
           {hasBudget === 0 && (
             <div className="d-flex justify-content-center">

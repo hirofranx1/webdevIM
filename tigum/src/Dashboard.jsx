@@ -28,13 +28,20 @@ function Dashboard() {
     const [showExpenseModal, setShowExpenseModal] = useState(false);
     const [getSavings, setGetSavings] = useState([{}]);
     const [getSavingsIndex, setGetSavingsIndex] = useState(0);
+    const [hasSavings, setHasSavings] = useState(0);
+    const [title, setTitle] = useState("");
+    const [endDate, setEndDate] = useState(new Date());
     const [addToSavings, setAddToSavings] = useState(false);
+    const [addToBudget, setAddToBudget] = useState(false);
     const [readRemain, setReadRemain] = useState(0);
     const [readBudgetId, setReadBudgetId] = useState(0);
     const [hasExpense, setHasExpense] = useState(0);
+    const [calendar, setCalender] = useState(false);
     const navOut = localStorage.getItem('navOut');
+    const openCalendar = () => {
+        setCalender(true);
+      };
 
-    console.log(showIntro);
     const id = user.user_id;
     const history = useNavigate();
     const gotobudget = () => {
@@ -185,7 +192,7 @@ function Dashboard() {
         axios.get(`http://localhost:5000/getsavings/${id}`)
             .then((response) => {
                 setGetSavings(response.data.result);
-                console.log(response.data.result);
+                setHasSavings(response.data.result.length);
             })
             .catch((error) => {
                 console.log(error.message);
@@ -237,6 +244,33 @@ function Dashboard() {
                 window.location.reload();
             }).catch((error) => {
                 console.log(error);
+                if (error.response) {
+                    setError(error.response.data.message);
+                } else {
+                    setError("Something went wrong");
+                }
+            });
+    }
+    console.log(readBudgetId);
+    async function addToBudgetRem(e) {
+        e.preventDefault();
+        if(title === "") {
+            return setError("Please input title");
+        }
+        if(readRemain <= 0) {
+            return setError("Please input valid amount");
+        }
+        const bud_id = readBudgetId;
+        
+        const amount = readRemain;
+        const startDate = new Date();
+        axios.post(`http://localhost:5000/addbudgetandDelete`, { id , title, amount, startDate, endDate, bud_id })
+            .then((response) => {
+                console.log(response.data);
+                setAddToBudget(false);
+                window.location.reload();
+            }).catch((error) => {
+                console.log(error.response);
                 if (error.response) {
                     setError(error.response.data.message);
                 } else {
@@ -359,7 +393,7 @@ function Dashboard() {
                         </>
                     ) : (
                         <div className="p-4 text-center">
-                            <p className="display-6">Add your first budget!!</p>
+                            <p className="display-6">Add a budget!</p>
                             <button className="btn btn-outline-light w-100 mb-2" onClick={gotobudget}>Let's Go!</button>
                         </div>
                     )}
@@ -492,17 +526,20 @@ function Dashboard() {
                 const id = budget.budget_id;
                 if (today > budgetDate) {
                     return (
-                        <Modal show={true} key={index}>
-                            <Modal.Header closeButton>
+                        <Modal show={true} key={index} centered>
+                            <Modal.Header>
                                 <Modal.Title>Your budget date has finished, add remaining money to savings?</Modal.Title>
                             </Modal.Header>
                             <Modal.Body>
                                 <p>Your budget {budget.budget_name} has expired.</p>
+                                <p>Remaining budget: {budget.remaining_budget}</p>
 
                             </Modal.Body>
                             <Modal.Footer>
-                                {budget.remaining_budget > 0 &&
+                                {budget.remaining_budget > 0 && (
                                     <>
+                                        {hasSavings > 0 && (
+                                        <>
                                         <Button variant="primary" onClick={() => {
                                             setAddToSavings(true);
                                             setReadRemain(budget.remaining_budget);
@@ -510,11 +547,22 @@ function Dashboard() {
                                         }} >
                                             Add to Savings
                                         </Button>
+                                        </>
+                                        )}
+                                        <Button variant="primary" onClick={() => {
+                                            setReadRemain(budget.remaining_budget);
+                                            setAddToBudget(true);
+                                            setReadBudgetId(id)
+                                        }} >
+                                            Add to new Budget
+                                        </Button>
+
                                         <Button variant="secondary" onClick={() => deleteBudget(id)}>
                                             Keep
                                         </Button>
-                                    </>
-                                }
+                                        </>
+                                    )}
+                                    
                                 {budget.remaining_budget <= 0 &&
                                     <>
                                         <Button variant="primary" onClick={() => deleteBudget(id)}>
@@ -550,6 +598,7 @@ function Dashboard() {
                                 })}
                             </select>
                         </Modal.Body>
+                
                         <Modal.Footer>
                             <Button variant="secondary" onClick={() => setAddToSavings(false)}>
                                 Close
@@ -561,10 +610,95 @@ function Dashboard() {
                     </form>
                 </Modal>
             )}
-            
+            {addToBudget && (
+                <Modal show={true} backdrop={false} centered>
+                    <Modal.Header>
+                        <Modal.Title>Add to Budget</Modal.Title>
+                    </Modal.Header>
+                    
+                    <form onSubmit={addToBudgetRem}>
+                    <Modal.Body>
+                    <input
+                    type="text"
+                    placeholder="Budget Title"
+                    className="form-control form-control-lg mt-2 border-dark"
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                  <br />
 
-            {/* <button onClick={() => localStorage.setItem("showIntro", JSON.stringify(false))}>false</button>
-            <button onClick={() => localStorage.setItem("showIntro", JSON.stringify(true))}>true</button> */}
+                  <input
+                    type="number"
+                    placeholder="Budget Amount"
+                    className="form-control form-control-lg mt-2 border-dark"
+                    defaultValue={readRemain}
+                    onChange={(e) => setReadRemain(e.target.value)}
+                  />
+                  <br />
+
+                  <label htmlFor="duration">Duration until: </label>
+                  <br />
+                  <input
+                    type="radio"
+                    id="weekly"
+                    name="duration"
+                    value="weekly"
+                    onClick={() => {
+                      setCalender(false);
+                      let end = new Date();
+                      end.setDate(end.getDate() + 7);
+                      setEndDate(end);
+                    }}
+                  />
+                  <label htmlFor="weekly">Weekly</label>
+                  <br />
+                  <input
+                    type="radio"
+                    id="monthly"
+                    name="duration"
+                    value="monthly"
+                    onClick={() => {
+                      setCalender(false);
+                      let end = new Date();
+                      end.setDate(end.getDate() + 30);
+                      setEndDate(end);
+                    }}
+                  />
+                  <label htmlFor="monthly">Monthly</label>
+                  <br />
+                  <input
+                    type="radio"
+                    id="Until Date"
+                    name="duration"
+                    value="yearly"
+                    onClick={openCalendar}
+                  />
+                  <label htmlFor="Until Date">Until Date</label>
+                  <br />
+                  {calendar && (
+                    <input
+                      type="date"
+                      className="form-control form-control-lg mt-2"
+                      onChange={(e) => {
+                        setEndDate(e.target.value);
+                      }}
+                    />
+                  )}
+                  {error && <p className="text-danger">{error}</p>}
+                    </Modal.Body>
+                    <Modal.Footer>
+                    <Button variant="primary" type="submit">
+                            Add to Budget
+                        </Button>
+                        <Button variant="secondary" onClick={() => setAddToBudget(false)}>
+                            Close
+                        </Button>
+                        
+                    </Modal.Footer>
+                    </form>
+                </Modal>
+            )}
+
+            
         </>
     )
 }

@@ -17,6 +17,7 @@ function Expenses() {
     const [expenseCategory, setExpenseCategory] = useState("");
     const [readObject, setReadObject] = useState({});
     const { user, setUser } = useContext(UserContext);
+    const [hasExpense, setHasExpense] = useState(false);
     const [previousExpense, setPreviousExpense] = useState(0);
     const id = user.user_id;
     console.log(id, "id");
@@ -48,6 +49,7 @@ function Expenses() {
                 .get(`http://localhost:5000/getallexpenses/${id}`)
                 .then((response) => {
                     setExpense(response.data.result);
+                    setHasExpense(response.data.result.length);
                     console.log(response.data);
                 })
                 .catch((error) => {
@@ -130,8 +132,9 @@ function Expenses() {
                     <p className="m-0 display-3">Expenses</p>
                     <div></div> {/* This empty div acts as a placeholder to maintain the center alignment */}
                 </div>
-
+               
                 <div className="container-scrollspy" style={{ maxHeight: "400px", overflowY: "auto" }}>
+                {hasExpense > 0 && (
                     <div className="table-responsive">
                         <table className="table table-secondary table-striped table-hover">
                             <thead>
@@ -181,7 +184,13 @@ function Expenses() {
                             </tbody>
                         </table>
                     </div>
+                    )}
+    
+
+
+
                 </div>
+                
 
                 {modalOpen && (
                     <Modal show={true} backdrop={false} centered>

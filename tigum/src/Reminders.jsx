@@ -21,6 +21,7 @@ function Reminders() {
   const [reminderObject, setReminderObject] = useState({});
   const [reminderCategory, setReminderCategory] = useState("Others");
   const [payForm, setPayForm] = useState(false);
+  const [hasBudget, setHasBudget] = useState(0);
   const [updateForm, setUpdateForm] = useState(false);
   const [deleteForm, setDeleteForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -50,9 +51,10 @@ function Reminders() {
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:5000/getbudgets/${id}`)
+        .get(`http://localhost:5000/getbudgetsdash/${id}`)
         .then((response) => {
           setBudgets(response.data.result);
+          setHasBudget(response.data.result.length);
         })
         .catch((error) => {
           console.log(error.message);
@@ -79,6 +81,14 @@ function Reminders() {
   console.log(reminderName + ": reminderName");
   async function addReminder(e) {
     e.preventDefault();
+    if(hasBudget === 0){
+      setError("Please create a budget first");
+      return;
+    }
+    if (reminderDate === "") {
+      setError("Please select a date");
+      return;
+    }
     if (reminderBudget === "") {
       setError("Please select a budget");
       return;
@@ -202,11 +212,13 @@ function Reminders() {
             <div>
               <button className="btn btn-secondary me-2" onClick={back}>Back</button>
               <button className="btn btn-primary" onClick={() => {
-                setShowRemindForm(true);
-                setReminderBudget({ budget_name: budgets[0].budget_name, budget_id: budgets[0].budget_id });
+                hasBudget > 0 && setReminderBudget({budget_name: budgets[0].budget_name, budget_id: budgets[0].budget_id });
+                hasBudget === 0 ? setError("Please create a budget first"): setShowRemindForm(true);
               }}>Add Reminder</button>
             </div>
+            
           </div>
+          {error && <div className="text-danger">{error}</div>}
 
           {showRemindForm && (
             <Modal show={showRemindForm} onHide={() => setShowRemindForm(false)} centered>
