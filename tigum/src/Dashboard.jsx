@@ -498,11 +498,12 @@ function Dashboard() {
                                     value={expenseCategory}
                                     onChange={(e) => setExpenseCategory(e.target.value)}
                                 >
+                                    <option value="Others">Others</option>
                                     <option value="Food">Food</option>
                                     <option value="Transportation">Transportation</option>
                                     <option value="Entertainment">Entertainment</option>
                                     <option value="Utilities">Utilities</option>
-                                    <option value="Others">Others</option>
+                                    <option value="Bills">Bills</option>
                                 </select>
                             </div>
                             {error && <p className="text-danger">{error}</p>}

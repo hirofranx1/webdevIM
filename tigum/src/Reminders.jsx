@@ -260,11 +260,12 @@ function Reminders() {
                   <div className="mb-3">
                     <label htmlFor="reminderDate" className="form-label">Reminder Date</label>
                     <select onChange={(e) => setReminderCategory(e.target.value)} className="form-select">
-                      <option value="Others">Others</option>
-                      <option value="Transportation">Transportation</option>
-                      <option value="Entertainment">Entertainment</option>
-                      <option value="Utilities">Utilities</option>
-                      <option value="Food">Food</option>
+                    <option value="Others">Others</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Bills">Bills</option>
                     </select>
                   </div>
                   <div className="mb-3">

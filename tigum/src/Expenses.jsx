@@ -254,12 +254,14 @@ function Expenses() {
                                 <select
                                     onChange={(e) => setExpenseCategory(e.target.value)}
                                     placeholder={readObject.expense_category}
+                                    className="form-select bg-info bg-opacity-10 border border-secondary"
                                 >
                                     <option value="Others">Others</option>
                                     <option value="Food">Food</option>
                                     <option value="Transportation">Transportation</option>
+                                    <option value="Entertainment">Entertainment</option>
                                     <option value="Utilities">Utilities</option>
-                                    <option value="Rent">Rent</option>
+                                    <option value="Bills">Bills</option>
                                 </select>
                                 <input type="submit" className="btn btn-primary m-3" />
                                 <button className="btn btn-secondary    " onClick={() => setopenExpenseUpdateForm(false)}>
