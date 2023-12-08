@@ -291,7 +291,7 @@ function Dashboard() {
             {/* Right Sidebar */}
             <div className={`offcanvas offcanvas-end ${showRightSidebar ? 'show' : ''}`} tabIndex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
                 <div className="offcanvas-header">
-                    <h5 className="offcanvas-title" id="offcanvasRightLabel">Right Sidebar</h5>
+                    <h5 className="offcanvas-title" id="offcanvasRightLabel">Menu</h5>
                     <button type="button" className="btn-close" onClick={toggleRightSidebar} aria-label="Close"></button>
                 </div>
                 <div className="offcanvas-body d-flex flex-column">
@@ -404,7 +404,7 @@ function Dashboard() {
                 <div className="d-flex justify-content-center">
                     <table className="table table-striped" style={{ maxWidth: '23rem' }}>
                         <thead>
-                            <tr>
+                            <tr className='border-bottom border-dark'>
                                 <th scope="col">Name</th>
                                 <th scope="col">Amount</th>
                                 <th scope="col">Category</th>
@@ -417,7 +417,7 @@ function Dashboard() {
                                 const LocalDate = utcDate.toLocaleString();
 
                                 return (
-                                    <tr key={index}>
+                                    <tr key={index} className='border-bottom border-secondary'>
                                         <td>{expense.expense_name}</td>
                                         <td>{formatNumberToPHP(expense.expense_amount)}</td>
                                         <td>{expense.expense_category}</td>
@@ -441,16 +441,16 @@ function Dashboard() {
                                 <label htmlFor="expenseName" className="form-label">Expense Name</label>
                                 <input
                                     type="text"
-                                    className="form-control"
+                                    className="form-control bg-info bg-opacity-10 border border-secondary"
                                     id="expenseName"
                                     onChange={(e) => setExpenseName(e.target.value)}
                                 />
                             </div>
                             <div className="mb-3">
-                                <label htmlFor="expenseAmount" className="form-label">Expense Amount</label>
+                                <label htmlFor="expenseAmount " className="form-label">Expense Amount</label>
                                 <input
                                     type="number"
-                                    className="form-control"
+                                    className="form-control bg-info bg-opacity-10 border border-secondary"
                                     id="expenseAmount"
                                     value={expenseAmount}
                                     onChange={(e) => setExpenseAmount(e.target.value)}
@@ -459,7 +459,7 @@ function Dashboard() {
                             <div className="mb-3">
                                 <label htmlFor="expenseCategory" className="form-label">Expense Category</label>
                                 <select
-                                    className="form-select"
+                                    className="form-select bg-info bg-opacity-10 border border-secondary"
                                     id="expenseCategory"
                                     value={expenseCategory}
                                     onChange={(e) => setExpenseCategory(e.target.value)}

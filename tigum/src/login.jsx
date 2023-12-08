@@ -29,7 +29,7 @@ function Login() {
     axios.post("http://localhost:5000/login", { email, password })
       .then((response) => {
         setLocaluser(response.data.user);
-        setUser(response.data.user); 
+        setUser(response.data.user);
         setNavOut(true);
         localStorage.setItem("showIntro", JSON.stringify(true));
         localStorage.setItem("navOut", JSON.stringify(navOut));
@@ -49,11 +49,9 @@ function Login() {
 
   return (
     <>
-      <form onSubmit={(e) => handleLogin(e)} style={{ width: '45%'}} className='p-4 m-3 rounded-2 position-absolute top-50 start-50 translate-middle'>
-        <div className="container mb-5">
-          {/* Existing content */}
-          <img src={logo} alt='Logo' style={{ width: '200px' }}/>
-          {/* <h1 className="text-big mb-5 text-center">LOGO <small className="text-body-secondary">here!</small></h1> */}
+      <form onSubmit={(e) => handleLogin(e)} style={{ width: '45%' }} className='p-4 m-3 rounded-2 position-absolute top-50 start-50 translate-middle'>
+        <div className="container mb-5 text-start"> {/* Update: Added 'text-center' class */}
+          <img src={logo} alt='Logo' style={{ width: '200px', display: 'block', margin: '0 auto' }} className="mx-auto" /> {/* Update: Applied 'mx-auto' class and inline styles */}
 
           {/* Email Address */}
           <label className="text-start fw-bold mb-3">Email Address:</label>
@@ -88,6 +86,7 @@ function Login() {
           <p className="text-success-emphasis fs-4 mt-5">Spend Smarter <br />Save More</p>
         </div>
       </form>
+
     </>
   )
 }

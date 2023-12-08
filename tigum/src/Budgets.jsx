@@ -33,7 +33,7 @@ function Budget() {
   const [isNotDeleted, setIsNotDeleted] = useState(0);
   const [getSavingsIndex, setGetSavingsIndex] = useState(0);
   const [showActiveBudgets, setShowActiveBudgets] = useState(true);
-  
+
   const gotodashboard = () => {
     history("/dashboard");
   };
@@ -127,7 +127,7 @@ function Budget() {
       });
   }
 
-  async function addtoSaving(e){
+  async function addtoSaving(e) {
     e.preventDefault();
     const savings_id = getSavingsIndex;
     const budget_id = readObject.budget_id;
@@ -230,20 +230,25 @@ function Budget() {
   return (
     <>
       <div className="border border-info rounded-5 p-3 m-3">
-        <div className="d-flex justify-content-around">
+        <div className="d-flex justify-content-around border-bottom mb-4">
           <button className="btn btn-primary" onClick={gotodashboard}>Back to dashboard</button>
-          <button className="btn btn-primary"onClick={toggleForm}>+ add new budget</button>
+          <button className="btn btn-primary" onClick={toggleForm}>+ add new budget</button>
         </div>
 
         <div className="showCurrentBudget">
           {showForm && (
             <Modal show={true} backdrop={false} centered>
+              <Modal.Header>
+                <h5 className="display-6">
+                  Add Budget
+                </h5>
+              </Modal.Header>
               <Modal.Body>
                 <form onSubmit={handleBudget}>
                   <input
                     type="text"
                     placeholder="Budget Title"
-                    className="form-control form-control-lg mt-2"
+                    className="form-control form-control-lg mt-2 border-dark"
                     onChange={(e) => setTitle(e.target.value)}
                   />
                   <br />
@@ -251,7 +256,7 @@ function Budget() {
                   <input
                     type="number"
                     placeholder="Budget Amount"
-                    className="form-control form-control-lg mt-2"
+                    className="form-control form-control-lg mt-2 border-dark"
                     onChange={(e) => setAmount(e.target.value)}
                   />
                   <br />
@@ -305,8 +310,8 @@ function Budget() {
                     />
                   )}
                   <div className="mt-3">
-                  <input type="submit" value="Add" className="btn bg-black text-white mx-2"/>
-                  <button onClick={toggleForm} className="btn bg-black text-white">Cancel</button>
+                    <input type="submit" value="Add" className="btn bg-primary text-white mx-2" />
+                    <button onClick={toggleForm} className="btn bg-secondary text-white">Cancel</button>
                   </div>
                   {error && <p>{error}</p>}
                   <br />
@@ -314,101 +319,121 @@ function Budget() {
               </Modal.Body>
             </Modal>
           )}
-          <div className="d-flex justify-content-center">
-          <h3
-          className={showActiveBudgets ? 'text-decoration-underline' : ''}
-          onClick={() => {
-            if (!showActiveBudgets) {
-              toggleActiveInactive();
-            }
-          }}
-        >
-          Active Budgets
-        </h3>
-        <div style={{ marginLeft: '10px' }}></div>
-        <h3
-          className={!showActiveBudgets ? 'text-decoration-underline' : ''}
-          onClick={() => {
-            if (showActiveBudgets) {
-              toggleActiveInactive();
-            }
-          }}
-        >
-          Inactive Budgets
-        </h3>
+
+
+
+          <div className="container">
+            <div className="d-flex justify-content-center">
+              <ul className="nav nav-tabs">
+                <li className="nav-item">
+                  <button
+                    className={`nav-link ${showActiveBudgets ? 'active bg-dark text-white' : 'text-dark'}`}
+                    onClick={() => {
+                      if (!showActiveBudgets) {
+                        toggleActiveInactive();
+                      }
+                    }}
+                  >
+                    Active Budgets
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className={`nav-link ${!showActiveBudgets ? 'active bg-dark text-white' : 'text-dark'}`}
+                    onClick={() => {
+                      if (showActiveBudgets) {
+                        toggleActiveInactive();
+                      }
+                    }}
+                  >
+                    Inactive Budgets
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Content */}
+            <div className="tab-content">
+              <div className={`tab-pane fade ${showActiveBudgets ? 'show active bg-secondary text-white' : ''}`}>
+                {/* Content for Active Budgets */}
+                {showActiveBudgets && (
+                  <div className="Active Budgets">
+                    <table className="table table-striped bg-secondary text-white">
+                      <thead>
+                        {/* Table Header for Active Budgets */}
+                        <tr>
+                          <th className="bg-dark text-white">Budget Name</th>
+                          <th className="bg-dark text-white">Budget Amount</th>
+                          <th className="bg-dark text-white">Ends In</th>
+                          <th className="bg-dark text-white">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {budgets.map((budget, index) => {
+                          if (budget.is_deleted === 0)
+                            return (
+                              <tr key={index} className="border-bottom border-dark">
+                                <td>{budget.budget_name}</td>
+                                <td>{formatNumberToPHP(budget.budget_amount)}</td>
+                                <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
+                                <td>
+                                  <button
+                                    className="btn"
+                                    onClick={() => {
+                                      setReadObject(budget);
+                                      setShowDetails(true);
+                                      setPreviousAmount(budget.budget_amount);
+                                    }}
+                                  >
+                                    <BsThreeDots size={20} />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+              <div className={`tab-pane fade ${!showActiveBudgets ? 'show active bg-secondary text-white' : ''}`}>
+                {/* Content for Inactive Budgets */}
+                {!showActiveBudgets && (
+                  <div className="Inactive Budgets">
+                    <table className="table table-striped bg-secondary text-white">
+                      <thead>
+                        {/* Table Header for Inactive Budgets */}
+                        <tr>
+                          <th className="bg-dark text-white">Budget Name</th>
+                          <th className="bg-dark text-white">Budget Amount</th>
+                          <th className="bg-dark text-white">Ends In</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {budgets.map((budget, index) => {
+                          if (budget.is_deleted === 1)
+                            return (
+                              <tr key={index} className="border-bottom border-dark">
+                                <td>{budget.budget_name}</td>
+                                <td>{formatNumberToPHP(budget.budget_amount)}</td>
+                                <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
+                              </tr>
+                            );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className="Active Budgets">
-            {(showActiveBudgets && hasBudget > 0 && isNotDeleted > 0) && (
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Budget Name</th>
-                      <th>Budget Amount</th>
-                      <th>Ends In</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {budgets.map((budget, index) => {
-                    if(budget.is_deleted === 0)
-                    return (
-                      <tr key={index}>
-                        <td>{budget.budget_name}</td>
-                        <td>{formatNumberToPHP(budget.budget_amount)}</td>
-                        <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
-                        <td>
-                          <button className="btn"
-                            onClick={() => {
-                              setReadObject(budget);
-                              setShowDetails(true);
-                              setPreviousAmount(budget.budget_amount);
-                            }}
-                          >
-                            <BsThreeDots size={20} />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-
-            {(!showActiveBudgets && hasBudget > 0 && isDeleted > 0) && (
-                <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Budget Name</th>
-                    <th>Budget Amount</th>
-                    <th>Ends In</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {budgets.map((budget, index) => {
-                  if(budget.is_deleted === 1)
-                  return (
-                    <tr key={index}>
-                      <td>{budget.budget_name}</td>
-                      <td>{formatNumberToPHP(budget.budget_amount)}</td>
-                      <td>{new Date(budget.budget_end_date).toLocaleDateString()}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            )}
-
-          </div>
-        
-
-          
           {hasBudget === 0 && (
             <div className="d-flex justify-content-center">
               <h3>No Budgets</h3>
             </div>
           )
-        }
+          }
         </div>
 
         {showDetails && (
@@ -448,10 +473,10 @@ function Budget() {
               </div>
             </Modal.Body>
             <ModalFooter className="d-flex justify-content-around">
-              {(hasSavings > 0  && (readObject.remaining_budget > 0)) && <button className="btn btn-primary" onClick={() => {setAddSaving(true); setRemaining(readObject.remaining_budget)}}>Add to Savings</button>}
-              <button className="btn btn-primary" onClick={() => { setShowUpdateForm(true); setAmount(readObject.budget_amount); setEndDate(readObject.budget_end_date); setTitle(readObject.budget_name); }}>Update Budget</button>
-              <button className="btn btn-primary" onClick={() => setShowDeleteForm(true)}>Delete Budget</button>
-              <button className="btn btn-primary" onClick={() => setShowDetails(false)}>Cancel</button>
+              {(hasSavings > 0 && (readObject.remaining_budget > 0)) && <button className="btn btn-success" onClick={() => { setAddSaving(true); setRemaining(readObject.remaining_budget) }}>Add to Savings</button>}
+              <button className="btn btn-warning" onClick={() => { setShowUpdateForm(true); setAmount(readObject.budget_amount); setEndDate(readObject.budget_end_date); setTitle(readObject.budget_name); }}>Update Budget</button>
+              <button className="btn btn-danger" onClick={() => setShowDeleteForm(true)}>Delete Budget</button>
+              <button className="btn btn-secondary" onClick={() => setShowDetails(false)}>Cancel</button>
             </ModalFooter>
           </Modal>
 
@@ -529,7 +554,7 @@ function Budget() {
               <Modal.Title>Add to Savings</Modal.Title>
             </Modal.Header>
             <form onSubmit={addtoSaving}>
-            <Modal.Body>
+              <Modal.Body>
 
                 <h4>{readObject.budget_name}</h4>
                 <p>Remaining Amount: {formatNumberToPHP(remaining)}</p>
@@ -542,17 +567,17 @@ function Budget() {
                   id="savings"
                   value={getSavingsIndex}
                   onChange={(e) => setGetSavingsIndex(e.target.value)}>
-                      <option value="Choose">Choose</option>
+                  <option value="Choose">Choose</option>
                   {savings.map((savings, index) => {
-                      return (
-                          <option value={savings.savings_id} key={index}>{savings.savings_name}</option>
-                      )
+                    return (
+                      <option value={savings.savings_id} key={index}>{savings.savings_name}</option>
+                    )
                   })}
-                  </select>
-                  </Modal.Body>
-                  <Modal.Footer>
-              <input type="submit" className="btn btn-primary mx-2" value="Add to Savings" />
-              <button className="btn btn-primary" onClick={() => setAddSaving(false)}>Cancel</button>
+                </select>
+              </Modal.Body>
+              <Modal.Footer>
+                <input type="submit" className="btn btn-primary mx-2" value="Add to Savings" />
+                <button className="btn btn-primary" onClick={() => setAddSaving(false)}>Cancel</button>
               </Modal.Footer>
             </form>
           </Modal>
