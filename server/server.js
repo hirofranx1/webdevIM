@@ -75,7 +75,7 @@ app.post('/login', (req, res) => {
           return res.status(401).json({message: "Wrong Password"});
         }
     } else {
-      return res.status(401).json({message: "There is an error while logging in"});
+      return res.status(401).json({message: "Email not found"});
     }
   })
 });

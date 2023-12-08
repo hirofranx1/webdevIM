@@ -70,14 +70,15 @@ function Login() {
             className='form-control form-control-lg mb-3'
             onChange={(e) => setPassword(e.target.value)}
           />
-
+          {error && <p style={{ color: "red" }}>{error}</p>}
           {/* Login Button */}
+          <br />
           <div className="d-grid">
             <input type="submit" value="Login" className="btn bg-black text-white mb-3" />
           </div>
 
           {/* Error message */}
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          
         </div>
         <div className='text-center'>
           <small className="mt-5">Not registered yet? <a href="/register" className="text-black">Sign Up</a></small>
