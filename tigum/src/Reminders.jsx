@@ -205,10 +205,13 @@ function Reminders() {
 
   return (
     <Container className="d-flex justify-content-center mt-4">
-      <Card border="info" style={{ borderRadius: '5px', maxWidth: '600px' }}>
+      <Card border="info" style={{ borderRadius: '20px', maxWidth: '600px' }}>
+        <Card.Header>
+        <h2>Reminders</h2>
+          
+        </Card.Header>
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h2>Reminders</h2>
             <div>
               <button className="btn btn-secondary me-2" onClick={back}>Back</button>
               <button className="btn btn-primary" onClick={() => {
@@ -355,8 +358,8 @@ function Reminders() {
             <div>Reminder Budget: {reminderObject.budget_name && reminderObject.is_deleted ? <div className="text-decoration-line-through">{reminderObject.budget_name} </div>: <div>{reminderObject.budget_name}</div>}</div>
           </Modal.Body>
           <Modal.Footer>
-            <button onClick={() => setPayForm(true)} className="btn btn-primary">Pay</button>
-            <button className="btn btn-primary" onClick={() => {
+            <button onClick={() => setPayForm(true)} className="btn btn-success">Pay</button>
+            <button className="btn btn-warning" onClick={() => {
               setUpdateForm(true)
               setReminderName(reminderObject.reminder_name)
               setReminderDate(reminderObject.reminder_date)
@@ -364,8 +367,8 @@ function Reminders() {
               setReminderCategory(reminderObject.reminder_category)
               setReminderBudget({ budget_name: reminderObject.budget_name, budget_id: reminderObject.budget_id })
             }}>Update</button>
-            <button className="btn btn-primary" onClick={() => { setDeleteForm(true) }}>Delete</button>
-            <button onClick={() => setShowDetails(false)} className="btn btn-primary">Close</button>
+            <button className="btn btn-danger" onClick={() => { setDeleteForm(true) }}>Delete</button>
+            <button onClick={() => setShowDetails(false)} className="btn btn-secondary">Close</button>
           </Modal.Footer>
         </Modal>
       )}
@@ -388,8 +391,8 @@ function Reminders() {
               <br />
 
               <Modal.Footer>
-                <div><button type="submit" className="btn btn-primary">Pay</button></div>
-                <div><button onClick={() => setPayForm(false)} className="btn btn-primary">Close</button></div>
+                <div><button type="submit" className="btn btn-success">Pay</button></div>
+                <div><button onClick={() => setPayForm(false)} className="btn btn-secondary">Close</button></div>
               </Modal.Footer>
             </form>
           </Modal.Body>
@@ -467,8 +470,8 @@ function Reminders() {
               </div>
               {error && <p className="text-danger">{error}</p>}
               <Modal.Footer>
-                <input type="submit" className="btn btn-primary" value="Update" />
-                <button onClick={() => {setUpdateForm(false); setError("")}} className="btn btn-primary">Close</button>
+                <input type="submit" className="btn btn-warning" value="Update" />
+                <button onClick={() => {setUpdateForm(false); setError("")}} className="btn btn-secondary">Close</button>
               </Modal.Footer>
             </form>
           </Modal.Body>
@@ -492,8 +495,8 @@ function Reminders() {
             <div>Reminder Budget: {reminderObject.budget_name}</div>
           </Modal.Body>
           <Modal.Footer>
-            <button onClick={deleteReminder} className="btn btn-primary">Delete</button>
-            <button onClick={() => setDeleteForm(false)} className="btn btn-primary">Close</button>
+            <button onClick={deleteReminder} className="btn btn-danger">Delete</button>
+            <button onClick={() => setDeleteForm(false)} className="btn btn-secondary">Close</button>
           </Modal.Footer>
         </Modal>
       )}
