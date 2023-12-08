@@ -59,7 +59,7 @@ const validatePassword = (password, repassword) => {
   return (
     <form onSubmit={handleSignUp} className="container">
       <div className="mb-5">
-        <h1 className="text-big mb-5 text-center">LOGO <small className="text-body-secondary">here!</small></h1>
+        <img src={logo} alt='Logo' style={{ width: '200px', display: 'block', margin: '0 auto' }} className="mx-auto" />
         <div className="row">
           <div className="col-md-6">
             <label className="text-start fw-bold mb-3">First Name</label>
