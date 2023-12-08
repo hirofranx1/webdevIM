@@ -194,7 +194,7 @@ function Savings() {
             {/* kani i edit stella */}
 
             <div>
-                <button onClick={back} className="btn btn-primary m-3">Back</button>
+                <button onClick={back} className="btn btn-secondary m-3">Back</button>
 
                 <div className="container-fluid rounded-4 mb-4">
                     <div className="container px-0">
@@ -293,7 +293,7 @@ function Savings() {
                         </Modal.Body>
                         <Modal.Footer>
                             <input type="submit" className="btn btn-primary" value="Add Savings" />
-                            <button onClick={() => setShowAddForm(false)} className="btn btn-primary"> Cancel </button>
+                            <button onClick={() => setShowAddForm(false)} className="btn btn-secondary"> Cancel </button>
                         </Modal.Footer>
                     </form>
 
@@ -348,8 +348,8 @@ function Savings() {
                             setSavingsGoal(readSave.savings_goal);
                             setSavingsDate(readSave.savings_goal_date);
                         }} className="btn btn-primary"> Edit </button>
-                        <button onClick={() => setShowDeleteForm(true)} className="btn btn-primary"> Delete </button>
-                        <button onClick={() => setShowDetails(false)} className="btn btn-primary"> Cancel </button>
+                        <button onClick={() => setShowDeleteForm(true)} className="btn btn-danger"> Delete </button>
+                        <button onClick={() => setShowDetails(false)} className="btn btn-secondary"> Cancel </button>
                     </Modal.Footer>
                 </Modal>
             )}
@@ -381,7 +381,7 @@ function Savings() {
                         </Modal.Body>
                         <Modal.Footer>
                             <input type="submit" className="btn btn-primary" value="Edit Savings" />
-                            <button onClick={() => setShowEditForm(false)} className="btn btn-primary"> Cancel </button>
+                            <button onClick={() => setShowEditForm(false)} className="btn btn-secondary"> Cancel </button>
                         </Modal.Footer>
                     </form>
                 </Modal>
@@ -401,7 +401,7 @@ function Savings() {
                         </Modal.Body>
                         <Modal.Footer>
                             <input type="submit" className="btn btn-primary" value="Add Money" />
-                            <button onClick={() => setAddMoneyForm(false)} className="btn btn-primary"> Cancel </button>
+                            <button onClick={() => setAddMoneyForm(false)} className="btn btn-secondary"> Cancel </button>
                         </Modal.Footer>
                     </form>
                 </Modal>
@@ -421,7 +421,7 @@ function Savings() {
                         </Modal.Body>
                         <Modal.Footer>
                             <input type="submit" className="btn btn-primary" value="Subtract Money" />
-                            <button onClick={() => setSubtractMoneyForm(false)} className="btn btn-primary"> Cancel </button>
+                            <button onClick={() => setSubtractMoneyForm(false)} className="btn btn-secondary"> Cancel </button>
                         </Modal.Footer>
                     </form>
                 </Modal>
@@ -438,7 +438,7 @@ function Savings() {
                     </Modal.Body>
                     <Modal.Footer>
                         <button onClick={deleteSavings} className="btn btn-primary"> Delete </button>
-                        <button onClick={() => setShowDeleteForm(false)} className="btn btn-primary"> Cancel </button>
+                        <button onClick={() => setShowDeleteForm(false)} className="btn btn-secondary"> Cancel </button>
 
                     </Modal.Footer>
                 </Modal>
@@ -452,7 +452,7 @@ function Savings() {
                     </Modal.Body>
                     <Modal.Footer>
                         <button onClick={deleteMoney} className="btn btn-primary"> Delete </button>
-                        <button onClick={() => setDeleteMoneyForm(false)} className="btn btn-primary"> Cancel </button>
+                        <button onClick={() => setDeleteMoneyForm(false)} className="btn btn-secondary"> Cancel </button>
 
                     </Modal.Footer>
                 </Modal>
